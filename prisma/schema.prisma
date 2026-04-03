@@ -1,0 +1,380 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  PICKED_UP
+  DELIVERING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  QR_PROMPTPAY
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PointTransactionType {
+  EARN
+  REDEEM
+  MANUAL_ADD
+  MANUAL_DEDUCT
+  EXPIRED
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+}
+
+model User {
+  id              String   @id @default(cuid())
+  phone           String   @unique
+  name            String?
+  role            Role     @default(CUSTOMER)
+  email           String?  @unique
+  passwordHash    String?
+  pointsBalance   Int      @default(0)
+  otpCode         String?
+  otpExpiresAt    DateTime?
+  isActive        Boolean  @default(true)
+  lineNotifyToken String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  addresses           Address[]
+  orders              Order[]
+  pointsTransactions  PointTransaction[]
+  couponUsages        CouponUsage[]
+  reviews             Review[]
+  favorites           Favorite[]
+
+  @@map("users")
+}
+
+model Address {
+  id          String  @id @default(cuid())
+  userId      String
+  label       String  @default("บ้าน")
+  fullAddress String
+  subdistrict String?
+  district    String?
+  province    String?
+  postalCode  String?
+  lat         Float?
+  lng         Float?
+  isDefault   Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  image     String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  categoryId  String
+  name        String
+  description String?
+  price       Float
+  image       String?
+  isAvailable Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  salePrice   Float?
+  saleEndsAt  DateTime?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category      Category             @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+  optionGroups  ProductOptionGroup[]
+  reviews       Review[]
+  favorites     Favorite[]
+
+  @@map("products")
+}
+
+model ProductOptionGroup {
+  id          String   @id @default(cuid())
+  productId   String
+  name        String
+  isRequired  Boolean  @default(false)
+  maxChoices  Int      @default(1)
+  sortOrder   Int      @default(0)
+
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  options ProductOption[]
+
+  @@map("product_option_groups")
+}
+
+model ProductOption {
+  id         String  @id @default(cuid())
+  groupId    String
+  name       String
+  priceAdded Float   @default(0)
+  isDefault  Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  group ProductOptionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("product_options")
+}
+
+model DeliveryZone {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  deliveryFee  Float
+  minOrder     Float    @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("delivery_zones")
+}
+
+model Order {
+  id                  String        @id @default(cuid())
+  userId              String
+  orderType           OrderType     @default(DELIVERY)
+  addressId           String?
+  deliveryZoneId      String?
+  couponId            String?
+  riderId             String?
+  status              OrderStatus   @default(PENDING_PAYMENT)
+  paymentMethod       PaymentMethod
+  paymentStatus       PaymentStatus @default(PENDING)
+  subtotal            Float
+  discountAmount      Float         @default(0)
+  deliveryFee         Float         @default(0)
+  pointsUsed          Int           @default(0)
+  pointsEarned        Int           @default(0)
+  total               Float
+  note                String?
+  estimatedDeliveryAt DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  address      Address?      @relation(fields: [addressId], references: [id])
+  deliveryZone DeliveryZone? @relation(fields: [deliveryZoneId], references: [id])
+  coupon       Coupon?       @relation(fields: [couponId], references: [id])
+  rider        Rider?        @relation(fields: [riderId], references: [id])
+  items        OrderItem[]
+  payment      Payment?
+  couponUsage  CouponUsage?
+  reviews      Review[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Float
+  note      String?
+  options   Json?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String        @unique
+  method      PaymentMethod
+  amount      Float
+  refCode     String?
+  qrData      String?
+  slipUrl     String?
+  verifiedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
+}
+
+model LoyaltySetting {
+  id             String   @id @default(cuid())
+  earnRate       Float    @default(10)
+  redeemRate     Float    @default(100)
+  minRedeemPoints Int     @default(100)
+  maxRedeemPercent Float  @default(20)
+  updatedAt      DateTime @updatedAt
+
+  @@map("loyalty_settings")
+}
+
+model PointTransaction {
+  id           String               @id @default(cuid())
+  userId       String
+  orderId      String?
+  type         PointTransactionType
+  amount       Int
+  balanceAfter Int
+  note         String?
+  createdAt    DateTime             @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("point_transactions")
+}
+
+model Coupon {
+  id              String     @id @default(cuid())
+  code            String     @unique
+  name            String
+  type            CouponType
+  value           Float
+  minOrderAmount  Float      @default(0)
+  maxUses         Int?
+  usedCount       Int        @default(0)
+  maxUsesPerUser  Int        @default(1)
+  expiresAt       DateTime?
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  orders      Order[]
+  usages      CouponUsage[]
+
+  @@map("coupons")
+}
+
+model CouponUsage {
+  id        String   @id @default(cuid())
+  couponId  String
+  userId    String
+  orderId   String   @unique
+  usedAt    DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  order  Order  @relation(fields: [orderId], references: [id])
+
+  @@unique([couponId, userId])
+  @@map("coupon_usages")
+}
+
+model ShopSetting {
+  id             String   @id @default(cuid())
+  isOpen         Boolean  @default(true)
+  openTime       String   @default("08:00")
+  closeTime      String   @default("22:00")
+  closedDays     Int[]
+  closedMessage  String   @default("ร้านปิดอยู่ในขณะนี้")
+  updatedAt      DateTime @updatedAt
+
+  @@map("shop_settings")
+}
+
+model Rider {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String   @unique
+  vehiclePlate String?
+  isActive     Boolean  @default(true)
+  currentLat   Float?
+  currentLng   Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("riders")
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String?
+  imageUrl  String
+  linkUrl   String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banners")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  orderId   String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId, orderId])
+  @@map("reviews")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}

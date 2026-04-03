@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Next.js build cache
+.next
+out
+
+# Git
+.git
+.gitignore
+
+# Environment files (NEVER ship secrets into the image)
+.env
+.env.*
+!.env.production.example
+
+# Dev tools
+*.md
+.eslintrc*
+eslint.config*
+.prettierrc*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docker files (not needed inside the image)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+nginx
+init-ssl.sh
+
+# Prisma dev artifacts
+prisma/migrations/*/migration_lock.toml
+
+# Tests
+__tests__
+*.test.ts
+*.spec.ts
+coverage
+
+# Logs
+logs
+*.log
