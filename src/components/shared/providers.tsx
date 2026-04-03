@@ -36,7 +36,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthInitializer />
       {children}
-      <Toaster richColors position="top-center" />
+      <Toaster richColors position="top-center" toastOptions={{ style: { fontFamily: "var(--font-sans), Kanit, sans-serif" } }} />
     </QueryClientProvider>
   );
 }

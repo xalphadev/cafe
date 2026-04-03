@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Plus, Minus, X, ChevronUp, ChevronDown, UtensilsCrossed } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { useCartStore } from "@/store/cart";
+import { useCartStore, cartKey } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
 import type { SelectedOption, ProductWithCategory, ProductOptionGroup } from "@/types";
 import { toast } from "sonner";
@@ -83,23 +83,6 @@ export function ProductDetailSheet({ product, open, onClose, editKey, initialOpt
         next = [...cur, optionId];
       }
 
-      // Auto-collapse fulfilled group & scroll to next unfulfilled
-      const isFulfilled = next.length > 0;
-      if (isFulfilled && group.isRequired) {
-        setCollapsed(c => ({ ...c, [group.id]: true }));
-        // Find next group that isn't fulfilled yet
-        const allGroups = product?.optionGroups ?? [];
-        const currentIdx = (allGroups as any[]).findIndex((g: any) => g.id === group.id);
-        const nextGroup = (allGroups as any[]).slice(currentIdx + 1).find((g: any) => {
-          const sel = g.id === group.id ? next : (prev[g.id] ?? []);
-          return g.isRequired && sel.length === 0;
-        });
-        if (nextGroup) {
-          setTimeout(() => {
-            groupRefs.current[nextGroup.id]?.scrollIntoView({ behavior: "smooth", block: "center" });
-          }, 180);
-        }
-      }
       return { ...prev, [group.id]: next };
     });
   };

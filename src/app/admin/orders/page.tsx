@@ -17,17 +17,13 @@ import { formatPrice, formatDateTime, formatPhone } from "@/lib/format";
 import { ORDER_STATUS_MAP, PAYMENT_METHOD_MAP, type OrderWithItems } from "@/types";
 import { cn } from "@/lib/utils";
 
-// ── transitions ───────────────────────────────────────────────────────────
+// ── transitions (pickup-only) ─────────────────────────────────────────────
 const STATUS_TRANSITIONS: Record<string, string> = {
-  PENDING: "CONFIRMED", CONFIRMED: "PREPARING",
-  PREPARING: "READY", READY: "PICKED_UP",
-  PICKED_UP: "DELIVERING", DELIVERING: "COMPLETED",
-};
-const STATUS_TRANSITIONS_PICKUP: Record<string, string> = {
   PENDING: "CONFIRMED", CONFIRMED: "PREPARING",
   PREPARING: "READY", READY: "COMPLETED",
 };
-const ALL_STATUSES = ["ALL","PENDING","CONFIRMED","PREPARING","READY","DELIVERING","COMPLETED","CANCELLED","PENDING_PAYMENT"];
+const STATUS_TRANSITIONS_PICKUP = STATUS_TRANSITIONS;
+const ALL_STATUSES = ["PENDING_PAYMENT", "PENDING", "CONFIRMED", "PREPARING", "READY", "COMPLETED", "CANCELLED"];
 
 // ── per-status design tokens ───────────────────────────────────────────────
 type StatusTheme = { bar: string; pill: string; pillText: string; dot: string };
@@ -86,7 +82,7 @@ function StatusPill({ status, size = "sm" }: { status: string; size?: "sm" | "md
 
 export default function AdminOrdersPage() {
   const queryClient = useQueryClient();
-  const [selectedStatus, setSelectedStatus] = useState("ALL");
+  const [selectedStatus, setSelectedStatus] = useState("PENDING");
   const [selectedOrder, setSelectedOrder] = useState<OrderWithItems | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [newOrderAlert, setNewOrderAlert] = useState(false); // kept for refetch trigger only
@@ -104,6 +100,12 @@ export default function AdminOrdersPage() {
     queryFn: () => fetch(`/api/admin/orders?status=${selectedStatus}`).then(r => r.json()).then(d => d.data),
     refetchInterval: 15000,
   });
+
+  const { data: statusCounts = {} } = useQuery<Record<string, number>>({
+    queryKey: ["admin-orders-counts"],
+    queryFn: () => fetch("/api/admin/orders/counts").then(r => r.json()).then(d => d.data),
+    refetchInterval: 15000,
+  });
   // SSE: just refresh order list when new order arrives (sound/banner handled by NewOrderAlert in layout)
   useEffect(() => {
     const es = new EventSource("/api/sse/orders");
@@ -113,6 +115,7 @@ export default function AdminOrdersPage() {
         if (ev.type === "new_order") {
           setNewOrderAlert(true);
           queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+          queryClient.invalidateQueries({ queryKey: ["admin-orders-counts"] });
           queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
         }
       } catch {}
@@ -131,6 +134,7 @@ export default function AdminOrdersPage() {
       if (!d.success) { toast.error(d.error); return; }
       toast.success(`"${ORDER_STATUS_MAP[newStatus]?.label}" แล้ว`);
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-orders-counts"] });
       if (selectedOrder?.id === orderId)
         setSelectedOrder((p: any) => p ? { ...p, status: newStatus } : null);
     } finally { setUpdating(null); }
@@ -159,48 +163,72 @@ export default function AdminOrdersPage() {
   return (
     <div className="max-w-2xl mx-auto min-h-screen bg-slate-100">
 
-      {/* ══ Header ══════════════════════════════════════════ */}
-      <div className="sticky top-0 z-30 bg-white shadow-sm px-4 py-3 flex items-center gap-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="font-bold text-[15px]">ออเดอร์</h1>
-            {newOrderAlert && (
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inset-0 rounded-full bg-amber-400 opacity-75" />
-                <span className="relative rounded-full h-2.5 w-2.5 bg-amber-500 flex" />
-              </span>
-            )}
-          </div>
-          <p className="text-[11px] text-muted-foreground">{data?.total ?? 0} รายการ</p>
+      {/* ══ Header + Tabs (combined) ═════════════════════════ */}
+      <div className="sticky top-0 z-30 bg-white shadow-sm">
+        {/* Row 1: title + total + refresh */}
+        <div className="px-4 pt-3 pb-1 flex items-center gap-2">
+          <h1 className="font-bold text-[15px] flex-shrink-0">ออเดอร์</h1>
+          <span className="text-[12px] text-muted-foreground flex-shrink-0">
+            {data?.total ?? 0} รายการ
+          </span>
+          {newOrderAlert && (
+            <span className="relative flex h-2 w-2 flex-shrink-0">
+              <span className="animate-ping absolute inset-0 rounded-full bg-amber-400 opacity-75" />
+              <span className="relative rounded-full h-2 w-2 bg-amber-500" />
+            </span>
+          )}
+          <div className="flex-1" />
+          <button
+            onClick={() => { refetch(); setNewOrderAlert(false); }}
+            className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-50 transition-colors flex-shrink-0"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
         </div>
-        <button
-          onClick={() => { refetch(); setNewOrderAlert(false); }}
-          className="w-9 h-9 flex items-center justify-center rounded-xl border border-border hover:bg-slate-50 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4 text-muted-foreground" />
-        </button>
-      </div>
 
-      {/* ══ Status tabs ═════════════════════════════════════ */}
-      <div className="sticky top-[56px] z-20 bg-white border-b border-border/50 px-3 py-2">
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
-          {ALL_STATUSES.map(s => {
-            const active = selectedStatus === s;
-            const t = STATUS_THEME[s];
-            return (
-              <button key={s} onClick={() => setSelectedStatus(s)}
-                className={cn(
-                  "flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all",
-                  active
-                    ? (t ? cn(t.pill, t.pillText, "ring-1", "ring-" + t.dot.replace("bg-","")) : "bg-primary text-white")
-                    : "bg-slate-100 text-slate-500"
-                )}
-              >
-                {active && t && <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", t.dot)} />}
-                {s === "ALL" ? "ทั้งหมด" : ORDER_STATUS_MAP[s]?.label ?? s}
-              </button>
-            );
-          })}
+        {/* Row 2: status tabs */}
+        <div className="px-3 pb-2.5">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide py-1 px-0.5">
+            {ALL_STATUSES.map(s => {
+              const active = selectedStatus === s;
+              const t = STATUS_THEME[s];
+              const count = statusCounts[s] ?? 0;
+              const showCount = count > 0;
+              const OUTLINE_COLOR: Record<string, string> = {
+                PENDING: "#f59e0b", PENDING_PAYMENT: "#eab308",
+                CONFIRMED: "#3b82f6", PREPARING: "#8b5cf6",
+                READY: "#14b8a6", PICKED_UP: "#06b6d4",
+                DELIVERING: "#6366f1", COMPLETED: "#22c55e",
+                CANCELLED: "#94a3b8",
+              };
+              return (
+                <button
+                  key={s}
+                  onClick={() => setSelectedStatus(s)}
+                  className={cn(
+                    "relative flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all",
+                    active
+                      ? (t ? cn(t.pill, t.pillText) : "bg-primary text-white")
+                      : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                  )}
+                  style={active ? { outline: `2px solid ${t ? OUTLINE_COLOR[s] : "var(--primary)"}`, outlineOffset: "1px" } : undefined}
+                >
+                  {active && t && <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", t.dot)} />}
+                  {s === "ALL" ? "ทั้งหมด" : ORDER_STATUS_MAP[s]?.label ?? s}
+                  {showCount && (
+                    <span className={cn(
+                      "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold leading-none",
+                      active
+                        ? (t ? "bg-white/70 " + t.pillText : "bg-white/30 text-white")
+                        : "bg-slate-300 text-slate-600"
+                    )}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -240,127 +268,101 @@ export default function AdminOrdersPage() {
             <div key={order.id}
               className={cn(
                 "bg-white rounded-2xl overflow-hidden shadow-sm transition-all",
-                urgent && "shadow-amber-100 shadow-md ring-1 ring-amber-200"
+                urgent && "ring-1 ring-amber-200"
               )}
             >
-              {/* Color bar */}
-              <div className={cn("h-1", t.bar)} />
+              {/* Left-border status stripe + content */}
+              <div className="flex">
+                <div className={cn("w-1 flex-shrink-0 rounded-l-2xl", t.bar)} />
 
-              {/* Card body */}
-              <div className="p-4 cursor-pointer active:bg-slate-50/80 transition-colors"
-                onClick={() => { setSelectedOrder(order); setEta(""); }}
-              >
-                <div className="flex items-start gap-3">
-                  {/* Avatar */}
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0",
-                    t.pill, t.pillText
-                  )}>
-                    {initials(customer.name, customer.phone)}
+                <div className="flex-1 min-w-0 px-3 py-3">
+
+                  {/* Row 1: ID + status pill + price */}
+                  <div className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => { setSelectedOrder(order); setEta(""); }}>
+                    <span className="font-bold text-[13px] font-mono tracking-wider flex-shrink-0">
+                      #{order.id.slice(-6).toUpperCase()}
+                    </span>
+                    <StatusPill status={order.status} />
+                    {(order.payment as any)?.slipUrl && (
+                      <span className="text-[10px] font-bold bg-orange-50 text-orange-500 px-1.5 py-0.5 rounded-full flex-shrink-0">สลิป</span>
+                    )}
+                    <div className="flex-1" />
+                    <span className="font-extrabold text-[15px] text-primary flex-shrink-0">{formatPrice(order.total)}</span>
                   </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-[13px] font-mono tracking-wider">
-                            #{order.id.slice(-6).toUpperCase()}
-                          </span>
-                          <StatusPill status={order.status} />
+                  {/* Row 2: customer + time + images */}
+                  <div className="flex items-center gap-2 mt-1.5 cursor-pointer"
+                    onClick={() => { setSelectedOrder(order); setEta(""); }}>
+                    {/* Images (small, overlapping) */}
+                    <div className="flex -space-x-1.5 flex-shrink-0">
+                      {order.items.slice(0, 3).map((item: any, idx: number) => (
+                        <div key={idx} className="w-7 h-7 rounded-lg overflow-hidden bg-slate-100 ring-1 ring-white flex-shrink-0">
+                          {item.product.image
+                            ? <Image src={item.product.image} alt={item.product.name} width={28} height={28} className="w-full h-full object-cover" />
+                            : <div className="w-full h-full flex items-center justify-center"><CupSoda className="w-3.5 h-3.5 text-slate-300" /></div>
+                          }
                         </div>
-                        <p className="font-semibold text-sm mt-0.5 truncate">
-                          {customer.name || formatPhone(customer.phone)}
-                        </p>
-                        <p className="text-[12px] text-muted-foreground mt-0.5 line-clamp-1">
-                          {order.items.slice(0,2).map((i: any) => `${i.product.name} ×${i.quantity}`).join("  ·  ")}
-                          {order.items.length > 2 && <span className="text-primary font-medium">  +{order.items.length - 2}</span>}
-                        </p>
-                        {/* Product image strip */}
-                        <div className="flex items-center gap-1 mt-2">
-                          {order.items.slice(0, 4).map((item: any, idx: number) => (
-                            <div key={idx} className="w-9 h-9 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-white ring-1 ring-slate-200/60">
-                              {item.product.image
-                                ? <Image src={item.product.image} alt={item.product.name} width={36} height={36} className="w-full h-full object-cover" />
-                                : <div className="w-full h-full flex items-center justify-center"><CupSoda className="w-4 h-4 text-slate-300" /></div>
-                              }
-                            </div>
-                          ))}
-                          {order.items.length > 4 && (
-                            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-[11px] font-bold text-slate-400 ring-1 ring-slate-200/60">
-                              +{order.items.length - 4}
-                            </div>
-                          )}
+                      ))}
+                      {order.items.length > 3 && (
+                        <div className="w-7 h-7 rounded-lg bg-slate-100 ring-1 ring-white flex items-center justify-center text-[10px] font-bold text-slate-400">
+                          +{order.items.length - 3}
                         </div>
-                      </div>
-
-                      {/* Price + meta */}
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-base text-primary leading-tight">{formatPrice(order.total)}</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{timeAgo(order.createdAt)}</p>
-                      </div>
-                    </div>
-
-                    {/* Sub-badges */}
-                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-violet-50 text-violet-600 px-2 py-0.5 rounded-full">
-                        <Store className="w-3 h-3" />รับเอง
-                      </span>
-                      {(order.payment as any)?.slipUrl && (
-                        <span className="text-[11px] font-medium bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full">แนบสลิป</span>
                       )}
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 ml-auto" />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold truncate text-slate-700">
+                        {customer.name || formatPhone(customer.phone)}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground line-clamp-1">
+                        {order.items.slice(0,2).map((i: any) => `${i.product.name} ×${i.quantity}`).join(" · ")}
+                        {order.items.length > 2 && <span className="text-primary"> +{order.items.length - 2}</span>}
+                      </p>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground flex-shrink-0">{timeAgo(order.createdAt)}</span>
                   </div>
+
+                  {/* Row 3: action buttons (compact, inside card) */}
+                  {(next || order.status === "PENDING" || order.status === "PENDING_PAYMENT") && (
+                    <div className="flex gap-2 mt-2.5">
+                      {next && (
+                        <button
+                          onClick={() => setConfirmAction({
+                            title: `เปลี่ยนเป็น "${ORDER_STATUS_MAP[next]?.label}"?`,
+                            description: `#${order.id.slice(-6).toUpperCase()}`,
+                            confirmLabel: ORDER_STATUS_MAP[next]?.label,
+                            variant: "primary",
+                            action: () => updateStatus(order.id, next),
+                          })}
+                          disabled={updating === order.id}
+                          className="flex-1 h-9 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1.5 disabled:opacity-40 active:opacity-70 transition-opacity bg-primary"
+                        >
+                          {updating === order.id
+                            ? <span className="text-[11px]">กำลังอัปเดต...</span>
+                            : <>{STATUS_ICON[next]}<span>{ORDER_STATUS_MAP[next]?.label}</span></>
+                          }
+                        </button>
+                      )}
+                      {(order.status === "PENDING" || order.status === "PENDING_PAYMENT") && (
+                        <button
+                          onClick={() => setConfirmAction({
+                            title: "ยกเลิกออเดอร์?",
+                            description: `#${order.id.slice(-6).toUpperCase()} จะถูกยกเลิก`,
+                            confirmLabel: "ยกเลิก",
+                            variant: "danger",
+                            action: () => updateStatus(order.id, "CANCELLED"),
+                          })}
+                          disabled={updating === order.id}
+                          className="h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-40 active:opacity-70 transition-opacity border border-red-100 bg-red-50"
+                        >
+                          <XCircle className="w-4 h-4 text-red-400" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                 </div>
               </div>
-
-              {/* Action bar */}
-              {(next || order.status === "PENDING" || order.status === "PENDING_PAYMENT") && (
-                <div className="px-3 pb-3 flex gap-2">
-                  {next && (
-                    <button
-                      onClick={() => setConfirmAction({
-                        title: `เปลี่ยนสถานะเป็น "${ORDER_STATUS_MAP[next]?.label}"?`,
-                        description: `ออเดอร์ #${order.id.slice(-6).toUpperCase()}`,
-                        confirmLabel: ORDER_STATUS_MAP[next]?.label,
-                        variant: "primary",
-                        action: () => updateStatus(order.id, next),
-                      })}
-                      disabled={updating === order.id}
-                      className={cn(
-                        "flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-opacity active:opacity-70",
-                        "bg-primary text-white disabled:opacity-40"
-                      )}
-                    >
-                      {updating === order.id ? (
-                        <span className="text-xs">กำลังอัปเดต...</span>
-                      ) : (
-                        <>
-                          {STATUS_ICON[next]}
-                          {ORDER_STATUS_MAP[next]?.label}
-                        </>
-                      )}
-                    </button>
-                  )}
-                  {(order.status === "PENDING" || order.status === "PENDING_PAYMENT") && (
-                    <button
-                      onClick={() => setConfirmAction({
-                        title: "ยกเลิกออเดอร์?",
-                        description: `ออเดอร์ #${order.id.slice(-6).toUpperCase()} จะถูกยกเลิก`,
-                        confirmLabel: "ยกเลิกออเดอร์",
-                        variant: "danger",
-                        action: () => updateStatus(order.id, "CANCELLED"),
-                      })}
-                      disabled={updating === order.id}
-                      className="h-11 px-4 rounded-xl border border-red-100 bg-red-50 text-red-500 text-sm font-semibold flex items-center gap-1.5 flex-shrink-0 disabled:opacity-40 active:opacity-70 transition-opacity"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      <span className="hidden sm:inline">ยกเลิก</span>
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           );
         })}
