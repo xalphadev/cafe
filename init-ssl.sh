@@ -7,7 +7,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -e
 
-DOMAIN="cafe.xalpha.co.th"
+DOMAIN="coffee.xalpha.co.th"
 EMAIL="admin@xalpha.co.th"          # <-- เปลี่ยนเป็น email จริง
 
 # ── ตรวจสอบว่า cert มีอยู่แล้วหรือไม่ ──────────────────────────────────────
@@ -25,7 +25,7 @@ echo "▶ Switching nginx to HTTP-only mode for ACME challenge..."
 cat > nginx/conf.d/app.conf << 'NGINX_HTTP'
 server {
     listen 80;
-    server_name cafe.xalpha.co.th;
+    server_name coffee.xalpha.co.th;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
