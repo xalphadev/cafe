@@ -225,10 +225,10 @@ export default function OrderDetailPage() {
 
       {/* ── Colored hero header ── */}
       <div
-        className="sticky top-0 z-40"
+        className="sticky-header"
         style={{ background: isCancelled ? "#fee2e2" : isCompleted ? "#dcfce7" : meta.headerBg }}
       >
-        <div className="flex items-center gap-2 px-4 h-14">
+        <div className="flex items-center gap-2 px-4 h-14 pt-2">
           <Link href="/orders">
             <div className="w-8 h-8 rounded-full bg-black/8 flex items-center justify-center">
               <ChevronLeft className="w-5 h-5 text-gray-700" />

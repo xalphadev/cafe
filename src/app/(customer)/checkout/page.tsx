@@ -106,8 +106,9 @@ export default function CheckoutPage() {
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
 
       {/* ── Header ── */}
-      <header className="flex-shrink-0 bg-white/90 backdrop-blur-md border-b border-gray-100 z-40">
-        <div className="flex items-center gap-3 px-4 h-14">
+      <header className="flex-shrink-0 bg-white/90 backdrop-blur-md border-b border-gray-100 z-40"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <div className="flex items-center gap-3 px-4 h-14 pt-2">
           <button
             onClick={() => router.push("/cart")}
             className="w-9 h-9 rounded-full flex items-center justify-center"

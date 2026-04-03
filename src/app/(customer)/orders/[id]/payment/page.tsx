@@ -161,8 +161,8 @@ export default function PaymentPage() {
     <div className="flex flex-col min-h-screen bg-gray-50">
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <div className="flex items-center gap-3 px-4 h-14">
+      <header className="sticky-header bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div className="flex items-center gap-3 px-4 h-14 pt-2">
           <button
             onClick={() => router.push(`/orders/${params.id}`)}
             className="w-9 h-9 rounded-full flex items-center justify-center"

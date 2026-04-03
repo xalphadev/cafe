@@ -64,6 +64,8 @@ model User {
   pointsBalance   Int      @default(0)
   otpCode         String?
   otpExpiresAt    DateTime?
+  pin             String?
+  pinSetAt        DateTime?
   isActive        Boolean  @default(true)
   lineNotifyToken String?
   createdAt       DateTime @default(now())

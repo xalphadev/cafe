@@ -225,7 +225,7 @@ export default function ProfilePage() {
 /* ─── Shared Back Header ─────────────────────────────────────────── */
 function BackHeader({ title, onBack, action }: { title: string; onBack: () => void; action?: React.ReactNode }) {
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 h-14 flex items-center gap-3"
+    <header className="sticky-header bg-white/95 backdrop-blur-md px-4 h-14 pt-2 flex items-center gap-3"
       style={{ borderBottom: "1px solid oklch(0.93 0.016 148)" }}>
       <button
         onClick={onBack}

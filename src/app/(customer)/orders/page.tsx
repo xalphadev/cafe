@@ -290,8 +290,8 @@ export default function OrdersPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100">
-        <div className="px-4 h-14 flex items-center gap-2">
+      <header className="sticky-header bg-white/95 backdrop-blur-md border-b border-gray-100">
+        <div className="px-4 h-14 pt-2 flex items-center gap-2">
           <h1 className="font-semibold text-base text-gray-800">ออเดอร์ของฉัน</h1>
           {!isLoading && orders.length > 0 && (
             <span className="text-xs bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">

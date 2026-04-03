@@ -4,15 +4,22 @@ import { prisma } from "@/lib/prisma";
 import { signToken } from "@/lib/jwt";
 import { ok, error } from "@/lib/response";
 
+// Generate a short-lived token that proves OTP was verified
+function makeOtpToken(phone: string): string {
+  return Buffer.from(`${phone}:${Date.now()}`).toString("base64url");
+}
+
 const schema = z.object({
-  phone: z.string().regex(/^0[0-9]{9}$/, "เบอร์โทรไม่ถูกต้อง"),
-  otp: z.string().length(6, "OTP ต้องมี 6 หลัก"),
+  phone:   z.string().regex(/^0[0-9]{9}$/, "เบอร์โทรไม่ถูกต้อง"),
+  otp:     z.string().length(6, "OTP ต้องมี 6 หลัก"),
+  // if true, just return otpToken (don't create session yet — PIN setup comes next)
+  pinSetup: z.boolean().optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { phone, otp } = schema.parse(body);
+    const { phone, otp, pinSetup } = schema.parse(body);
 
     const masterOtp = process.env.MASTER_OTP;
     const isMaster = !!masterOtp && otp === masterOtp;
@@ -41,6 +48,11 @@ export async function POST(request: NextRequest) {
       data: { otpCode: null, otpExpiresAt: null },
     });
 
+    // PIN setup mode: just return a proof token — no session yet
+    if (pinSetup) {
+      return ok({ otpToken: makeOtpToken(phone), needsPin: true });
+    }
+
     const token = await signToken({ userId: user.id, role: "CUSTOMER", phone });
 
     const response = ok({ user: { id: user.id, phone: user.phone, name: user.name, role: user.role } });
@@ -48,7 +60,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
 

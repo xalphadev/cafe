@@ -38,7 +38,9 @@
   --radius: 0.75rem;
 
   /* Safe area for mobile */
+  --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --header-top: env(safe-area-inset-top, 0px);
 }
 
 @theme inline {
@@ -109,6 +111,14 @@ body {
 /* Bottom nav safe area */
 .pb-safe {
   padding-bottom: calc(4rem + var(--safe-area-bottom));
+}
+
+/* Sticky header with notch/Dynamic Island safe area */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding-top: var(--safe-area-top);
 }
 
 /* Custom scrollbar */

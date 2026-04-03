@@ -55,7 +55,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="flex flex-col min-h-screen pb-24 bg-background">
-        <header className="sticky top-0 z-40 bg-white px-4 h-14 flex items-center gap-3"
+        <header className="sticky-header bg-white px-4 h-14 pt-2 flex items-center gap-3"
           style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.93 0.016 148)" }}>
           <button onClick={() => router.push("/menu")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-transform"
             style={{ background: G.primaryLt }}>
@@ -89,7 +89,7 @@ export default function CartPage() {
     <div className="flex flex-col min-h-screen pb-40 bg-background">
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 bg-white px-4 h-14 flex items-center gap-3"
+      <header className="sticky-header bg-white px-4 h-14 pt-2 flex items-center gap-3"
         style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.93 0.016 148)" }}>
         <button onClick={() => router.push("/menu")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
           style={{ background: G.primaryLt }}>

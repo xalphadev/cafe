@@ -97,7 +97,7 @@ export function MenuClient() {
     <div className="flex flex-col min-h-screen bg-background">
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 bg-white" style={{ boxShadow: "0 1px 0 oklch(0.93 0.016 148)" }}>
+      <header className="sticky-header bg-white" style={{ boxShadow: "0 1px 0 oklch(0.93 0.016 148)" }}>
         <div className="px-4 pt-4 pb-3">
           {/* Top row */}
           <div className="flex items-center justify-between mb-3">
