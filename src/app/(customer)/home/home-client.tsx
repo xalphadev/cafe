@@ -112,7 +112,7 @@ export default function HomeClient() {
             <Coffee className="w-7 h-7 opacity-90" />
             ช่วงเวลาคาเฟ่
           </h1>
-          <p className="text-sm text-white/70 mt-1">เครื่องดื่มและของหวานสดใหม่ ส่งถึงบ้าน</p>
+          <p className="text-sm text-white/70 mt-1">เครื่องดื่มสดใหม่ รับหน้าร้าน</p>
 
           <div className="flex items-center gap-3 mt-4">
             <div className="flex items-center gap-1.5 text-white/80 text-xs">
@@ -121,7 +121,7 @@ export default function HomeClient() {
             </div>
             <div className="flex items-center gap-1.5 text-white/80 text-xs">
               <Store className="w-3.5 h-3.5" />
-              <span>รับหน้าร้าน / จัดส่ง</span>
+              <span>รับหน้าร้านเท่านั้น</span>
             </div>
           </div>
         </div>

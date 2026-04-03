@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: "ช่วงเวลาคาเฟ่",
     template: "%s | ช่วงเวลาคาเฟ่",
   },
-  description: "สั่งเครื่องดื่มและอาหารส่งถึงบ้าน สะดวก รวดเร็ว",
+  description: "สั่งเครื่องดื่มสดใหม่ รับหน้าร้านได้เลย",
   appleWebApp: { capable: true, statusBarStyle: "default" },
 };
 

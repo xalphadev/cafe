@@ -25,10 +25,16 @@ interface Props {
   product: ProductWithCategory | null;
   open: boolean;
   onClose: () => void;
+  /** when set, sheet is in edit mode: pre-fill and update the cart item */
+  editKey?: string;
+  initialOptions?: SelectedOption[];
+  initialNote?: string;
+  initialQty?: number;
 }
 
-export function ProductDetailSheet({ product, open, onClose }: Props) {
-  const { addItem } = useCartStore();
+export function ProductDetailSheet({ product, open, onClose, editKey, initialOptions, initialNote, initialQty }: Props) {
+  const { addItem, removeItem, updateQuantity } = useCartStore();
+  const isEdit = !!editKey;
   const [qty, setQty] = useState(1);
   const [selected, setSelected] = useState<Record<string, string[]>>({});
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -38,18 +44,24 @@ export function ProductDetailSheet({ product, open, onClose }: Props) {
 
   useEffect(() => {
     if (!product) return;
-    setQty(1);
-    setNote("");
+    // Build initial selections from initialOptions (edit mode) or defaults (add mode)
     const defaults: Record<string, string[]> = {};
     const collapseState: Record<string, boolean> = {};
     (product.optionGroups ?? []).forEach((g: any) => {
-      const def = g.options.filter((o: any) => o.isDefault).map((o: any) => o.id);
-      defaults[g.id] = def.length > 0 ? [def[0]] : [];
-      collapseState[g.id] = false; // all expanded initially
+      if (isEdit && initialOptions) {
+        defaults[g.id] = initialOptions.filter(o => o.groupId === g.id).map(o => o.optionId);
+        collapseState[g.id] = defaults[g.id].length > 0;
+      } else {
+        const def = g.options.filter((o: any) => o.isDefault).map((o: any) => o.id);
+        defaults[g.id] = def.length > 0 ? [def[0]] : [];
+        collapseState[g.id] = false;
+      }
     });
     setSelected(defaults);
     setCollapsed(collapseState);
-  }, [product]);
+    setQty(isEdit && initialQty ? initialQty : 1);
+    setNote(isEdit && initialNote ? initialNote : "");
+  }, [product, isEdit, initialOptions, initialNote, initialQty]);
 
   if (!product) return null;
 
@@ -106,7 +118,6 @@ export function ProductDetailSheet({ product, open, onClose }: Props) {
 
   const handleAddToCart = () => {
     if (missingRequired.length > 0) {
-      // Expand and scroll to first missing group
       const firstMissing = groups.find((g: any) => g.isRequired && (selected[g.id]?.length ?? 0) === 0);
       if (firstMissing) {
         setCollapsed(c => ({ ...c, [firstMissing.id]: false }));
@@ -123,10 +134,21 @@ export function ProductDetailSheet({ product, open, onClose }: Props) {
         return { groupId: g.id, groupName: g.name, optionId: optId, optionName: opt.name, priceAdded: opt.priceAdded };
       })
     );
-    for (let i = 0; i < qty; i++) {
+    if (isEdit && editKey) {
+      removeItem(editKey);
       addItem({ productId: product.id, name: product.name, price: product.price, image: product.image ?? null, options: selectedOptions, note });
+      // set correct qty (addItem defaults to 1)
+      if (qty > 1) {
+        const newKey = cartKey(product.id, selectedOptions);
+        updateQuantity(newKey, qty);
+      }
+      toast.success("อัปเดต " + product.name + " แล้ว", { duration: 1500 });
+    } else {
+      for (let i = 0; i < qty; i++) {
+        addItem({ productId: product.id, name: product.name, price: product.price, image: product.image ?? null, options: selectedOptions, note });
+      }
+      toast.success("เพิ่ม " + product.name + (qty > 1 ? " ×" + qty : "") + " ลงตะกร้าแล้ว", { duration: 1500 });
     }
-    toast.success("เพิ่ม " + product.name + (qty > 1 ? " ×" + qty : "") + " ลงตะกร้าแล้ว", { duration: 1500 });
     onClose();
   };
 
@@ -333,7 +355,7 @@ export function ProductDetailSheet({ product, open, onClose }: Props) {
                 height: "3.25rem",
               }}
             >
-              <span>ใส่ตะกร้า</span>
+              <span>{isEdit ? "อัปเดต" : "ใส่ตะกร้า"}</span>
               <span className="text-base font-extrabold">{formatPrice(totalPrice)}</span>
             </button>
           </div>

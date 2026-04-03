@@ -10,6 +10,7 @@ const schema = z.object({
   closeTime: z.string().optional(),
   closedDays: z.array(z.number().int().min(0).max(6)).optional(),
   closedMessage: z.string().optional(),
+  qrCodeUrl: z.string().nullable().optional(),
 });
 
 async function getOrCreateSetting() {

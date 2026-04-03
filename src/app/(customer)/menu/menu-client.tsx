@@ -6,8 +6,6 @@ import Image from "next/image";
 import { Search, Plus, Minus, ShoppingBag, MapPin, ChevronLeft, ChevronRight, Coffee, UtensilsCrossed, Star, AlertCircle, SlidersHorizontal, Store, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
 import { useCartStore, cartKey } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -36,7 +34,6 @@ const G = {
 export function MenuClient() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const [cartOpen, setCartOpen] = useState(false);
   const [detailProduct, setDetailProduct] = useState<ProductWithCategory | null>(null);
   const [bannerIdx, setBannerIdx] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -114,29 +111,23 @@ export function MenuClient() {
               </h1>
             </div>
 
-            {/* Cart button */}
-            <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-              <SheetTrigger>
-                <span
-                  className="flex items-center gap-2 px-3.5 py-2 rounded-2xl font-bold text-sm transition-all active:scale-95 cursor-pointer select-none"
-                  style={{
-                    background: mounted && itemCount() > 0 ? G.grad : G.primaryXlt,
-                    color: mounted && itemCount() > 0 ? "white" : G.primary,
-                    boxShadow: mounted && itemCount() > 0 ? G.shadow : "none",
-                    display: "flex",
-                  }}
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  {mounted && itemCount() > 0 ? `${itemCount()} รายการ` : "ตะกร้า"}
-                </span>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="max-h-[88vh] rounded-t-3xl px-5 pb-8">
-                <SheetHeader className="mb-1">
-                  <SheetTitle className="text-left text-lg font-bold">ตะกร้าสินค้า</SheetTitle>
-                </SheetHeader>
-                <CartSheet onClose={() => setCartOpen(false)} />
-              </SheetContent>
-            </Sheet>
+            {/* Cart icon — navigates to /cart */}
+            <Link href="/cart">
+              <span
+                className="relative flex items-center justify-center w-10 h-10 rounded-2xl transition-all active:scale-95 cursor-pointer"
+                style={{ background: G.primaryXlt }}
+              >
+                <ShoppingBag className="w-5 h-5" style={{ color: G.primary }} />
+                {mounted && itemCount() > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full text-[10px] font-black flex items-center justify-center px-1 text-white"
+                    style={{ background: G.grad, boxShadow: "0 2px 6px oklch(0.55 0.22 145 / 0.4)" }}
+                  >
+                    {itemCount()}
+                  </span>
+                )}
+              </span>
+            </Link>
           </div>
 
           {/* Search */}
@@ -334,7 +325,7 @@ export function MenuClient() {
       {/* ── Checkout bar ── */}
       {mounted && itemCount() > 0 && (
         <div className="fixed bottom-16 inset-x-0 z-30 px-4 pb-2">
-          <Link href="/checkout">
+          <Link href="/cart">
             <div
               className="w-full h-14 rounded-2xl font-bold text-[15px] flex items-center justify-between px-5 active:scale-[0.98] transition-all"
               style={{ background: G.grad, color: "white", boxShadow: G.shadow }}
@@ -494,103 +485,6 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
             </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Cart Sheet ── */
-function CartSheet({ onClose }: { onClose: () => void }) {
-  const { items, updateQuantity, total, itemUnitPrice } = useCartStore();
-
-  if (items.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 gap-4">
-        <div className="w-20 h-20 rounded-3xl flex items-center justify-center" style={{ background: G.primaryLt }}><ShoppingBag className="w-8 h-8" style={{ color: G.primary, opacity: 0.5 }} /></div>
-        <div className="text-center">
-          <p className="font-bold" style={{ color: G.fg }}>ตะกร้าว่างเปล่า</p>
-          <p className="text-sm mt-1" style={{ color: G.fgMuted }}>เพิ่มเมนูที่ชอบก่อนนะ</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col" style={{ maxHeight: "72vh" }}>
-      {/* Item count */}
-      <p className="text-xs font-semibold mb-3" style={{ color: G.fgMuted }}>{items.length} รายการ</p>
-
-      {/* Items list */}
-      <div className="flex-1 overflow-y-auto space-y-2" style={{ scrollbarWidth: "none" }}>
-        {items.map(item => {
-          const key = cartKey(item.productId, item.options ?? []);
-          const unitPrice = itemUnitPrice(item);
-          return (
-            <div key={key} className="flex gap-3 p-3 rounded-2xl bg-white" style={{ boxShadow: "0 1px 6px oklch(0.55 0.18 145 / 0.08)", border: `1px solid ${G.border}` }}>
-              {/* Image */}
-              <div className="w-14 h-14 rounded-xl overflow-hidden relative flex-shrink-0" style={{ background: G.primaryLt }}>
-                {item.image
-                  ? <Image src={item.image} alt={item.name} fill className="object-cover" sizes="56px" />
-                  : <div className="w-full h-full flex items-center justify-center"><UtensilsCrossed className="w-7 h-7 text-gray-300" /></div>
-                }
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-[13px] leading-snug line-clamp-1" style={{ color: G.fg }}>{item.name}</p>
-                {(item.options ?? []).length > 0 && (
-                  <p className="text-[10px] mt-0.5 line-clamp-1" style={{ color: G.fgMuted }}>
-                    {(item.options ?? []).map(o => o.optionName).join(" · ")}
-                  </p>
-                )}
-                <div className="flex items-center justify-between mt-2">
-                  <div>
-                    <span className="font-extrabold text-sm" style={{ color: G.primary }}>{formatPrice(unitPrice * item.quantity)}</span>
-                    {item.quantity > 1 && (
-                      <span className="text-[10px] ml-1" style={{ color: G.fgMuted }}>{formatPrice(unitPrice)} × {item.quantity}</span>
-                    )}
-                  </div>
-                  {/* Qty controls */}
-                  <div className="flex items-center gap-1.5 px-1.5 py-1 rounded-xl" style={{ background: G.primaryXlt }}>
-                    <button
-                      onClick={() => updateQuantity(key, item.quantity - 1)}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center bg-white active:scale-90 transition-transform"
-                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
-                    >
-                      <Minus className="w-3 h-3" style={{ color: G.primary }} strokeWidth={2.5} />
-                    </button>
-                    <span className="text-[13px] font-extrabold w-5 text-center tabular-nums" style={{ color: G.fg }}>{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(key, item.quantity + 1)}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center active:scale-90 transition-transform"
-                      style={{ background: G.primary, color: "white" }}
-                    >
-                      <Plus className="w-3 h-3" strokeWidth={2.5} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Summary */}
-      <div className="mt-3 pt-3" style={{ borderTop: `1.5px solid ${G.border}` }}>
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold" style={{ color: G.fgMuted }}>รวมสินค้า</span>
-          <span className="text-xl font-extrabold" style={{ color: G.fg }}>{formatPrice(total())}</span>
-        </div>
-        <p className="text-[10px] mb-3 text-center" style={{ color: G.fgMuted }}>* ยังไม่รวมค่าจัดส่ง · กดสั่งเพื่อเลือกที่อยู่และชำระเงิน</p>
-        <Link href="/checkout" onClick={onClose}>
-          <div
-            className="w-full h-13 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
-            style={{ background: G.grad, color: "white", boxShadow: G.shadow, padding: "0.875rem" }}
-          >
-            <ShoppingBag className="w-5 h-5" />
-            สั่งอาหารเลย · {formatPrice(total())}
-          </div>
-        </Link>
       </div>
     </div>
   );

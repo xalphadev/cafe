@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         user: { select: { name: true, phone: true } },
-        items: { include: { product: { select: { name: true } } } },
+        items: { include: { product: { select: { name: true, image: true } } } },
         address: true,
         deliveryZone: true,
         payment: true,

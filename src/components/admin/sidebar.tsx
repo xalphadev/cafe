@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, ShoppingBag, Package, Grid3X3, Users,
-  Star, Tag, Truck, BarChart3, LogOut, X, Bike, ImagePlay, Settings, Coffee,
+  Star, Tag, BarChart3, LogOut, X, ImagePlay, Settings, Coffee,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuthStore } from "@/store/auth";
@@ -25,14 +25,7 @@ const navGroups = [
     items: [
       { href: "/admin/products", label: "สินค้า", icon: Package },
       { href: "/admin/categories", label: "หมวดหมู่", icon: Grid3X3 },
-      { href: "/admin/zones", label: "โซนจัดส่ง", icon: Truck },
       { href: "/admin/banners", label: "แบนเนอร์", icon: ImagePlay },
-    ],
-  },
-  {
-    label: "จัดส่ง",
-    items: [
-      { href: "/admin/riders", label: "ไรเดอร์", icon: Bike },
     ],
   },
   {

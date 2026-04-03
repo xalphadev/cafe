@@ -21,9 +21,21 @@ export async function GET(request: NextRequest) {
   if (!order) return error("ไม่พบออเดอร์");
   if (order.status !== "PENDING_PAYMENT") return error("ออเดอร์นี้ไม่รอการชำระเงิน");
 
+  // Check if shop has a custom QR image
+  const shopSetting = await prisma.shopSetting.findFirst();
+  if (shopSetting?.qrCodeUrl) {
+    return ok({
+      qrDataUrl: null,
+      shopQrUrl: shopSetting.qrCodeUrl,
+      amount: order.total,
+      orderId: order.id,
+      paymentId: order.payment?.id,
+    });
+  }
+
   const promptpayId = process.env.PROMPTPAY_ID || "0812345678";
   const payload = generatePayload(promptpayId, { amount: order.total });
   const qrDataUrl = await QRCode.toDataURL(payload, { width: 300, margin: 2 });
 
-  return ok({ qrDataUrl, amount: order.total, orderId: order.id, paymentId: order.payment?.id });
+  return ok({ qrDataUrl, shopQrUrl: null, amount: order.total, orderId: order.id, paymentId: order.payment?.id });
 }

@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  User, MapPin, Star, ChevronRight, LogOut, Edit2, Plus, Trash2,
-  Bell, MessageCircle, Ticket, Tag, Copy, Check, X, Heart,
+  MapPin, ChevronRight, LogOut, Edit2, Plus, Trash2,
+  Ticket, Tag, Copy, Check, X,
   ArrowLeft, Phone, Award, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import AddressFormDialog from "@/components/customer/address-form-dialog";
 import { useAuthStore } from "@/store/auth";
 import { formatPhone, formatDate } from "@/lib/format";
@@ -35,7 +36,8 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [editName, setEditName] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
-  const [activeSection, setActiveSection] = useState<"main" | "addresses" | "points" | "notify" | "coupons">("main");
+  const [activeSection, setActiveSection] = useState<"main" | "addresses" | "points" | "coupons">("main");
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const { data: points } = useQuery<{ balance: number; transactions: PointTransaction[] }>({
     queryKey: ["user-points"],
@@ -74,9 +76,6 @@ export default function ProfilePage() {
   if (activeSection === "points") {
     return <PointsSection data={points} isLoading={false} onBack={() => setActiveSection("main")} />;
   }
-  if (activeSection === "notify") {
-    return <NotifySection user={user as { lineNotifyToken?: string | null }} onBack={() => setActiveSection("main")} setUser={setUser} />;
-  }
   if (activeSection === "coupons") {
     return <CouponsSection onBack={() => setActiveSection("main")} />;
   }
@@ -105,13 +104,6 @@ export default function ProfilePage() {
       iconBg: "linear-gradient(135deg, #f97316, #ea580c)",
       label: "คูปอง & โปรโมชั่น",
       sub: "โค้ดส่วนลดพิเศษ",
-    },
-    {
-      id: "notify",
-      icon: <Bell className="w-5 h-5" />,
-      iconBg: G.grad,
-      label: "แจ้งเตือน LINE",
-      sub: "รับสถานะออเดอร์ทาง LINE",
     },
   ];
 
@@ -208,7 +200,7 @@ export default function ProfilePage() {
 
         {/* Logout */}
         <button
-          onClick={handleLogout}
+          onClick={() => setConfirmLogout(true)}
           className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-sm font-semibold bg-white active:scale-[0.98] transition-all"
           style={{ color: "oklch(0.55 0.22 25)", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}
         >
@@ -216,6 +208,16 @@ export default function ProfilePage() {
           ออกจากระบบ
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmLogout}
+        onOpenChange={setConfirmLogout}
+        title="ออกจากระบบ?"
+        description="ยืนยันการออกจากระบบหรือไม่?"
+        confirmLabel="ออกจากระบบ"
+        variant="danger"
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }
@@ -432,125 +434,6 @@ function PointsSection({ data, isLoading, onBack }: {
               ))}
             </div>
           )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Notify Section ─────────────────────────────────────────────── */
-function NotifySection({ user, onBack, setUser }: {
-  user: { lineNotifyToken?: string | null; [key: string]: unknown } | null;
-  onBack: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setUser: (u: any) => void;
-}) {
-  const [token, setToken] = useState((user as { lineNotifyToken?: string | null } | null)?.lineNotifyToken ?? "");
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const res = await fetch("/api/user/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lineNotifyToken: token || null }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success("บันทึกแล้ว");
-        if (user) setUser({ ...user, lineNotifyToken: token || null } as import("@/types").User);
-      } else {
-        toast.error(data.error);
-      }
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const isConnected = !!(user as { lineNotifyToken?: string | null } | null)?.lineNotifyToken;
-
-  return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <BackHeader title="แจ้งเตือน LINE" onBack={onBack} />
-
-      <div className="flex-1 px-4 py-4 space-y-3 pb-8">
-        {/* Status card */}
-        <div className="bg-white rounded-2xl p-4 flex items-center gap-4"
-          style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 148)" }}>
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-            style={{ background: isConnected ? G.grad : "oklch(0.94 0.016 148)" }}>
-            <MessageCircle className={`w-6 h-6 ${isConnected ? "text-white" : ""}`} style={{ color: isConnected ? "white" : G.fgMuted }} />
-          </div>
-          <div>
-            <p className="font-bold text-sm" style={{ color: G.fg }}>LINE Notify</p>
-            <p className="text-xs mt-0.5" style={{ color: isConnected ? "oklch(0.46 0.17 150)" : G.fgMuted }}>
-              {isConnected ? "เชื่อมต่อแล้ว" : "รับสถานะออเดอร์ผ่าน LINE"}
-            </p>
-          </div>
-          {isConnected && (
-            <div className="ml-auto w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-          )}
-        </div>
-
-        {/* Instructions */}
-        <div className="bg-white rounded-2xl p-4"
-          style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 148)" }}>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: G.primaryLt }}>
-              <Bell className="w-3.5 h-3.5" style={{ color: G.primary }} />
-            </div>
-            <p className="font-bold text-sm" style={{ color: G.fg }}>วิธีเชื่อมต่อ</p>
-          </div>
-          <div className="space-y-2">
-            {[
-              { n: "1", text: "ไปที่ notify-bot.line.me", href: "https://notify-bot.line.me/" },
-              { n: "2", text: "Login แล้วสร้าง Personal Token" },
-              { n: "3", text: "วาง Token ในช่องด้านล่าง" },
-            ].map((step) => (
-              <div key={step.n} className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full text-[11px] font-black flex items-center justify-center flex-shrink-0 text-white mt-0.5"
-                  style={{ background: G.primary }}>
-                  {step.n}
-                </span>
-                {step.href ? (
-                  <a href={step.href} target="_blank" className="text-xs font-medium underline" style={{ color: G.primary }}>
-                    {step.text}
-                  </a>
-                ) : (
-                  <p className="text-xs" style={{ color: G.fgMuted }}>{step.text}</p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 space-y-2">
-            <label className="text-xs font-semibold" style={{ color: G.fgMuted }}>LINE Notify Token</label>
-            <Input
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="วาง token ที่ได้จาก LINE Notify"
-              type="password"
-              className="h-11 rounded-xl text-sm"
-            />
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full h-11 rounded-2xl text-sm font-bold text-white mt-1 disabled:opacity-60"
-              style={{ background: G.grad, boxShadow: G.shadow }}
-            >
-              {saving ? "กำลังบันทึก..." : "บันทึก"}
-            </button>
-            {token && (
-              <button
-                onClick={() => { setToken(""); handleSave(); }}
-                className="text-xs w-full text-center py-1.5 rounded-xl"
-                style={{ color: "oklch(0.55 0.22 25)", background: "oklch(0.98 0.012 20)" }}
-              >
-                ยกเลิกการเชื่อมต่อ
-              </button>
-            )}
-          </div>
         </div>
       </div>
     </div>

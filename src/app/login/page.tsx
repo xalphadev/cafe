@@ -80,7 +80,7 @@ export default function LoginPage() {
           <CupSoda className="w-12 h-12 text-white" />
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight mb-1.5" style={{ color: G.fg }}>ช่วงเวลาคาเฟ่</h1>
-        <p className="text-sm font-medium" style={{ color: G.fgMuted }}>สั่งเครื่องดื่มและอาหาร ส่งถึงบ้าน</p>
+        <p className="text-sm font-medium" style={{ color: G.fgMuted }}>สั่งเครื่องดื่มสดใหม่ รับหน้าร้าน</p>
 
         <div className="flex gap-2 mt-5 flex-wrap justify-center">
           {[

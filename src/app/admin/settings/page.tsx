@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ToggleLeft, ToggleRight, Save, CheckCircle2, XCircle } from "lucide-react";
+import { ToggleLeft, ToggleRight, Save, CheckCircle2, XCircle, QrCode, Upload, Trash2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ShopSetting } from "@/types";
 
@@ -16,12 +16,15 @@ const DAYS = ["อาทิตย์", "จันทร์", "อังคาร
 export default function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
+  const [qrUploading, setQrUploading] = useState(false);
+  const qrFileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     isOpen: true,
     openTime: "08:00",
     closeTime: "22:00",
     closedDays: [] as number[],
     closedMessage: "ร้านปิดอยู่ในขณะนี้",
+    qrCodeUrl: null as string | null,
   });
 
   const { data: setting } = useQuery<ShopSetting>({
@@ -37,6 +40,7 @@ export default function AdminSettingsPage() {
         closeTime: setting.closeTime,
         closedDays: setting.closedDays as number[],
         closedMessage: setting.closedMessage,
+        qrCodeUrl: (setting as any).qrCodeUrl ?? null,
       });
     }
   }, [setting]);
@@ -48,6 +52,43 @@ export default function AdminSettingsPage() {
         ? f.closedDays.filter((d) => d !== day)
         : [...f.closedDays, day],
     }));
+  };
+
+  const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setQrUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "qrcodes");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const d = await res.json();
+      if (!d.success) { toast.error(d.error); return; }
+      const url = d.data.url;
+      setForm((f) => ({ ...f, qrCodeUrl: url }));
+      // save immediately
+      const setting = await (await fetch("/api/admin/shop-settings")).json();
+      await fetch("/api/admin/shop-settings", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ qrCodeUrl: url }),
+      });
+      toast.success("อัปโหลด QR Code แล้ว");
+      queryClient.invalidateQueries({ queryKey: ["admin-shop-settings"] });
+    } finally {
+      setQrUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveQr = async () => {
+    setForm((f) => ({ ...f, qrCodeUrl: null }));
+    await fetch("/api/admin/shop-settings", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qrCodeUrl: null }),
+    });
+    toast.success("ลบ QR Code แล้ว");
+    queryClient.invalidateQueries({ queryKey: ["admin-shop-settings"] });
   };
 
   const handleSave = async () => {
@@ -165,6 +206,50 @@ export default function AdminSettingsPage() {
               </p>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* QR Code */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <QrCode className="w-4 h-4 text-primary" />
+            QR Code PromptPay ของร้าน
+          </CardTitle>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            อัปโหลด QR Code จากแอปธนาคาร ลูกค้าจะเห็น QR นี้แทนการสร้างอัตโนมัติ
+          </p>
+        </CardHeader>
+        <CardContent>
+          {form.qrCodeUrl ? (
+            <div className="space-y-3">
+              <div className="relative w-48 h-48 mx-auto rounded-2xl overflow-hidden border-2 border-primary/20 bg-white p-3">
+                <Image src={form.qrCodeUrl} alt="QR Code ร้าน" fill className="object-contain p-2" />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => qrFileRef.current?.click()} disabled={qrUploading}>
+                  {qrUploading ? <RefreshCw className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
+                  เปลี่ยน QR
+                </Button>
+                <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={handleRemoveQr}>
+                  <Trash2 className="w-4 h-4 mr-1" /> ลบ
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => qrFileRef.current?.click()}
+              disabled={qrUploading}
+              className="w-full flex flex-col items-center gap-2 py-8 rounded-2xl border-2 border-dashed border-primary/30 hover:border-primary/60 transition-colors bg-primary/5"
+            >
+              {qrUploading
+                ? <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+                : <QrCode className="w-8 h-8 text-primary/40" />}
+              <p className="text-sm font-medium text-primary/70">{qrUploading ? "กำลังอัปโหลด..." : "แตะเพื่ออัปโหลด QR Code"}</p>
+              <p className="text-xs text-muted-foreground">JPG, PNG (สูงสุด 5MB)</p>
+            </button>
+          )}
+          <input ref={qrFileRef} type="file" accept="image/*" className="hidden" onChange={handleQrUpload} />
         </CardContent>
       </Card>
 

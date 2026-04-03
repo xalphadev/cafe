@@ -1,11 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ChevronRight, UtensilsCrossed, PenLine } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ChevronRight, UtensilsCrossed, PenLine, Pencil } from "lucide-react";
 import { useCartStore, cartKey } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
+import { ProductDetailSheet } from "@/components/customer/product-detail-sheet";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import type { CartItem } from "@/types";
+import type { ProductWithCategory } from "@/types";
 
 const G = {
   primary:    "oklch(0.68 0.20 148)",
@@ -23,6 +28,29 @@ const G = {
 export default function CartPage() {
   const router = useRouter();
   const { items, updateQuantity, removeItem, total, itemCount, itemUnitPrice, clearCart } = useCartStore();
+
+  const [editProduct, setEditProduct] = useState<ProductWithCategory | null>(null);
+  const [editItem, setEditItem] = useState<CartItem | null>(null);
+  const [editKey, setEditKey] = useState<string>("");
+  const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
+
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmDeleteKey, setConfirmDeleteKey] = useState<string | null>(null);
+
+  const handleEdit = async (item: CartItem, key: string) => {
+    setLoadingEdit(key);
+    try {
+      const res = await fetch(`/api/products/${item.productId}`);
+      const d = await res.json();
+      if (d.success) {
+        setEditProduct(d.data);
+        setEditItem(item);
+        setEditKey(key);
+      }
+    } finally {
+      setLoadingEdit(null);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -71,7 +99,7 @@ export default function CartPage() {
           <h1 className="font-extrabold text-[17px]" style={{ color: G.fg }}>ตะกร้าสินค้า</h1>
           <p className="text-[11px]" style={{ color: G.fgMuted }}>{itemCount()} รายการ</p>
         </div>
-        <button onClick={clearCart}
+        <button onClick={() => setConfirmClear(true)}
           className="text-[12px] font-semibold px-3 py-1.5 rounded-xl active:scale-95 transition-transform"
           style={{ color: "oklch(0.52 0.18 25)", background: "oklch(0.97 0.03 25)" }}>
           ล้างทั้งหมด
@@ -121,12 +149,23 @@ export default function CartPage() {
                     )}
                   </div>
 
-                  {/* Delete */}
-                  <button onClick={() => removeItem(key)}
-                    className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform"
-                    style={{ background: "oklch(0.97 0.03 25)", color: "oklch(0.58 0.20 25)" }}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {/* Edit + Delete */}
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <button
+                      onClick={() => handleEdit(item, key)}
+                      disabled={loadingEdit === key}
+                      className="w-7 h-7 rounded-xl flex items-center justify-center active:scale-90 transition-transform disabled:opacity-50"
+                      style={{ background: G.primaryLt, color: G.primary }}>
+                      {loadingEdit === key
+                        ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        : <Pencil className="w-3.5 h-3.5" />}
+                    </button>
+                    <button onClick={() => setConfirmDeleteKey(key)}
+                      className="w-7 h-7 rounded-xl flex items-center justify-center active:scale-90 transition-transform"
+                      style={{ background: "oklch(0.97 0.03 25)", color: "oklch(0.58 0.20 25)" }}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Price + Qty */}
@@ -177,7 +216,7 @@ export default function CartPage() {
         </Link>
 
         {/* ── Order Summary ── */}
-        <div className="bg-card rounded-3xl p-4"
+        <div className="bg-card rounded-3xl p-4 mt-2"
           style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.08)", border: `1.5px solid ${G.border}` }}>
           <h3 className="font-extrabold text-sm mb-3" style={{ color: G.fg }}>สรุปรายการ</h3>
           <div className="space-y-2">
@@ -196,11 +235,42 @@ export default function CartPage() {
               <span className="text-sm font-semibold" style={{ color: G.fgMuted }}>รวมสินค้า</span>
               <span className="text-xl font-extrabold" style={{ color: G.fg }}>{formatPrice(total())}</span>
             </div>
-            <p className="text-[10px] mt-1" style={{ color: G.fgMuted }}>* ค่าจัดส่งคิดตามระยะทาง แสดงในหน้าชำระเงิน</p>
+            <p className="text-[10px] mt-1" style={{ color: G.fgMuted }}>* รับสินค้าหน้าร้านเท่านั้น</p>
           </div>
         </div>
 
       </div>
+
+      {/* ── Confirm dialogs ── */}
+      <ConfirmDialog
+        open={confirmClear}
+        onOpenChange={setConfirmClear}
+        title="ล้างตะกร้าสินค้า?"
+        description="รายการทั้งหมดจะถูกลบออก ยืนยันหรือไม่?"
+        confirmLabel="ล้างทั้งหมด"
+        variant="danger"
+        onConfirm={clearCart}
+      />
+      <ConfirmDialog
+        open={!!confirmDeleteKey}
+        onOpenChange={(o) => { if (!o) setConfirmDeleteKey(null); }}
+        title="ลบรายการนี้?"
+        description="รายการนี้จะถูกลบออกจากตะกร้า"
+        confirmLabel="ลบ"
+        variant="danger"
+        onConfirm={() => { if (confirmDeleteKey) removeItem(confirmDeleteKey); }}
+      />
+
+      {/* ── Edit sheet ── */}
+      <ProductDetailSheet
+        product={editProduct}
+        open={!!editProduct}
+        onClose={() => { setEditProduct(null); setEditItem(null); setEditKey(""); }}
+        editKey={editKey}
+        initialOptions={editItem?.options}
+        initialNote={editItem?.note}
+        initialQty={editItem?.quantity}
+      />
 
       {/* ── Bottom checkout bar ── */}
       <div className="fixed bottom-0 left-0 right-0 z-40 px-4 py-4"
@@ -213,7 +283,7 @@ export default function CartPage() {
           </div>
           <div className="text-right">
             <p className="text-[11px]" style={{ color: G.fgMuted }}>{itemCount()} รายการ</p>
-            <p className="text-[10px]" style={{ color: G.fgMuted }}>+ ค่าส่งแยกต่างหาก</p>
+            <p className="text-[10px]" style={{ color: G.fgMuted }}>รับหน้าร้านเท่านั้น</p>
           </div>
         </div>
 

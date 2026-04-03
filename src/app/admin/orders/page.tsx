@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import Image from "next/image";
 import {
   RefreshCw, Bell, ExternalLink, Clock, ChefHat, Package,
-  Bike, Store, CheckCircle2, XCircle, Printer, User,
-  MapPin, CreditCard, StickyNote, AlertCircle, ChevronRight,
+  Bike, Store, CheckCircle2, XCircle, Printer,
+  MapPin, CreditCard, StickyNote, AlertCircle, ChevronRight, CupSoda,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/format";
-import { ORDER_STATUS_MAP, PAYMENT_METHOD_MAP, type OrderWithItems, type Rider } from "@/types";
+import { ORDER_STATUS_MAP, PAYMENT_METHOD_MAP, type OrderWithItems } from "@/types";
 import { cn } from "@/lib/utils";
 
 // ── transitions ───────────────────────────────────────────────────────────
@@ -89,18 +91,19 @@ export default function AdminOrdersPage() {
   const [updating, setUpdating] = useState<string | null>(null);
   const [newOrderAlert, setNewOrderAlert] = useState(false); // kept for refetch trigger only
   const [eta, setEta] = useState("");
-  const [selectedRiderId, setSelectedRiderId] = useState("");
+  const [confirmAction, setConfirmAction] = useState<{
+    title: string;
+    description?: string;
+    confirmLabel?: string;
+    variant?: "danger" | "primary";
+    action: () => void;
+  } | null>(null);
 
   const { data, isLoading, refetch } = useQuery<{ orders: OrderWithItems[]; total: number }>({
     queryKey: ["admin-orders", selectedStatus],
     queryFn: () => fetch(`/api/admin/orders?status=${selectedStatus}`).then(r => r.json()).then(d => d.data),
     refetchInterval: 15000,
   });
-  const { data: riders = [] } = useQuery<Rider[]>({
-    queryKey: ["admin-riders"],
-    queryFn: () => fetch("/api/admin/riders").then(r => r.json()).then(d => d.data),
-  });
-
   // SSE: just refresh order list when new order arrives (sound/banner handled by NewOrderAlert in layout)
   useEffect(() => {
     const es = new EventSource("/api/sse/orders");
@@ -134,16 +137,12 @@ export default function AdminOrdersPage() {
   };
 
   const saveMeta = async () => {
-    if (!selectedOrder) return;
+    if (!selectedOrder || !eta) return;
     setUpdating(selectedOrder.id);
     try {
-      const body: Record<string, unknown> = {};
-      if (eta) body.estimatedDeliveryAt = eta;
-      if (selectedRiderId !== undefined) body.riderId = selectedRiderId || null;
-      if (!Object.keys(body).length) return;
       const res = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
         method: "PATCH", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ estimatedDeliveryAt: eta }),
       });
       const d = await res.json();
       if (!d.success) { toast.error(d.error); return; }
@@ -183,7 +182,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* ══ Status tabs ═════════════════════════════════════ */}
-      <div className="bg-white border-b border-border/50 px-3 py-2">
+      <div className="sticky top-[56px] z-20 bg-white border-b border-border/50 px-3 py-2">
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {ALL_STATUSES.map(s => {
             const active = selectedStatus === s;
@@ -249,7 +248,7 @@ export default function AdminOrdersPage() {
 
               {/* Card body */}
               <div className="p-4 cursor-pointer active:bg-slate-50/80 transition-colors"
-                onClick={() => { setSelectedOrder(order); setEta(""); setSelectedRiderId((order as any).rider?.id ?? ""); }}
+                onClick={() => { setSelectedOrder(order); setEta(""); }}
               >
                 <div className="flex items-start gap-3">
                   {/* Avatar */}
@@ -277,6 +276,22 @@ export default function AdminOrdersPage() {
                           {order.items.slice(0,2).map((i: any) => `${i.product.name} ×${i.quantity}`).join("  ·  ")}
                           {order.items.length > 2 && <span className="text-primary font-medium">  +{order.items.length - 2}</span>}
                         </p>
+                        {/* Product image strip */}
+                        <div className="flex items-center gap-1 mt-2">
+                          {order.items.slice(0, 4).map((item: any, idx: number) => (
+                            <div key={idx} className="w-9 h-9 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-white ring-1 ring-slate-200/60">
+                              {item.product.image
+                                ? <Image src={item.product.image} alt={item.product.name} width={36} height={36} className="w-full h-full object-cover" />
+                                : <div className="w-full h-full flex items-center justify-center"><CupSoda className="w-4 h-4 text-slate-300" /></div>
+                              }
+                            </div>
+                          ))}
+                          {order.items.length > 4 && (
+                            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-[11px] font-bold text-slate-400 ring-1 ring-slate-200/60">
+                              +{order.items.length - 4}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Price + meta */}
@@ -288,15 +303,9 @@ export default function AdminOrdersPage() {
 
                     {/* Sub-badges */}
                     <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                      {pickup ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-violet-50 text-violet-600 px-2 py-0.5 rounded-full">
-                          <Store className="w-3 h-3" />รับเอง
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-sky-50 text-sky-600 px-2 py-0.5 rounded-full">
-                          <Bike className="w-3 h-3" />จัดส่ง
-                        </span>
-                      )}
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-violet-50 text-violet-600 px-2 py-0.5 rounded-full">
+                        <Store className="w-3 h-3" />รับเอง
+                      </span>
                       {(order.payment as any)?.slipUrl && (
                         <span className="text-[11px] font-medium bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full">แนบสลิป</span>
                       )}
@@ -311,7 +320,13 @@ export default function AdminOrdersPage() {
                 <div className="px-3 pb-3 flex gap-2">
                   {next && (
                     <button
-                      onClick={() => updateStatus(order.id, next)}
+                      onClick={() => setConfirmAction({
+                        title: `เปลี่ยนสถานะเป็น "${ORDER_STATUS_MAP[next]?.label}"?`,
+                        description: `ออเดอร์ #${order.id.slice(-6).toUpperCase()}`,
+                        confirmLabel: ORDER_STATUS_MAP[next]?.label,
+                        variant: "primary",
+                        action: () => updateStatus(order.id, next),
+                      })}
                       disabled={updating === order.id}
                       className={cn(
                         "flex-1 h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-opacity active:opacity-70",
@@ -330,7 +345,13 @@ export default function AdminOrdersPage() {
                   )}
                   {(order.status === "PENDING" || order.status === "PENDING_PAYMENT") && (
                     <button
-                      onClick={() => updateStatus(order.id, "CANCELLED")}
+                      onClick={() => setConfirmAction({
+                        title: "ยกเลิกออเดอร์?",
+                        description: `ออเดอร์ #${order.id.slice(-6).toUpperCase()} จะถูกยกเลิก`,
+                        confirmLabel: "ยกเลิกออเดอร์",
+                        variant: "danger",
+                        action: () => updateStatus(order.id, "CANCELLED"),
+                      })}
                       disabled={updating === order.id}
                       className="h-11 px-4 rounded-xl border border-red-100 bg-red-50 text-red-500 text-sm font-semibold flex items-center gap-1.5 flex-shrink-0 disabled:opacity-40 active:opacity-70 transition-opacity"
                     >
@@ -367,15 +388,9 @@ export default function AdminOrdersPage() {
                         <StatusPill status={selectedOrder.status} size="md" />
                       </div>
                       <div className="flex items-center gap-2 mt-1.5">
-                        {pickup ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">
-                            <Store className="w-3 h-3" />รับหน้าร้าน
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full">
-                            <Bike className="w-3 h-3" />จัดส่ง
-                          </span>
-                        )}
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">
+                          <Store className="w-3 h-3" />รับหน้าร้าน
+                        </span>
                         <span className="text-[11px] text-muted-foreground">{formatDateTime(selectedOrder.createdAt)}</span>
                       </div>
                     </div>
@@ -443,15 +458,30 @@ export default function AdminOrdersPage() {
                     </div>
                     <div className="divide-y divide-slate-100">
                       {selectedOrder.items.map((item: any) => (
-                        <div key={item.id} className="flex items-start gap-3 px-4 py-3">
-                          <span className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5",
-                            t.pill, t.pillText
+                        <div key={item.id} className="flex items-center gap-3 px-3 py-3">
+
+                          {/* Quantity — big, left-aligned, kitchen-display style */}
+                          <div className={cn(
+                            "flex-shrink-0 w-11 h-11 rounded-2xl flex flex-col items-center justify-center shadow-sm",
+                            t.pill
                           )}>
-                            {item.quantity}
-                          </span>
+                            <span className={cn("text-xl font-black leading-none tabular-nums", t.pillText)}>
+                              {item.quantity}
+                            </span>
+                            <span className={cn("text-[9px] font-semibold leading-tight", t.pillText, "opacity-70")}>ชิ้น</span>
+                          </div>
+
+                          {/* Product image */}
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+                            {item.product.image
+                              ? <Image src={item.product.image} alt={item.product.name} width={48} height={48} className="w-full h-full object-cover" />
+                              : <div className="w-full h-full flex items-center justify-center"><CupSoda className="w-5 h-5 text-slate-300" /></div>
+                            }
+                          </div>
+
+                          {/* Name + options + note */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium">{item.product.name}</p>
+                            <p className="text-sm font-semibold leading-snug">{item.product.name}</p>
                             {item.selectedOptions?.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {item.selectedOptions.map((opt: any, i: number) => (
@@ -461,10 +491,19 @@ export default function AdminOrdersPage() {
                                 ))}
                               </div>
                             )}
+                            {item.note && (
+                              <p className="text-[11px] text-amber-600 italic mt-0.5">"{item.note}"</p>
+                            )}
                           </div>
-                          <span className="text-sm font-semibold flex-shrink-0 text-right">
-                            {formatPrice(item.unitPrice * item.quantity)}
-                          </span>
+
+                          {/* Price */}
+                          <div className="flex-shrink-0 text-right">
+                            <p className="text-sm font-bold text-primary">{formatPrice(item.unitPrice * item.quantity)}</p>
+                            {item.quantity > 1 && (
+                              <p className="text-[11px] text-muted-foreground">{formatPrice(item.unitPrice)} ×{item.quantity}</p>
+                            )}
+                          </div>
+
                         </div>
                       ))}
                     </div>
@@ -474,11 +513,6 @@ export default function AdminOrdersPage() {
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>ยอดสินค้า</span><span>{formatPrice(selectedOrder.subtotal)}</span>
                       </div>
-                      {!pickup && (
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>ค่าจัดส่ง</span><span>{formatPrice(selectedOrder.deliveryFee)}</span>
-                        </div>
-                      )}
                       {selectedOrder.discountAmount > 0 && (
                         <div className="flex justify-between text-xs text-green-600 font-medium">
                           <span>ส่วนลด</span><span>-{formatPrice(selectedOrder.discountAmount)}</span>
@@ -498,92 +532,13 @@ export default function AdminOrdersPage() {
                     </div>
                   </div>
 
-                  {/* ── Rider (delivery only) ── */}
-                  {!pickup && (
-                    <div className="mx-4 mt-3 bg-white rounded-2xl overflow-hidden">
-                      <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <Bike className="w-3.5 h-3.5 text-muted-foreground" />
-                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">มอบหมายไรเดอร์</p>
-                        </div>
-                        {selectedRiderId && (
-                          <button onClick={() => setSelectedRiderId("")} className="text-xs text-red-400 hover:text-red-600 transition-colors">
-                            ยกเลิก
-                          </button>
-                        )}
-                      </div>
-                      <div className="px-4 py-3">
-                        {/* Rider cards — tap to select */}
-                        <div className="space-y-2">
-                          {riders.filter(r => r.isActive).length === 0 ? (
-                            <p className="text-sm text-muted-foreground text-center py-2">ไม่มีไรเดอร์ที่พร้อมงาน</p>
-                          ) : (
-                            <>
-                              {/* No rider option */}
-                              <button
-                                onClick={() => setSelectedRiderId("")}
-                                className={cn(
-                                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 transition-all text-left",
-                                  !selectedRiderId
-                                    ? "border-primary bg-primary/5"
-                                    : "border-slate-100 bg-slate-50 hover:border-slate-200"
-                                )}
-                              >
-                                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
-                                  <User className="w-4 h-4 text-slate-400" />
-                                </div>
-                                <span className="text-sm text-muted-foreground">ยังไม่มีไรเดอร์</span>
-                                {!selectedRiderId && <CheckCircle2 className="w-4 h-4 text-primary ml-auto flex-shrink-0" />}
-                              </button>
-
-                              {riders.filter(r => r.isActive).map(r => (
-                                <button
-                                  key={r.id}
-                                  onClick={() => setSelectedRiderId(r.id)}
-                                  className={cn(
-                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 transition-all text-left",
-                                    selectedRiderId === r.id
-                                      ? "border-primary bg-primary/5"
-                                      : "border-slate-100 bg-white hover:border-slate-200"
-                                  )}
-                                >
-                                  <div className={cn(
-                                    "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0",
-                                    selectedRiderId === r.id ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
-                                  )}>
-                                    {r.name[0]}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium">{r.name}</p>
-                                    {r.vehiclePlate && <p className="text-xs text-muted-foreground">{r.vehiclePlate}</p>}
-                                  </div>
-                                  {selectedRiderId === r.id && <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />}
-                                </button>
-                              ))}
-                            </>
-                          )}
-                        </div>
-                        {selectedRiderId && (
-                          <Button
-                            variant="outline"
-                            className="w-full mt-3 h-10 rounded-xl text-sm"
-                            onClick={saveMeta}
-                            disabled={!!updating}
-                          >
-                            บันทึกไรเดอร์
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
                   {/* ── ETA ── */}
                   <div className="mx-4 mt-3 mb-3 bg-white rounded-2xl overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
-                          {pickup ? "เวลานัดรับ" : "เวลาส่งโดยประมาณ"}
+                          เวลานัดรับ
                         </p>
                       </div>
                       {eta && (
@@ -674,11 +629,17 @@ export default function AdminOrdersPage() {
                   {/* Confirm payment */}
                   {(selectedOrder as any).paymentMethod === "QR_PROMPTPAY" && (selectedOrder as any).paymentStatus !== "PAID" && (
                     <button
-                      onClick={async () => {
-                        const res = await fetch("/api/payment/verify", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: selectedOrder.id }) });
-                        const d = await res.json();
-                        if (d.success) { toast.success("ยืนยันการชำระเงินแล้ว"); queryClient.invalidateQueries({ queryKey: ["admin-orders"] }); } else toast.error(d.error);
-                      }}
+                      onClick={() => setConfirmAction({
+                        title: "ยืนยันการชำระเงิน?",
+                        description: `ออเดอร์ #${selectedOrder.id.slice(-6).toUpperCase()}`,
+                        confirmLabel: "ยืนยัน",
+                        variant: "primary",
+                        action: async () => {
+                          const res = await fetch("/api/payment/verify", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: selectedOrder.id }) });
+                          const d = await res.json();
+                          if (d.success) { toast.success("ยืนยันการชำระเงินแล้ว"); queryClient.invalidateQueries({ queryKey: ["admin-orders"] }); } else toast.error(d.error);
+                        },
+                      })}
                       className="w-full h-11 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors"
                     >
                       <CheckCircle2 className="w-4 h-4" />ยืนยันการชำระเงิน
@@ -688,7 +649,13 @@ export default function AdminOrdersPage() {
                   {/* Next status */}
                   {next && (
                     <button
-                      onClick={() => updateStatus(selectedOrder.id, next)}
+                      onClick={() => setConfirmAction({
+                        title: `เปลี่ยนสถานะเป็น "${ORDER_STATUS_MAP[next]?.label}"?`,
+                        description: `ออเดอร์ #${selectedOrder.id.slice(-6).toUpperCase()}`,
+                        confirmLabel: ORDER_STATUS_MAP[next]?.label,
+                        variant: "primary",
+                        action: () => updateStatus(selectedOrder.id, next),
+                      })}
                       disabled={!!updating}
                       className={cn("w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-opacity active:opacity-70 disabled:opacity-40", t.bar.replace("bg-","bg-"), "text-white")}
                     >
@@ -705,7 +672,7 @@ export default function AdminOrdersPage() {
                       const win = window.open("", "_blank"); if (!win) return;
                       const customerForReceipt = (selectedOrder.user as any);
                           const customerLabel = customerForReceipt?.name || (customerForReceipt?.phone ? formatPhone(customerForReceipt.phone) : "—");
-                          win.document.write(`<html><head><title>ใบเสร็จ</title><style>body{font-family:sans-serif;padding:20px;max-width:300px;margin:0 auto}h2{text-align:center}table{width:100%}td{padding:3px 0}.total{font-weight:bold;border-top:1px solid #000;padding-top:4px}.meta{font-size:12px;color:#555;text-align:center}@media print{button{display:none}}</style></head><body><h2>ช่วงเวลาคาเฟ่</h2><p class="meta">ออเดอร์ #${selectedOrder.id.slice(-6).toUpperCase()}</p><p class="meta">${formatDateTime(selectedOrder.createdAt)}</p><p class="meta"><strong>ลูกค้า: ${customerLabel}</strong></p><hr/><table>${selectedOrder.items.map((i: any) => `<tr><td>${i.product.name} ×${i.quantity}</td><td style="text-align:right">${formatPrice(i.unitPrice * i.quantity)}</td></tr>`).join("")}</table><hr/><table>${!pickup ? `<tr><td>ค่าส่ง</td><td style="text-align:right">${formatPrice(selectedOrder.deliveryFee)}</td></tr>` : ""}${selectedOrder.discountAmount > 0 ? `<tr><td>ส่วนลด</td><td style="text-align:right">-${formatPrice(selectedOrder.discountAmount)}</td></tr>` : ""}<tr class="total"><td>ยอดรวม</td><td style="text-align:right">${formatPrice(selectedOrder.total)}</td></tr></table><p style="text-align:center;margin-top:16px">ขอบคุณที่ใช้บริการ</p><button onclick="window.print()" style="margin-top:12px;padding:8px 16px;width:100%">พิมพ์</button></body></html>`);
+                          win.document.write(`<html><head><title>ใบเสร็จ</title><style>body{font-family:sans-serif;padding:20px;max-width:300px;margin:0 auto}h2{text-align:center}table{width:100%}td{padding:3px 0}.total{font-weight:bold;border-top:1px solid #000;padding-top:4px}.meta{font-size:12px;color:#555;text-align:center}@media print{button{display:none}}</style></head><body><h2>ช่วงเวลาคาเฟ่</h2><p class="meta">ออเดอร์ #${selectedOrder.id.slice(-6).toUpperCase()}</p><p class="meta">${formatDateTime(selectedOrder.createdAt)}</p><p class="meta"><strong>ลูกค้า: ${customerLabel}</strong></p><hr/><table>${selectedOrder.items.map((i: any) => `<tr><td>${i.product.name} ×${i.quantity}</td><td style="text-align:right">${formatPrice(i.unitPrice * i.quantity)}</td></tr>`).join("")}</table><hr/><table>${selectedOrder.discountAmount > 0 ? `<tr><td>ส่วนลด</td><td style="text-align:right">-${formatPrice(selectedOrder.discountAmount)}</td></tr>` : ""}<tr class="total"><td>ยอดรวม</td><td style="text-align:right">${formatPrice(selectedOrder.total)}</td></tr></table><p style="text-align:center;margin-top:16px">ขอบคุณที่ใช้บริการ</p><button onclick="window.print()" style="margin-top:12px;padding:8px 16px;width:100%">พิมพ์</button></body></html>`);
                       win.document.close();
                     }}
                     className="w-full h-10 rounded-2xl border border-slate-200 text-slate-500 text-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"
@@ -718,6 +685,16 @@ export default function AdminOrdersPage() {
           })()}
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!confirmAction}
+        onOpenChange={(o) => { if (!o) setConfirmAction(null); }}
+        title={confirmAction?.title ?? ""}
+        description={confirmAction?.description}
+        confirmLabel={confirmAction?.confirmLabel}
+        variant={confirmAction?.variant}
+        onConfirm={() => confirmAction?.action()}
+      />
     </div>
   );
 }

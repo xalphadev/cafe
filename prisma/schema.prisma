@@ -315,6 +315,7 @@ model ShopSetting {
   closeTime      String   @default("22:00")
   closedDays     Int[]
   closedMessage  String   @default("ร้านปิดอยู่ในขณะนี้")
+  qrCodeUrl      String?
   updatedAt      DateTime @updatedAt
 
   @@map("shop_settings")
