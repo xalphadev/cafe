@@ -21,8 +21,7 @@ COPY --from=all-deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate Prisma client (outputs to src/generated/prisma)
-# DATABASE_URL ใช้แค่ตอน generate เพื่อให้ prisma.config.ts โหลดได้
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
+RUN npx prisma generate
 
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
@@ -49,6 +48,9 @@ COPY --from=builder /app/public ./public
 
 # Prisma: schema + migrations (needed for `prisma migrate deploy`)
 COPY --from=builder /app/prisma ./prisma
+
+# prisma.config.ts — บอก Prisma ว่า DATABASE_URL อยู่ที่ไหน
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 # Generated Prisma client (imported by the app at runtime)
 COPY --from=builder /app/src/generated ./src/generated
