@@ -50,14 +50,14 @@ async function main() {
 
   // ── Categories ──────────────────────────────────────────────────────────
   const categories = [
-    { id: "cat-coffee",  name: "กาแฟสด",      image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400", sortOrder: 1 },
-    { id: "cat-tea",     name: "ชา",           image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400", sortOrder: 2 },
-    { id: "cat-milk",    name: "นมสด",         image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400", sortOrder: 3 },
-    { id: "cat-special", name: "เมนูพิเศษ",   image: "https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?w=400", sortOrder: 4 },
-    { id: "cat-bakery",  name: "เบเกอรี่",    image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400", sortOrder: 5 },
+    { id: "cat-coffee",  name: "กาแฟสด",       image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400", sortOrder: 1 },
+    { id: "cat-tea",     name: "ชา",            image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400", sortOrder: 2 },
+    { id: "cat-milk",    name: "นมสด",          image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400", sortOrder: 3 },
+    { id: "cat-special", name: "เมนูพิเศษ",    image: "https://images.unsplash.com/photo-1615478503562-ec2d8aa0e24e?w=400", sortOrder: 4 },
+    { id: "cat-bakery",  name: "เครื่องดื่มปั่น", image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400", sortOrder: 5 },
   ];
   for (const c of categories) {
-    await prisma.category.upsert({ where: { id: c.id }, update: {}, create: c });
+    await prisma.category.upsert({ where: { id: c.id }, update: { name: c.name, image: c.image }, create: c });
   }
   console.log("Categories: OK");
 
@@ -185,37 +185,37 @@ async function main() {
       image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400",
     },
 
-    // ── เบเกอรี่ ─────────────────────────────────────────────────────────
+    // ── เครื่องดื่มปั่น ──────────────────────────────────────────────────
     {
       id: "prod-croissant", categoryId: "cat-bakery", sortOrder: 1,
-      name: "ครัวซองต์เนย", description: "ครัวซองต์อบสด กรอบนอกนุ่มใน กลิ่นเนยหอม",
-      price: 55, isFeatured: false,
-      image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400",
+      name: "ฟราปเป้กาแฟ", description: "กาแฟปั่นเย็นนุ่มครีมมี่ วิปครีมด้านบน",
+      price: 85, isFeatured: false,
+      image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400",
     },
     {
       id: "prod-cheesecake", categoryId: "cat-bakery", sortOrder: 2,
-      name: "ชีสเค้กญี่ปุ่น", description: "ชีสเค้กสไตล์ญี่ปุ่น นุ่มละมุน ชีสเข้มข้น",
-      price: 75, isFeatured: true,
-      image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
+      name: "มัทฉะปั่น", description: "มัทฉะเกรดพรีเมียมปั่นกับนมสด หอมเย็นชื่นใจ",
+      price: 90, isFeatured: true,
+      image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",
     },
     {
       id: "prod-brownie", categoryId: "cat-bakery", sortOrder: 3,
-      name: "บราวนี่ช็อกโกแลต", description: "บราวนี่เนื้อชุ่ม ช็อกโกแลตเข้มข้น วอลนัท",
-      price: 60, isFeatured: false,
-      image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400",
+      name: "ชาไทยปั่น", description: "ชาไทยแท้ปั่นครีมมี่ หวานมันเย็นชื่นใจ",
+      price: 80, isFeatured: false,
+      image: "https://images.unsplash.com/photo-1625772452859-1c03d884dcd7?w=400",
     },
     {
       id: "prod-scone", categoryId: "cat-bakery", sortOrder: 4,
-      name: "สโคนบลูเบอร์รี่", description: "สโคนอบสด บลูเบอร์รี่สดๆ เสิร์ฟอุ่นๆ",
-      price: 55, isFeatured: false,
-      image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400",
+      name: "สมูทตี้ผลไม้", description: "ผลไม้สดปั่นรวม วิตามินสูง สดชื่น",
+      price: 75, isFeatured: false,
+      image: "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=400",
     },
   ];
 
   for (const p of products) {
     await prisma.product.upsert({
       where:  { id: p.id },
-      update: {},
+      update: { name: p.name, description: p.description, price: p.price, image: p.image, isFeatured: p.isFeatured, categoryId: p.categoryId },
       create: { ...p, isAvailable: true },
     });
   }
