@@ -240,9 +240,18 @@ export default function OrderDetailPage() {
             </p>
             <p className="text-[11px] text-gray-500 font-mono mt-0.5">#{order.id.slice(-8).toUpperCase()}</p>
           </div>
-          <span className={cn("text-[11px] font-bold px-3 py-1 rounded-full", meta.pill)}>
-            {meta.label}
-          </span>
+          {currentStatus === "PENDING_PAYMENT" ? (
+            <Link href={`/orders/${params.id}/payment`}>
+              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700 flex items-center gap-1 animate-pulse">
+                <CreditCard className="w-3 h-3" />
+                ชำระเงิน
+              </span>
+            </Link>
+          ) : (
+            <span className={cn("text-[11px] font-bold px-3 py-1 rounded-full", meta.pill)}>
+              {meta.label}
+            </span>
+          )}
         </div>
 
         {/* ETA bar */}
@@ -428,6 +437,34 @@ export default function OrderDetailPage() {
 
         {/* ── Actions ── */}
         <div className="space-y-2.5 pt-1">
+
+          {/* Pay now — for PENDING_PAYMENT orders */}
+          {currentStatus === "PENDING_PAYMENT" && (
+            <Link href={`/orders/${params.id}/payment`}>
+              <div className="w-full rounded-2xl overflow-hidden"
+                style={{ background: "linear-gradient(135deg, oklch(0.75 0.18 85) 0%, oklch(0.55 0.20 60) 100%)", boxShadow: "0 6px 20px oklch(0.65 0.18 80 / 0.35)" }}>
+                <div className="p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-extrabold text-white text-[15px]">ชำระเงินตอนนี้</p>
+                    <p className="text-white/80 text-xs mt-0.5">กดเพื่อสแกน QR PromptPay และอัปโหลดสลิป</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <ChevronLeft className="w-5 h-5 text-white rotate-180" />
+                  </div>
+                </div>
+                <div className="px-4 pb-3 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
+                    <div className="h-full w-1/3 rounded-full bg-white/60 animate-pulse" />
+                  </div>
+                  <span className="text-[11px] font-bold text-white/70">รอการชำระ</span>
+                </div>
+              </div>
+            </Link>
+          )}
+
           {isCompleted && (
             <button
               onClick={handleReorder}

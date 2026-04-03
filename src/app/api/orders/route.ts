@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
@@ -52,13 +52,22 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({ where: { id: session.userId } });
     if (!user) return unauthorized();
 
-    const products = await prisma.product.findMany({
-      where: { id: { in: data.items.map((i) => i.productId) }, isAvailable: true },
+    const allProducts = await prisma.product.findMany({
+      where: { id: { in: data.items.map((i) => i.productId) } },
+      select: { id: true, name: true, isAvailable: true, price: true },
     });
 
-    if (products.length !== data.items.length) {
-      return error("มีสินค้าบางรายการไม่พร้อมจำหน่าย");
+    const unavailable = allProducts.filter(p => !p.isAvailable);
+    if (unavailable.length > 0) {
+      return NextResponse.json({
+        success: false,
+        error: "มีสินค้าบางรายการไม่พร้อมจำหน่าย",
+        unavailableIds: unavailable.map(p => p.id),
+        unavailableNames: unavailable.map(p => p.name),
+      }, { status: 400 });
     }
+
+    const products = allProducts;
 
     const isPickup = data.orderType === "PICKUP";
 

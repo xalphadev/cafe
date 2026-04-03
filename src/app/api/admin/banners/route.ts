@@ -2,14 +2,14 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { ok, created, error, unauthorized } from "@/lib/response";
+import { ok, error, unauthorized } from "@/lib/response";
 
 const schema = z.object({
-  title: z.string().optional(),
-  imageUrl: z.string().url(),
-  linkUrl: z.string().optional(),
-  sortOrder: z.number().int().optional(),
-  isActive: z.boolean().optional(),
+  title:     z.string().optional(),
+  imageUrl:  z.string().min(1),
+  linkUrl:   z.string().optional(),
+  sortOrder: z.number().optional(),
+  isActive:  z.boolean().optional(),
 });
 
 export async function GET() {
@@ -23,8 +23,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const data = schema.parse(body);
-    const banner = await prisma.banner.create({ data });
-    return created(banner);
+    const count = await prisma.banner.count();
+    const banner = await prisma.banner.create({
+      data: { ...data, sortOrder: data.sortOrder ?? count },
+    });
+    return ok(banner);
   } catch (err) {
     if (err instanceof z.ZodError) return error(err.issues[0].message);
     return error("เกิดข้อผิดพลาด");

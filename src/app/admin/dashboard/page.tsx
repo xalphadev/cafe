@@ -24,7 +24,7 @@ function greeting() {
   return "สวัสดีตอนเย็น";
 }
 function todayTH() {
-  return new Date().toLocaleDateString("th-TH", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  return new Date().toLocaleDateString("th-TH-u-ca-gregory", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 }
 
 // ── Trend badge ────────────────────────────────────────────────────────────

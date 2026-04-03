@@ -75,6 +75,29 @@ function KpiCard({ icon: Icon, label, value, sub, pct, accent }: {
   );
 }
 
+const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+  "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+
+function CalendarHeader({ month, onPrev, onNext }: { month: Date; onPrev: () => void; onNext: () => void }) {
+  const isNextDisabled = month.getFullYear() > new Date().getFullYear() ||
+    (month.getFullYear() === new Date().getFullYear() && month.getMonth() >= new Date().getMonth());
+  return (
+    <div className="flex items-center justify-between px-3 pt-3 pb-2">
+      <button onClick={onPrev}
+        className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors active:scale-95">
+        <ChevronLeft className="w-5 h-5" style={{ color: G.primaryDk }} />
+      </button>
+      <p className="font-extrabold text-[14px]" style={{ color: G.fg }}>
+        {THAI_MONTHS[month.getMonth()]} {month.getFullYear()}
+      </p>
+      <button onClick={onNext} disabled={isNextDisabled}
+        className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors active:scale-95 disabled:opacity-30">
+        <ChevronRightIcon className="w-5 h-5" style={{ color: G.primaryDk }} />
+      </button>
+    </div>
+  );
+}
+
 function SectionCard({ title, icon: Icon, children }: { title: string; icon?: React.ElementType; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden"
@@ -107,6 +130,7 @@ export default function AdminReportsPage() {
   const [period, setPeriod] = useState("7d");
   const [customRange, setCustomRange] = useState<DateRange | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Close calendar on outside click
@@ -189,33 +213,64 @@ export default function AdminReportsPage() {
         {calendarOpen && (
           <div ref={calendarRef}
             className="absolute left-1/2 -translate-x-1/2 mt-2 z-50 bg-white rounded-2xl shadow-2xl overflow-hidden"
-            style={{ border: `1.5px solid ${G.border}`, minWidth: 320 }}>
+            style={{ border: `1.5px solid ${G.border}`, minWidth: 320, maxWidth: "calc(100vw - 2rem)" }}>
+
+            {/* Custom header — Month nav */}
+            <CalendarHeader
+              month={calendarMonth}
+              onPrev={() => setCalendarMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+              onNext={() => setCalendarMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+            />
+
             <DayPicker
               mode="range"
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
               selected={customRange}
               onSelect={(range) => {
                 setCustomRange(range);
                 if (range?.from && range?.to) setCalendarOpen(false);
               }}
               disabled={{ after: new Date() }}
-              locale={th}
+              hideNavigation
               showOutsideDays
-              captionLayout="dropdown"
               classNames={{
-                root: "p-3",
-                nav: "flex items-center justify-between mb-2",
-                month_caption: "text-sm font-bold text-center flex-1",
-                weekdays: "text-[11px] text-muted-foreground",
-                day: "w-9 h-9 text-[13px] rounded-xl transition-colors",
-                selected: "!bg-primary !text-white font-bold",
-                range_start: "!bg-primary !text-white rounded-l-xl",
-                range_end: "!bg-primary !text-white rounded-r-xl",
-                range_middle: "!bg-green-100 !text-primary rounded-none",
-                today: "font-bold underline",
+                root: "px-3 pb-1",
+                month_caption: "hidden",
+                weekdays: "grid grid-cols-7 mb-1",
+                weekday: "text-[11px] font-semibold text-center py-1",
+                weeks: "space-y-0.5",
+                week: "grid grid-cols-7",
+                day: "flex items-center justify-center",
+                day_button: "w-9 h-9 text-[13px] rounded-xl transition-colors w-full",
+                selected: "!bg-primary !text-white font-bold rounded-xl",
+                range_start: "!bg-primary !text-white !rounded-l-xl !rounded-r-none",
+                range_end: "!bg-primary !text-white !rounded-r-xl !rounded-l-none",
+                range_middle: "!bg-green-100 !text-green-800 !rounded-none",
+                today: "font-black underline decoration-2",
                 outside: "opacity-30",
                 disabled: "opacity-20 cursor-not-allowed",
               }}
+              formatters={{
+                formatWeekdayName: (d) => ["อา","จ","อ","พ","พฤ","ศ","ส"][d.getDay()],
+              }}
             />
+
+            {/* Range hint */}
+            <div className="px-3 pb-2 text-center">
+              {!customRange?.from ? (
+                <p className="text-[11px]" style={{ color: G.fgMuted }}>กดวันเริ่มต้น</p>
+              ) : !customRange?.to ? (
+                <p className="text-[11px] font-semibold" style={{ color: G.primaryDk }}>
+                  {format(customRange.from, "d MMM yyyy", { locale: th })} → กดวันสิ้นสุด
+                </p>
+              ) : (
+                <p className="text-[11px] font-semibold" style={{ color: G.primaryDk }}>
+                  {format(customRange.from, "d MMM yyyy", { locale: th })} – {format(customRange.to, "d MMM yyyy", { locale: th })}
+                </p>
+              )}
+            </div>
+
             <div className="px-3 pb-3 flex gap-2">
               <button
                 onClick={() => { setCustomRange(undefined); }}

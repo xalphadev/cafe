@@ -370,7 +370,7 @@ export default function AdminOrdersPage() {
 
       {/* ══ Detail dialog ═══════════════════════════════════ */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] max-h-[94vh] flex flex-col p-0 rounded-3xl overflow-hidden gap-0 shadow-2xl">
+        <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] h-[94vh] flex flex-col p-0 rounded-3xl overflow-hidden gap-0 shadow-2xl">
           {selectedOrder && (() => {
             const pickup  = isPickup(selectedOrder);
             const next    = nextOf(selectedOrder);
@@ -608,7 +608,7 @@ export default function AdminOrdersPage() {
                         <div className="flex items-center gap-2 bg-primary/5 rounded-xl px-3 py-2">
                           <Clock className="w-4 h-4 text-primary flex-shrink-0" />
                           <p className="text-sm font-medium text-primary">
-                            {new Date(eta).toLocaleString("th-TH", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            {new Date(eta).toLocaleString("th-TH-u-ca-gregory", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                           </p>
                         </div>
                       )}

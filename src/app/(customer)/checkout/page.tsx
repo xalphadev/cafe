@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ChevronLeft, ShoppingBag, Store, Smartphone, Wallet,
-  PenLine, Star, CheckCircle2, CupSoda, Sparkles,
+  PenLine, Star, CheckCircle2, CupSoda, Sparkles, AlertTriangle, Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
@@ -28,12 +28,13 @@ type PaymentMethod = "QR_PROMPTPAY" | "COD";
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { items, total, clearCart } = useCartStore();
+  const { items, total, clearCart, removeItem } = useCartStore();
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("QR_PROMPTPAY");
   const [pointsToUse, setPointsToUse] = useState(0);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
+  const [unavailableIds, setUnavailableIds] = useState<string[]>([]);
 
   const subtotal = total();
 
@@ -62,7 +63,15 @@ export default function CheckoutPage() {
         }),
       });
       const data = await res.json();
-      if (!data.success) { toast.error(data.error); return; }
+      if (!data.success) {
+        if (data.unavailableIds?.length) {
+          setUnavailableIds(data.unavailableIds);
+          toast.error(`ปิดการขายแล้ว: ${data.unavailableNames?.join(", ")}`, { duration: 5000 });
+        } else {
+          toast.error(data.error);
+        }
+        return;
+      }
       clearCart();
       toast.success("สั่งซื้อสำเร็จ!");
       if (paymentMethod === "QR_PROMPTPAY") {
@@ -94,10 +103,10 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-safe">
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
+      <header className="flex-shrink-0 bg-white/90 backdrop-blur-md border-b border-gray-100 z-40">
         <div className="flex items-center gap-3 px-4 h-14">
           <button
             onClick={() => router.push("/cart")}
@@ -136,6 +145,37 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* ── Unavailable alert banner ── */}
+        {unavailableIds.length > 0 && (
+          <div className="rounded-2xl overflow-hidden" style={{ background: "oklch(0.98 0.02 25)", border: "1.5px solid oklch(0.88 0.10 25)" }}>
+            <div className="p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: "oklch(0.55 0.22 25)" }} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm" style={{ color: "oklch(0.40 0.18 25)" }}>สินค้าบางรายการปิดการขายแล้ว</p>
+                  <p className="text-xs mt-1 leading-relaxed" style={{ color: "oklch(0.55 0.15 25)" }}>
+                    กรุณาลบรายการที่ไฮไลต์สีแดงออก แล้วสั่งใหม่อีกครั้ง
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  unavailableIds.forEach(id => {
+                    const item = items.find(i => i.productId === id);
+                    if (item) removeItem(cartKey(item.productId, item.options ?? []));
+                  });
+                  setUnavailableIds([]);
+                  toast.success("ลบรายการที่ปิดขายออกแล้ว");
+                }}
+                className="mt-3 w-full h-10 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+                style={{ background: "oklch(0.55 0.22 25)", color: "white" }}>
+                <Trash2 className="w-4 h-4" />
+                ลบรายการที่ปิดขายออกทั้งหมด
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ── Order items ── */}
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
           <div className="px-4 pt-4 pb-2 flex items-center gap-2">
@@ -150,42 +190,56 @@ export default function CheckoutPage() {
             </span>
           </div>
           <div className="px-4 pb-4 space-y-3 mt-1">
-            {items.map((item, idx) => (
-              <div key={cartKey(item.productId, item.options ?? [])}>
-                <div className="flex items-center gap-3">
-                  {/* Product image */}
-                  <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100">
-                    {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={56}
-                        height={56}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center"
-                        style={{ background: G.gradLt }}>
-                        <CupSoda className="w-6 h-6" style={{ color: G.primary }} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-800">{item.name}</p>
-                    {item.options && item.options.length > 0 && (
-                      <p className="text-[11px] text-gray-400 mt-0.5 truncate">
-                        {item.options.map(o => o.optionName).join(", ")}
+            {items.map((item, idx) => {
+              const isUnavailable = unavailableIds.includes(item.productId);
+              return (
+                <div key={cartKey(item.productId, item.options ?? [])}>
+                  <div className={`flex items-center gap-3 rounded-xl transition-all ${isUnavailable ? "p-2 -mx-2" : ""}`}
+                    style={isUnavailable ? { background: "oklch(0.97 0.03 25)", border: "1.5px solid oklch(0.88 0.10 25)" } : {}}>
+                    {/* Product image */}
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-100 relative">
+                      {item.image ? (
+                        <Image src={item.image} alt={item.name} width={56} height={56} className={`w-full h-full object-cover ${isUnavailable ? "opacity-40" : ""}`} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: G.gradLt }}>
+                          <CupSoda className="w-6 h-6" style={{ color: G.primary }} />
+                        </div>
+                      )}
+                      {isUnavailable && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <AlertTriangle className="w-5 h-5" style={{ color: "oklch(0.55 0.22 25)" }} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold ${isUnavailable ? "" : "text-gray-800"}`}
+                        style={isUnavailable ? { color: "oklch(0.40 0.18 25)" } : {}}>
+                        {item.name}
                       </p>
-                    )}
-                    <p className="text-xs text-gray-400 mt-0.5">x{item.quantity} × {formatPrice(item.price)}</p>
+                      {isUnavailable && (
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5"
+                          style={{ background: "oklch(0.55 0.22 25)", color: "white" }}>
+                          ปิดการขาย
+                        </span>
+                      )}
+                      {!isUnavailable && item.options && item.options.length > 0 && (
+                        <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+                          {item.options.map(o => o.optionName).join(", ")}
+                        </p>
+                      )}
+                      {!isUnavailable && (
+                        <p className="text-xs text-gray-400 mt-0.5">x{item.quantity} × {formatPrice(item.price)}</p>
+                      )}
+                    </div>
+                    <span className={`text-sm font-bold flex-shrink-0 ${isUnavailable ? "line-through opacity-40" : ""}`}
+                      style={{ color: isUnavailable ? "oklch(0.55 0.22 25)" : G.primary }}>
+                      {formatPrice(item.price * item.quantity)}
+                    </span>
                   </div>
-                  <span className="text-sm font-bold flex-shrink-0" style={{ color: G.primary }}>
-                    {formatPrice(item.price * item.quantity)}
-                  </span>
+                  {idx < items.length - 1 && <div className="mt-3 border-t border-dashed border-gray-100" />}
                 </div>
-                {idx < items.length - 1 && <div className="mt-3 border-t border-dashed border-gray-100" />}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -318,15 +372,15 @@ export default function CheckoutPage() {
 
       </div>
 
-      {/* ── Submit button ── */}
-      <div className="px-4 pt-3 pb-6">
+      {/* ── Submit button (always visible at bottom) ── */}
+      <div className="flex-shrink-0 px-4 pt-3 pb-6 bg-gray-50" style={{ boxShadow: "0 -4px 16px rgba(0,0,0,0.06)" }}>
         <button
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={loading || unavailableIds.length > 0}
           className="w-full h-14 rounded-2xl text-base font-black text-white disabled:opacity-60 transition-opacity active:opacity-80"
-          style={{ background: G.grad, boxShadow: G.shadow }}
+          style={{ background: unavailableIds.length > 0 ? "oklch(0.70 0 0)" : G.grad, boxShadow: unavailableIds.length > 0 ? "none" : G.shadow }}
         >
-          {loading ? "กำลังสั่ง..." : `สั่งแล้วมารับ — ${formatPrice(grandTotal)}`}
+          {loading ? "กำลังสั่ง..." : unavailableIds.length > 0 ? "กรุณาลบสินค้าที่ปิดขายก่อน" : `สั่งแล้วมารับ — ${formatPrice(grandTotal)}`}
         </button>
       </div>
     </div>

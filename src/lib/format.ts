@@ -11,8 +11,9 @@ export function formatNumber(n: number): string {
   return new Intl.NumberFormat("th-TH").format(n);
 }
 
+// th-TH-u-ca-gregory forces Gregorian (CE) year instead of Buddhist Era (BE/พ.ศ.)
 export function formatDate(date: Date | string): string {
-  return new Intl.DateTimeFormat("th-TH", {
+  return new Intl.DateTimeFormat("th-TH-u-ca-gregory", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -20,7 +21,7 @@ export function formatDate(date: Date | string): string {
 }
 
 export function formatDateTime(date: Date | string): string {
-  return new Intl.DateTimeFormat("th-TH", {
+  return new Intl.DateTimeFormat("th-TH-u-ca-gregory", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -34,7 +35,7 @@ export function formatPhone(phone: string): string {
 }
 
 export function formatTime(date: Date | string): string {
-  return new Intl.DateTimeFormat("th-TH", {
+  return new Intl.DateTimeFormat("th-TH-u-ca-gregory", {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(date));

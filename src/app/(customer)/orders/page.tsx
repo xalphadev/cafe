@@ -16,6 +16,8 @@ import {
   UtensilsCrossed,
   MapPin,
   ChevronRight,
+  Sparkles,
+  Store,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/format";
@@ -124,91 +126,128 @@ function formatRelative(dateStr: string) {
   const diffD = Math.floor(diffH / 24);
   if (diffD === 1) return "เมื่อวาน";
   if (diffD < 7) return diffD + " วันที่แล้ว";
-  return date.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
+  return date.toLocaleDateString("th-TH-u-ca-gregory", { day: "numeric", month: "short" });
 }
 
 function OrderCard({ order }: { order: OrderWithItems }) {
   const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG["PENDING"];
   const isPickup = (order as any).orderType === "PICKUP";
   const isActive = cfg.active;
+  const isReady = order.status === "READY";
+  const isPendingPayment = order.status === "PENDING_PAYMENT";
+  const totalQty = order.items.reduce((s: number, i: any) => s + i.quantity, 0);
   const itemNames = order.items.slice(0, 2).map((i: any) => i.product.name).join(", ");
   const extraCount = order.items.length > 2 ? order.items.length - 2 : 0;
-  const thumbs = order.items.slice(0, 3).map((i: any) => i.product.image).filter(Boolean);
+  const thumbs = order.items.slice(0, 4).map((i: any) => i.product.image).filter(Boolean) as string[];
 
   return (
     <Link href={`/orders/${order.id}`}>
       <div
         className="bg-white rounded-2xl overflow-hidden transition-all active:scale-[0.985]"
         style={{
-          boxShadow: isActive
-            ? "0 1px 4px rgba(0,0,0,0.06), 0 0 0 1.5px " + cfg.border + "40"
-            : "0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px #ebebeb",
-          borderLeft: isActive ? "4px solid " + cfg.border : "4px solid transparent",
+          boxShadow: isReady
+            ? "0 0 0 2px #2dd4bf, 0 4px 16px #2dd4bf28"
+            : isActive
+              ? "0 2px 12px rgba(0,0,0,0.07), 0 0 0 1.5px " + cfg.border + "50"
+              : "0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px #f0f0f0",
         }}
       >
-        <div className="flex items-stretch">
-          {/* Main content */}
-          <div className="flex-1 min-w-0 px-4 py-3.5">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] text-gray-400 font-mono tracking-wide">
+        {/* Top color bar */}
+        <div className="h-1 w-full" style={{
+          background: isActive
+            ? `linear-gradient(90deg, ${cfg.border}55 0%, ${cfg.border} 50%, ${cfg.border}55 100%)`
+            : "#f4f4f5",
+        }} />
+
+        <div className="px-4 pt-3 pb-4 space-y-3">
+
+          {/* Row 1: Order ID + time · Status */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono text-[11px] font-bold text-gray-400 tracking-wide">
                 #{order.id.slice(-8).toUpperCase()}
               </span>
-              <span className={cn(
-                "inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full",
-                cfg.pill
-              )}>
-                {cfg.icon}
-                {cfg.label}
+              <span className="text-gray-200">·</span>
+              <span className="text-[11px] text-gray-400">
+                {formatRelative(order.createdAt as unknown as string)}
               </span>
             </div>
+            <span className={cn(
+              "inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0",
+              cfg.pill
+            )}>
+              {cfg.icon}
+              {cfg.label}
+            </span>
+          </div>
 
-            <p className="text-sm font-medium text-gray-800 leading-snug line-clamp-1 mb-2.5">
-              {itemNames}
-              {extraCount > 0 && (
-                <span className="ml-1 text-xs text-gray-400 font-normal">+{extraCount} รายการ</span>
-              )}
-            </p>
+          {/* Row 2: Thumbnails + item summary */}
+          <div className="flex items-center gap-3">
+            {/* Overlapping thumbnails */}
+            {thumbs.length > 0 && (
+              <div className="flex items-center flex-shrink-0">
+                {thumbs.map((src, i) => (
+                  <div
+                    key={i}
+                    className="relative w-11 h-11 rounded-xl overflow-hidden bg-gray-100 border-2 border-white"
+                    style={{ marginLeft: i === 0 ? 0 : -10, zIndex: thumbs.length - i, opacity: isActive ? 1 : 0.55 }}
+                  >
+                    <Image src={src} alt="" fill className="object-cover" sizes="44px" />
+                  </div>
+                ))}
+                {extraCount > 0 && (
+                  <div
+                    className="w-11 h-11 rounded-xl bg-gray-100 border-2 border-white flex items-center justify-center flex-shrink-0"
+                    style={{ marginLeft: -10, zIndex: 0 }}
+                  >
+                    <span className="text-[10px] font-bold text-gray-400">+{extraCount}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
-                {isPickup
-                  ? <><MapPin className="w-3 h-3" /><span>รับหน้าร้าน</span></>
-                  : <><Bike className="w-3 h-3" /><span>จัดส่ง</span></>}
-                <span className="text-gray-200 mx-0.5">|</span>
-                <span>{formatRelative(order.createdAt as unknown as string)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-bold text-gray-800">{formatPrice(order.total)}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-              </div>
+            {/* Item names + qty */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-semibold text-gray-800 line-clamp-1 leading-snug">
+                {itemNames}
+                {extraCount > 0 && thumbs.length === 0 && (
+                  <span className="ml-1 font-normal text-gray-400">+{extraCount}</span>
+                )}
+              </p>
+              <p className="text-[11px] text-gray-400 mt-0.5">{totalQty} รายการ</p>
             </div>
           </div>
 
-          {/* Thumbnails */}
-          {thumbs.length > 0 && (
-            <div className="flex flex-col justify-center gap-1 pr-3.5 py-3">
-              {thumbs.map((src: string, idx: number) => (
-                <div
-                  key={idx}
-                  className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0"
-                  style={{ opacity: isActive ? 1 : 0.6 }}
-                >
-                  <Image src={src} alt="" fill className="object-cover" sizes="48px" />
-                </div>
-              ))}
+          {/* READY callout */}
+          {isReady && (
+            <div className="flex items-center gap-2 bg-teal-50 rounded-xl px-3 py-2">
+              <Sparkles className="w-4 h-4 text-teal-500 flex-shrink-0 animate-pulse" />
+              <span className="text-[13px] font-extrabold text-teal-700">พร้อมให้รับแล้ว! มารับได้เลย</span>
             </div>
           )}
-        </div>
 
-        {/* Active shimmer bar */}
-        {isActive && (
-          <div
-            className="h-[3px] w-full"
-            style={{
-              background: "linear-gradient(90deg," + cfg.border + "33 0%," + cfg.border + " 50%," + cfg.border + "33 100%)",
-            }}
-          />
-        )}
+          {/* PENDING_PAYMENT callout */}
+          {isPendingPayment && (
+            <div className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2">
+              <CreditCard className="w-4 h-4 text-amber-500 flex-shrink-0" />
+              <span className="text-[13px] font-bold text-amber-700 flex-1">ยังไม่ได้ชำระเงิน</span>
+              <span className="text-[11px] font-bold text-amber-600">ชำระเลย →</span>
+            </div>
+          )}
+
+          {/* Row 3: pickup + price */}
+          <div className="flex items-center justify-between pt-0.5">
+            <div className="flex items-center gap-1 text-[11px] text-gray-400">
+              {isPickup
+                ? <><Store className="w-3.5 h-3.5" /><span>รับหน้าร้าน</span></>
+                : <><Bike className="w-3.5 h-3.5" /><span>จัดส่ง</span></>}
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-[15px] font-extrabold text-gray-800">{formatPrice(order.total)}</span>
+              <ChevronRight className="w-4 h-4 text-gray-300" />
+            </div>
+          </div>
+        </div>
       </div>
     </Link>
   );

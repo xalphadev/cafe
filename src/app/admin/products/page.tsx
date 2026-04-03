@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/format";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { ProductWithCategory, Category, ProductOptionGroup, ProductOption } from "@/types";
 
 type ProductForm = {
@@ -169,6 +170,7 @@ export default function AdminProductsPage() {
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [showTemplatePanel, setShowTemplatePanel] = useState(false);
   const [copyFromId, setCopyFromId] = useState("");
+  const [pendingToggle, setPendingToggle] = useState<ProductWithCategory | null>(null);
 
   const { data: products = [], isLoading } = useQuery<ProductWithCategory[]>({
     queryKey: ["admin-products", search],
@@ -300,6 +302,7 @@ export default function AdminProductsPage() {
     await fetch(`/api/admin/products/${p.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isAvailable: !p.isAvailable }) });
     toast.success(p.isAvailable ? "ปิดการขายแล้ว" : "เปิดการขายแล้ว");
     queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+    setPendingToggle(null);
   };
 
   const updateGroup = (id: string, patch: Partial<DraftGroup>) =>
@@ -364,7 +367,7 @@ export default function AdminProductsPage() {
                     {(p as { isFeatured?: boolean }).isFeatured && <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-400" />}
                   </div>
                 </div>
-                <button onClick={() => handleToggle(p)} className="flex-shrink-0 mt-0.5">
+                <button onClick={() => setPendingToggle(p)} className="flex-shrink-0 mt-0.5">
                   {p.isAvailable ? <ToggleRight className="w-9 h-9 text-primary" /> : <ToggleLeft className="w-9 h-9 text-muted-foreground" />}
                 </button>
               </div>
@@ -451,7 +454,7 @@ export default function AdminProductsPage() {
                     </button>
                   </td>
                   <td className="px-5 py-3 text-center">
-                    <button onClick={() => handleToggle(p)}>
+                    <button onClick={() => setPendingToggle(p)}>
                       {p.isAvailable
                         ? <ToggleRight className="w-8 h-8 text-primary mx-auto" />
                         : <ToggleLeft className="w-8 h-8 text-muted-foreground mx-auto" />
@@ -732,6 +735,16 @@ export default function AdminProductsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!pendingToggle}
+        onOpenChange={o => { if (!o) setPendingToggle(null); }}
+        title={pendingToggle?.isAvailable ? `ปิดการขาย "${pendingToggle?.name}"?` : `เปิดการขาย "${pendingToggle?.name}"?`}
+        description={pendingToggle?.isAvailable ? "ลูกค้าจะไม่เห็นสินค้านี้จนกว่าจะเปิดอีกครั้ง" : "สินค้านี้จะปรากฏให้ลูกค้าสั่งได้ทันที"}
+        confirmLabel={pendingToggle?.isAvailable ? "ปิดการขาย" : "เปิดการขาย"}
+        variant={pendingToggle?.isAvailable ? "danger" : "primary"}
+        onConfirm={() => { if (pendingToggle) handleToggle(pendingToggle); }}
+      />
     </div>
   );
 }
