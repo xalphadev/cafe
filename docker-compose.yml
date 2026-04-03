@@ -3,15 +3,11 @@ services:
   db:
     image: postgres:16-alpine
     container_name: cafe_db
-    env_file: .env.production
-    environment:
-      POSTGRES_DB:       ${POSTGRES_DB:-cafe_db}
-      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file: .env.production        # อ่าน POSTGRES_* โดยตรงจากไฟล์
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-cafe_db}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cafe_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,9 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: cafe_app
-    env_file: .env.production
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-cafe_db}
+    env_file: .env.production        # อ่าน DATABASE_URL และ secrets โดยตรงจากไฟล์
     depends_on:
       db:
         condition: service_healthy
