@@ -13,7 +13,7 @@ import type {
   Banner,
   Review,
   ShopSetting,
-} from "@/generated/prisma";
+} from "@/generated/prisma/client";
 
 export type {
   User,

@@ -602,7 +602,7 @@ export default function AdminProductsPage() {
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">คัดลอกจากสินค้าอื่น</p>
                   <div className="flex gap-2">
-                    <Select value={copyFromId} onValueChange={setCopyFromId}>
+                    <Select value={copyFromId} onValueChange={(val) => setCopyFromId(val ?? "")}>
                       <SelectTrigger className="flex-1 bg-white">
                         <SelectValue placeholder="เลือกสินค้า..." />
                       </SelectTrigger>
