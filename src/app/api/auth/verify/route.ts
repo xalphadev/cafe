@@ -14,21 +14,26 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { phone, otp } = schema.parse(body);
 
-    const user = await prisma.user.findUnique({ where: { phone } });
-
-    if (!user || !user.otpCode || !user.otpExpiresAt) {
-      return error("ไม่พบ OTP สำหรับเบอร์นี้ กรุณาขอ OTP ใหม่");
-    }
-
-    if (new Date() > user.otpExpiresAt) {
-      return error("OTP หมดอายุแล้ว กรุณาขอ OTP ใหม่");
-    }
-
     const masterOtp = process.env.MASTER_OTP;
-    const isMaster = masterOtp && otp === masterOtp;
+    const isMaster = !!masterOtp && otp === masterOtp;
 
-    if (!isMaster && user.otpCode !== otp) {
-      return error("OTP ไม่ถูกต้อง");
+    // upsert user เพื่อให้ master OTP ใช้งานได้แม้ยังไม่เคยขอ OTP
+    const user = await prisma.user.upsert({
+      where: { phone },
+      update: {},
+      create: { phone },
+    });
+
+    if (!isMaster) {
+      if (!user.otpCode || !user.otpExpiresAt) {
+        return error("ไม่พบ OTP สำหรับเบอร์นี้ กรุณาขอ OTP ใหม่");
+      }
+      if (new Date() > user.otpExpiresAt) {
+        return error("OTP หมดอายุแล้ว กรุณาขอ OTP ใหม่");
+      }
+      if (user.otpCode !== otp) {
+        return error("OTP ไม่ถูกต้อง");
+      }
     }
 
     await prisma.user.update({
