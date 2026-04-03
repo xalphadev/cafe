@@ -22,14 +22,13 @@ services:
       dockerfile: Dockerfile
     container_name: cafe_app
     env_file: .env.production
-    ports:
-      - "3001:3000"          # Caddy จะ proxy มาที่ port นี้
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - cafe_net
+      - proxy_net            # network เดียวกับ Caddy
 
 volumes:
   postgres_data:
@@ -37,3 +36,5 @@ volumes:
 networks:
   cafe_net:
     driver: bridge
+  proxy_net:
+    external: true          # network ที่ Caddy สร้างไว้แล้ว
