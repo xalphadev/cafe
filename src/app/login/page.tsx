@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Phone, ArrowRight, RotateCcw, ChevronLeft, Coffee, Cake, GlassWater, Salad, Check } from "lucide-react";
+import { Phone, ArrowRight, RotateCcw, ChevronLeft, Coffee, GlassWater, CupSoda, Milk, Check } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 
 const G = {
@@ -77,7 +77,7 @@ export default function LoginPage() {
           className="w-24 h-24 rounded-[2.25rem] flex items-center justify-center mb-5"
           style={{ background: G.grad, boxShadow: G.shadow }}
         >
-          <Coffee className="w-12 h-12 text-white" />
+          <CupSoda className="w-12 h-12 text-white" />
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight mb-1.5" style={{ color: G.fg }}>ช่วงเวลาคาเฟ่</h1>
         <p className="text-sm font-medium" style={{ color: G.fgMuted }}>สั่งเครื่องดื่มและอาหาร ส่งถึงบ้าน</p>
@@ -85,9 +85,9 @@ export default function LoginPage() {
         <div className="flex gap-2 mt-5 flex-wrap justify-center">
           {[
             { icon: Coffee,      label: "กาแฟ" },
-            { icon: Cake,        label: "เค้ก" },
-            { icon: GlassWater,  label: "ชานม" },
-            { icon: Salad,       label: "อาหาร" },
+            { icon: GlassWater,  label: "ชา" },
+            { icon: CupSoda,     label: "ปั่น" },
+            { icon: Milk,        label: "นม" },
           ].map(({ icon: Icon, label }) => (
             <span key={label} className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold"
               style={{ background: "white", color: G.primary, boxShadow: "0 1px 4px oklch(0.63 0.18 145 / 0.15)" }}>
