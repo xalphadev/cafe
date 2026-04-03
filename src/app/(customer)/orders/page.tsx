@@ -187,7 +187,7 @@ function OrderCard({ order }: { order: OrderWithItems }) {
           {/* Thumbnails */}
           {thumbs.length > 0 && (
             <div className="flex flex-col justify-center gap-1 pr-3.5 py-3">
-              {thumbs.map((src, idx) => (
+              {thumbs.map((src: string, idx: number) => (
                 <div
                   key={idx}
                   className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0"
