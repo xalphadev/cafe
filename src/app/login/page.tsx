@@ -63,7 +63,7 @@ export default function LoginPage() {
   const otpReady   = otp.length === 6;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(170deg, oklch(0.94 0.08 145) 0%, oklch(0.98 0.03 145) 45%, white 100%)" }}>
+    <div className="min-h-screen flex flex-col overflow-hidden" style={{ background: "linear-gradient(170deg, oklch(0.94 0.08 145) 0%, oklch(0.98 0.03 145) 45%, white 100%)" }}>
 
       {/* Deco blobs */}
       <div className="absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none opacity-40"
