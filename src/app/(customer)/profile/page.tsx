@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -8,6 +8,7 @@ import {
   Ticket, Tag, Copy, Check, X,
   ArrowLeft, Phone, Award, Sparkles, KeyRound, Delete,
   Lock, Key, CheckCircle2, AlertTriangle,
+  MessageCircle, Unlink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,50 @@ export default function ProfilePage() {
   const [name, setName] = useState(user?.name ?? "");
   const [activeSection, setActiveSection] = useState<"main" | "points" | "coupons" | "change-pin">("main");
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [lineUnlinking, setLineUnlinking] = useState(false);
+
+  const { data: profileData, refetch: refetchProfile } = useQuery<{ lineConnected: boolean }>({
+    queryKey: ["user-profile-line"],
+    queryFn: () => fetch("/api/user/profile").then((r) => r.json()).then((d) => d.data),
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("line_success")) {
+      toast.success("เชื่อมต่อ LINE สำเร็จแล้ว! 🎉");
+      refetchProfile();
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (params.get("line_error")) {
+      const errMap: Record<string, string> = {
+        cancelled: "ยกเลิกการเชื่อมต่อ LINE",
+        already_linked: "LINE นี้ถูกเชื่อมกับบัญชีอื่นแล้ว",
+        invalid_state: "เซสชันหมดอายุ กรุณาลองใหม่",
+        token_failed: "ไม่สามารถยืนยันตัวตนกับ LINE ได้",
+        server_error: "เกิดข้อผิดพลาด กรุณาลองใหม่",
+      };
+      toast.error(errMap[params.get("line_error")!] ?? "เกิดข้อผิดพลาด");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [refetchProfile]);
+
+  const handleLineUnlink = async () => {
+    setLineUnlinking(true);
+    try {
+      const res = await fetch("/api/user/profile", { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("ยกเลิกการเชื่อมต่อ LINE แล้ว");
+        refetchProfile();
+      } else toast.error("เกิดข้อผิดพลาด");
+    } catch {
+      toast.error("เกิดข้อผิดพลาด");
+    } finally {
+      setLineUnlinking(false);
+    }
+  };
+
+  const lineConnected = profileData?.lineConnected ?? false;
 
   const { data: points } = useQuery<{ balance: number; transactions: PointTransaction[] }>({
     queryKey: ["user-points"],
@@ -102,6 +147,7 @@ export default function ProfilePage() {
       sub: "แก้ไขรหัส PIN สำหรับเข้าสู่ระบบ",
     },
   ];
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -192,6 +238,42 @@ export default function ProfilePage() {
               <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
             </button>
           ))}
+        </div>
+
+        {/* LINE Connect Card */}
+        <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.07)" }}>
+          <div className="flex items-center gap-3.5 px-4 py-3.5">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white"
+              style={{ background: "linear-gradient(135deg, #06c755, #00a544)" }}>
+              <MessageCircle className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-800">เชื่อมต่อ LINE</p>
+              <p className="text-xs text-gray-400 mt-0.5 truncate">
+                {lineConnected ? "เชื่อมต่อแล้ว — รับแจ้งเตือนออเดอร์ผ่าน LINE" : "รับแจ้งเตือนออเดอร์ผ่าน LINE OA"}
+              </p>
+            </div>
+            {lineConnected ? (
+              <button
+                onClick={handleLineUnlink}
+                disabled={lineUnlinking}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-95 disabled:opacity-50"
+                style={{ background: "oklch(0.97 0.01 25)", color: "oklch(0.55 0.22 25)" }}
+              >
+                <Unlink className="w-3.5 h-3.5" />
+                {lineUnlinking ? "กำลังยกเลิก..." : "ยกเลิก"}
+              </button>
+            ) : (
+              <a
+                href="/api/line/login?returnTo=/profile"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white transition-all active:scale-95"
+                style={{ background: "linear-gradient(135deg, #06c755, #00a544)" }}
+              >
+                <Check className="w-3.5 h-3.5" />
+                เชื่อมต่อ
+              </a>
+            )}
+          </div>
         </div>
 
         {/* Logout */}
