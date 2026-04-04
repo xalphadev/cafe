@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect, Suspense, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -88,6 +88,11 @@ function LoginContent() {
   const router = useRouter();
   const { setUser } = useAuthStore();
 
+  const envAppBase = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+  const [lineLoginHref, setLineLoginHref] = useState(() =>
+    envAppBase ? `${envAppBase}/api/line/login?returnTo=/home` : "/api/line/login?returnTo=/home"
+  );
+
   const [step, setStep]         = useState<Step>("phone");
   const [phone, setPhone]       = useState("");
   const [otp, setOtp]           = useState("");
@@ -105,6 +110,30 @@ function LoginContent() {
   useEffect(() => {
     if (step === "setup_name") setTimeout(() => nameRef.current?.focus(), 100);
   }, [step]);
+
+  useEffect(() => {
+    if (!envAppBase) {
+      setLineLoginHref(`${window.location.origin}/api/line/login?returnTo=/home`);
+    }
+  }, [envAppBase]);
+
+  const handleLineLoginClick = async (e: MouseEvent<HTMLAnchorElement>) => {
+    const url = lineLoginHref.startsWith("http")
+      ? lineLoginHref
+      : `${window.location.origin}${lineLoginHref.startsWith("/") ? lineLoginHref : `/${lineLoginHref}`}`;
+    const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
+    if (!liffId) return;
+    try {
+      const liff = (await import("@line/liff")).default;
+      await liff.init({ liffId });
+      if (liff.isInClient()) {
+        e.preventDefault();
+        liff.openWindow({ url, external: true });
+      }
+    } catch {
+      /* allow default <a> navigation */
+    }
+  };
 
   const startCountdown = () => {
     setCountdown(60);
@@ -230,7 +259,7 @@ function LoginContent() {
   const otpReady   = otp.length === 6;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-hidden" style={{ background: G.grad }}>
+    <div className="relative min-h-screen flex flex-col overflow-hidden" style={{ background: G.grad }}>
 
       {/* Deco circles */}
       <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
@@ -260,7 +289,7 @@ function LoginContent() {
       </div>
 
       {/* Card */}
-      <div className="relative z-10 rounded-t-[2.5rem] px-6 pt-7 pb-10 bg-white"
+      <div className="relative z-20 rounded-t-[2.5rem] px-6 pt-7 pb-10 bg-white"
         style={{ boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
         <div className="w-10 h-1 rounded-full mx-auto mb-6" style={{ background: G.border }} />
 
@@ -273,7 +302,8 @@ function LoginContent() {
             </div>
 
             <a
-              href="/api/line/login?returnTo=/home"
+              href={lineLoginHref}
+              onClick={handleLineLoginClick}
               className="w-full h-16 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-white"
               style={{ background: G.grad, boxShadow: "0 6px 20px oklch(0.55 0.20 152 / 0.45)" }}
             >
