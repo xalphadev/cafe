@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -48,12 +48,16 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (handledLineCallback.current) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("line_success")) {
+      handledLineCallback.current = true;
+      window.history.replaceState({}, "", window.location.pathname);
       toast.success("เชื่อมต่อ LINE สำเร็จแล้ว! 🎉");
       refetchProfile();
-      window.history.replaceState({}, "", window.location.pathname);
     } else if (params.get("line_error")) {
+      handledLineCallback.current = true;
+      window.history.replaceState({}, "", window.location.pathname);
       const errMap: Record<string, string> = {
         cancelled: "ยกเลิกการเชื่อมต่อ LINE",
         already_linked: "LINE นี้ถูกเชื่อมกับบัญชีอื่นแล้ว",
@@ -62,9 +66,9 @@ export default function ProfilePage() {
         server_error: "เกิดข้อผิดพลาด กรุณาลองใหม่",
       };
       toast.error(errMap[params.get("line_error")!] ?? "เกิดข้อผิดพลาด");
-      window.history.replaceState({}, "", window.location.pathname);
     }
-  }, [refetchProfile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLineUnlink = async () => {
     setLineUnlinking(true);
@@ -83,6 +87,7 @@ export default function ProfilePage() {
   };
 
   const lineConnected = profileData?.lineConnected ?? false;
+  const handledLineCallback = useRef(false);
 
   const { data: points } = useQuery<{ balance: number; transactions: PointTransaction[] }>({
     queryKey: ["user-points"],
