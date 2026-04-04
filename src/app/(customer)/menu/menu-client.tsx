@@ -286,7 +286,7 @@ export function MenuClient() {
                   <Heart className="w-8 h-8" style={{ color: "oklch(0.68 0.20 15)", opacity: 0.4 }} />
                 </div>
                 <p className="font-bold" style={{ color: G.fg }}>ยังไม่มีเมนูโปรด</p>
-                <p className="text-sm mt-1" style={{ color: G.fgMuted }}>กดไอคอนหัวใจ ❤ บนเมนูที่ชอบ</p>
+                <p className="text-sm mt-1" style={{ color: G.fgMuted }}>กดไอคอนหัวใจบนเมนูที่ชอบ</p>
               </>
             ) : (
               <>

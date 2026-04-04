@@ -393,11 +393,20 @@ export default function AdminReportsPage() {
               {(data?.topProducts ?? []).map((p: any, i: number) => {
                 const maxRev = data.topProducts[0]?.revenue ?? 1;
                 const pct = Math.round((p.revenue / maxRev) * 100);
-                const medals = ["🥇", "🥈", "🥉"];
+                const medalColors = [
+                  { bg: "#fef3c7", color: "#d97706", border: "#fcd34d" }, // gold
+                  { bg: "#f1f5f9", color: "#64748b", border: "#cbd5e1" }, // silver
+                  { bg: "#fdf2e9", color: "#c2410c", border: "#fca985" }, // bronze
+                ];
                 return (
                   <div key={p.productId} className="flex items-center gap-3">
-                    <div className="w-6 text-center text-sm flex-shrink-0">
-                      {i < 3 ? medals[i] : <span className="text-[12px] font-bold" style={{ color: G.fgMuted }}>{i + 1}</span>}
+                    <div className="w-6 flex justify-center flex-shrink-0">
+                      {i < 3
+                        ? <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black border"
+                            style={{ background: medalColors[i].bg, color: medalColors[i].color, borderColor: medalColors[i].border }}>
+                            {i + 1}
+                          </span>
+                        : <span className="text-[12px] font-bold" style={{ color: G.fgMuted }}>{i + 1}</span>}
                     </div>
                     <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"
                       style={{ background: G.primaryLt }}>

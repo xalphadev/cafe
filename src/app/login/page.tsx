@@ -190,7 +190,7 @@ export default function LoginPage() {
       const d = await r.json();
       if (!d.success) { toast.error(d.error); return; }
       setUser(d.data.user);
-      toast.success(isNew ? "สมัครสำเร็จ! ยินดีต้อนรับ 🎉" : "เปลี่ยน PIN สำเร็จ!");
+      toast.success(isNew ? "สมัครสำเร็จ! ยินดีต้อนรับ" : "เปลี่ยน PIN สำเร็จ!");
       router.replace("/home");
     } catch { toast.error("เกิดข้อผิดพลาด"); } finally { setLoading(false); }
   };

@@ -156,7 +156,7 @@ export default function HomeClient() {
       {!shopOpen && (
         <div className="mx-4 mt-3 rounded-2xl overflow-hidden" style={{ boxShadow: "0 2px 12px rgba(239,68,68,0.15)" }}>
           <div className="bg-red-500 px-4 py-3 flex items-center gap-2">
-            <span className="text-lg">🔴</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-white flex-shrink-0" />
             <p className="font-bold text-white text-sm">ร้านปิดให้บริการชั่วคราว</p>
           </div>
           <div className="bg-red-50 border border-red-200 border-t-0 rounded-b-2xl px-4 py-3">

@@ -7,6 +7,7 @@ import {
   MapPin, ChevronRight, LogOut, Edit2, Plus, Trash2,
   Ticket, Tag, Copy, Check, X,
   ArrowLeft, Phone, Award, Sparkles, KeyRound, Delete,
+  Lock, Key, CheckCircle2, AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -623,9 +624,9 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
   };
 
   const stepConfig = {
-    current: { title: "ใส่ PIN ปัจจุบัน", sub: "กรอก PIN 6 หลักที่ใช้อยู่", value: currentPin, icon: "🔒" },
-    new:     { title: "ตั้ง PIN ใหม่",    sub: "กรอก PIN 6 หลักที่ต้องการ",   value: newPin,     icon: "🔑" },
-    confirm: { title: "ยืนยัน PIN ใหม่",  sub: "กรอก PIN ใหม่อีกครั้ง",       value: confirmPin, icon: "✅" },
+    current: { title: "ใส่ PIN ปัจจุบัน", sub: "กรอก PIN 6 หลักที่ใช้อยู่", value: currentPin, icon: <Lock   className="w-7 h-7" style={{ color: G.primary }} /> },
+    new:     { title: "ตั้ง PIN ใหม่",    sub: "กรอก PIN 6 หลักที่ต้องการ",   value: newPin,     icon: <Key    className="w-7 h-7" style={{ color: G.primary }} /> },
+    confirm: { title: "ยืนยัน PIN ใหม่",  sub: "กรอก PIN ใหม่อีกครั้ง",       value: confirmPin, icon: <CheckCircle2 className="w-7 h-7" style={{ color: G.primary }} /> },
   }[step];
 
   const handleDelete = () => {
@@ -647,7 +648,7 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
         {errorMsg && (
           <div className="mb-4 flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold"
             style={{ background: "oklch(0.97 0.03 25)", color: "oklch(0.50 0.22 25)", border: "1.5px solid oklch(0.90 0.10 25)" }}>
-            <span>⚠️</span> {errorMsg}
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" /> {errorMsg}
           </div>
         )}
 
@@ -671,7 +672,7 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
 
         {/* Main card */}
         <div className="rounded-3xl p-6 text-center" style={{ background: G.primaryXlt, border: `1.5px solid ${G.border}` }}>
-          <div className="text-3xl mb-2">{stepConfig.icon}</div>
+          <div className="flex justify-center mb-2">{stepConfig.icon}</div>
           <h2 className="text-lg font-extrabold" style={{ color: G.fg }}>{stepConfig.title}</h2>
           <p className="text-sm mt-1" style={{ color: G.fgMuted }}>{stepConfig.sub}</p>
           <PinDots value={stepConfig.value} />
