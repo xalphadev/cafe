@@ -5,10 +5,10 @@
 
 :root {
   /* ── Brand palette — Natural Forest Green ── */
-  --brand:         oklch(0.64 0.200 145);  /* natural medium green */
-  --brand-dark:    oklch(0.51 0.185 148);  /* forest dark green */
-  --brand-light:   oklch(0.83 0.130 140);  /* sage light green */
-  --brand-xlight:  oklch(0.93 0.068 140);  /* very light sage wash */
+  --brand:         oklch(0.49 0.152 150);  /* deep botanical green (logo) */
+  --brand-dark:    oklch(0.39 0.138 152);  /* deep forest green */
+  --brand-light:   oklch(0.80 0.098 148);  /* soft green tint */
+  --brand-xlight:  oklch(0.93 0.048 148);  /* very light green wash */
   --brand-foreground: oklch(1 0 0);
 
   /* ── Base ── */
@@ -19,17 +19,17 @@
   --popover:              oklch(0.992 0.004 87);
   --popover-foreground:   oklch(0.18 0.022 145);
   --muted:                oklch(0.955 0.010 87);
-  --muted-foreground:     oklch(0.52 0.060 148);
-  --border:               oklch(0.87 0.075 140);
-  --input:                oklch(0.87 0.075 140);
-  --ring:                 oklch(0.64 0.200 145);
+  --muted-foreground:     oklch(0.52 0.052 150);
+  --border:               oklch(0.88 0.058 148);
+  --input:                oklch(0.88 0.058 148);
+  --ring:                 oklch(0.49 0.152 150);
 
   /* ── Semantic ── */
-  --primary:            oklch(0.64 0.200 145);
+  --primary:            oklch(0.49 0.152 150);
   --primary-foreground: oklch(1 0 0);
-  --secondary:          oklch(0.83 0.130 140);
+  --secondary:          oklch(0.80 0.098 148);
   --secondary-foreground: oklch(0.32 0.08 148);
-  --accent:             oklch(0.83 0.130 140);
+  --accent:             oklch(0.80 0.098 148);
   --accent-foreground:  oklch(0.32 0.08 148);
   --destructive:        oklch(0.55 0.20 25);
   --destructive-foreground: oklch(1 0 0);

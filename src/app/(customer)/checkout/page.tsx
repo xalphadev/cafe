@@ -17,10 +17,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 const G = {
-  grad:    "linear-gradient(160deg, oklch(0.64 0.200 145) 0%, oklch(0.51 0.185 148) 100%)",
-  gradLt:  "linear-gradient(135deg, oklch(0.64 0.200 145) 0%, oklch(0.51 0.185 148) 100%)",
-  primary: "oklch(0.64 0.200 145)",
-  shadow:  "0 8px 24px oklch(0.51 0.18 148 / 0.28)",
+  grad:    "linear-gradient(160deg, oklch(0.49 0.152 150) 0%, oklch(0.39 0.138 152) 100%)",
+  gradLt:  "linear-gradient(135deg, oklch(0.49 0.152 150) 0%, oklch(0.39 0.138 152) 100%)",
+  primary: "oklch(0.49 0.152 150)",
+  shadow:  "0 8px 24px oklch(0.39 0.12 152 / 0.28)",
 };
 
 type PaymentMethod = "QR_PROMPTPAY" | "COD";
@@ -126,7 +126,7 @@ export default function CheckoutPage() {
         <div className="rounded-2xl overflow-hidden" style={{ background: G.gradLt, border: "1px solid oklch(0.88 0.06 152)" }}>
           <div className="p-4 flex gap-3 items-center">
             <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center flex-shrink-0"
-              style={{ boxShadow: "0 2px 8px oklch(0.51 0.18 148 / 0.15)" }}>
+              style={{ boxShadow: "0 2px 8px oklch(0.39 0.12 152 / 0.15)" }}>
               <Store className="w-6 h-6" style={{ color: G.primary }} />
             </div>
             <div className="flex-1 min-w-0">

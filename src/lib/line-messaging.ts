@@ -81,7 +81,7 @@ export function buildOrderFlexMessage(
       header: {
         type: "box",
         layout: "vertical",
-        backgroundColor: "#22c55e",
+        backgroundColor: "#2D7A47",
         paddingAll: "16px",
         contents: [
           {
@@ -124,7 +124,7 @@ export function buildOrderFlexMessage(
           {
             type: "button",
             style: "primary",
-            color: "#22c55e",
+            color: "#2D7A47",
             height: "sm",
             action: {
               type: "uri",

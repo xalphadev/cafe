@@ -13,16 +13,16 @@ import type { CartItem } from "@/types";
 import type { ProductWithCategory } from "@/types";
 
 const G = {
-  primary:    "oklch(0.64 0.200 145)",
-  primaryDk:  "oklch(0.51 0.185 148)",
-  primaryLt:  "oklch(0.83 0.130 140)",
-  primaryXlt: "oklch(0.93 0.068 140)",
+  primary:    "oklch(0.49 0.152 150)",
+  primaryDk:  "oklch(0.39 0.138 152)",
+  primaryLt:  "oklch(0.80 0.098 148)",
+  primaryXlt: "oklch(0.93 0.048 148)",
   fg:         "oklch(0.18 0.022 145)",
-  fgMuted:    "oklch(0.52 0.060 148)",
-  border:     "oklch(0.87 0.075 140)",
+  fgMuted:    "oklch(0.52 0.052 150)",
+  border:     "oklch(0.88 0.058 148)",
   bg:         "oklch(0.972 0.010 87)",
-  grad:       "linear-gradient(160deg, oklch(0.64 0.200 145) 0%, oklch(0.51 0.185 148) 100%)",
-  shadow:     "0 8px 24px oklch(0.51 0.18 148 / 0.28)",
+  grad:       "linear-gradient(160deg, oklch(0.49 0.152 150) 0%, oklch(0.39 0.138 152) 100%)",
+  shadow:     "0 8px 24px oklch(0.39 0.12 152 / 0.28)",
 };
 
 export default function CartPage() {
@@ -56,7 +56,7 @@ export default function CartPage() {
     return (
       <div className="flex flex-col min-h-screen pb-24 bg-background">
         <header className="sticky-header bg-white px-4 h-14 pt-2 flex items-center gap-3"
-          style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.87 0.075 140)" }}>
+          style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.88 0.058 148)" }}>
           <button onClick={() => router.push("/menu")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-transform"
             style={{ background: G.primaryLt }}>
             <ArrowLeft className="w-4.5 h-4.5" style={{ color: G.primary }} />
@@ -66,7 +66,7 @@ export default function CartPage() {
 
         <div className="flex-1 flex flex-col items-center justify-center gap-5 px-6 text-center">
           <div className="w-28 h-28 rounded-3xl flex items-center justify-center text-6xl"
-            style={{ background: G.primaryLt, boxShadow: `0 8px 24px oklch(0.51 0.16 148 / 0.15)` }}>
+            style={{ background: G.primaryLt, boxShadow: `0 8px 24px oklch(0.49 0.12 150 / 0.15)` }}>
             <ShoppingBag className="w-10 h-10" style={{ color: G.primary, opacity: 0.5 }} />
           </div>
           <div>
@@ -90,7 +90,7 @@ export default function CartPage() {
 
       {/* ── Header ── */}
       <header className="sticky-header bg-white px-4 h-14 pt-2 flex items-center gap-3"
-        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.87 0.075 140)" }}>
+        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.88 0.058 148)" }}>
         <button onClick={() => router.push("/menu")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
           style={{ background: G.primaryLt }}>
           <ArrowLeft className="w-4 h-4" style={{ color: G.primary }} />
@@ -116,7 +116,7 @@ export default function CartPage() {
 
           return (
             <div key={key} className="bg-card rounded-3xl p-4 flex gap-3"
-              style={{ boxShadow: "0 2px 12px oklch(0.51 0.18 148 / 0.08)", border: `1.5px solid ${G.border}` }}>
+              style={{ boxShadow: "0 2px 12px oklch(0.39 0.12 152 / 0.08)", border: `1.5px solid ${G.border}` }}>
 
               {/* Image */}
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0"
@@ -187,7 +187,7 @@ export default function CartPage() {
                     <button
                       onClick={() => updateQuantity(key, item.quantity - 1)}
                       className="w-7 h-7 rounded-xl bg-white flex items-center justify-center active:scale-90 transition-transform"
-                      style={{ boxShadow: "0 1px 4px oklch(0.51 0.18 148 / 0.12)" }}>
+                      style={{ boxShadow: "0 1px 4px oklch(0.39 0.12 152 / 0.12)" }}>
                       <Minus className="w-3.5 h-3.5" style={{ color: G.primary }} strokeWidth={2.5} />
                     </button>
                     <span className="text-[15px] font-extrabold w-6 text-center tabular-nums" style={{ color: G.fg }}>
@@ -196,7 +196,7 @@ export default function CartPage() {
                     <button
                       onClick={() => updateQuantity(key, item.quantity + 1)}
                       className="w-7 h-7 rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                      style={{ background: G.primary, color: "white", boxShadow: "0 2px 8px oklch(0.51 0.16 148 / 0.28)" }}>
+                      style={{ background: G.primary, color: "white", boxShadow: "0 2px 8px oklch(0.49 0.12 150 / 0.28)" }}>
                       <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
                     </button>
                   </div>
@@ -217,7 +217,7 @@ export default function CartPage() {
 
         {/* ── Order Summary ── */}
         <div className="bg-card rounded-3xl p-4 mt-2"
-          style={{ boxShadow: "0 2px 12px oklch(0.51 0.18 148 / 0.08)", border: `1.5px solid ${G.border}` }}>
+          style={{ boxShadow: "0 2px 12px oklch(0.39 0.12 152 / 0.08)", border: `1.5px solid ${G.border}` }}>
           <h3 className="font-extrabold text-sm mb-3" style={{ color: G.fg }}>สรุปรายการ</h3>
           <div className="space-y-2">
             {items.map(item => {

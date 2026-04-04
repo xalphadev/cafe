@@ -11,10 +11,10 @@ import { toast } from "sonner";
 import { formatPrice } from "@/lib/format";
 
 const G = {
-  grad:    "linear-gradient(160deg, oklch(0.64 0.200 145) 0%, oklch(0.51 0.185 148) 100%)",
-  gradLt:  "linear-gradient(135deg, oklch(0.64 0.200 145) 0%, oklch(0.51 0.185 148) 100%)",
-  primary: "oklch(0.64 0.200 145)",
-  shadow:  "0 8px 24px oklch(0.51 0.18 148 / 0.28)",
+  grad:    "linear-gradient(160deg, oklch(0.49 0.152 150) 0%, oklch(0.39 0.138 152) 100%)",
+  gradLt:  "linear-gradient(135deg, oklch(0.49 0.152 150) 0%, oklch(0.39 0.138 152) 100%)",
+  primary: "oklch(0.49 0.152 150)",
+  shadow:  "0 8px 24px oklch(0.39 0.12 152 / 0.28)",
 };
 
 type QrData = { qrDataUrl: string | null; shopQrUrl: string | null; amount: number };
@@ -204,7 +204,7 @@ export default function PaymentPage() {
           {qrSrc && (
             <div className="flex justify-center px-6 py-5">
               <div className="relative p-4 rounded-2xl bg-white"
-                style={{ border: "2px solid oklch(0.90 0.06 152)", boxShadow: "0 4px 20px oklch(0.51 0.18 148 / 0.12)" }}>
+                style={{ border: "2px solid oklch(0.90 0.06 152)", boxShadow: "0 4px 20px oklch(0.39 0.12 152 / 0.12)" }}>
                 <Image
                   src={qrSrc}
                   alt="QR PromptPay"
@@ -289,7 +289,7 @@ export default function PaymentPage() {
                 style={{ borderColor: "oklch(0.82 0.10 152)", background: G.gradLt }}
               >
                 <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center"
-                  style={{ boxShadow: "0 2px 8px oklch(0.51 0.18 148 / 0.15)" }}>
+                  style={{ boxShadow: "0 2px 8px oklch(0.39 0.12 152 / 0.15)" }}>
                   <ImageIcon className="w-6 h-6" style={{ color: G.primary }} />
                 </div>
                 <p className="text-sm font-bold" style={{ color: G.primary }}>แตะเพื่อเลือกรูปสลิป</p>
