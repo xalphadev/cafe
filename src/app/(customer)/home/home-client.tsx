@@ -172,17 +172,21 @@ export default function HomeClient() {
 
       {/* ── Cart float bar (when items in cart) ── */}
       {count > 0 && (
-        <div className="mx-4 -mt-3 mb-1 relative z-10">
+        <div className="mx-4 mt-3 mb-1 relative z-10">
           <Link href="/cart">
             <div
-              className="flex items-center justify-between px-4 py-3 rounded-2xl shadow-lg active:scale-[0.99] transition-all"
-              style={{ background: G.grad, boxShadow: G.shadow }}
+              className="flex items-center justify-between px-4 py-3 rounded-2xl active:scale-[0.99] transition-all bg-white"
+              style={{ boxShadow: "0 2px 16px oklch(0.55 0.18 155 / 0.18), 0 1px 4px rgba(0,0,0,0.06)", border: `1.5px solid ${G.border}` }}
             >
-              <div className="flex items-center gap-2 text-white text-sm font-bold">
-                <ShoppingBag className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-sm font-bold" style={{ color: G.primaryDk }}>
+                <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: G.grad }}>
+                  <ShoppingBag className="w-3.5 h-3.5 text-white" />
+                </div>
                 มี {count} รายการในตะกร้า
               </div>
-              <span className="text-white/80 text-sm font-medium">ดูตะกร้า →</span>
+              <span className="text-sm font-semibold flex items-center gap-0.5" style={{ color: G.primary }}>
+                ดูตะกร้า <ChevronRight className="w-4 h-4" />
+              </span>
             </div>
           </Link>
         </div>
