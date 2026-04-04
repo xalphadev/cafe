@@ -130,19 +130,19 @@ export default function CheckoutPage() {
               <Store className="w-6 h-6" style={{ color: G.primary }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm text-gray-800">{shopSettings?.name ?? "ช่วงเวลาคาเฟ่"}</p>
+              <p className="font-bold text-sm text-white">{shopSettings?.name ?? "ช่วงเวลาคาเฟ่"}</p>
               {shopSettings?.address && (
-                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed truncate">{shopSettings.address}</p>
+                <p className="text-xs mt-0.5 leading-relaxed truncate text-white/75">{shopSettings.address}</p>
               )}
             </div>
-            <span className="text-[11px] font-black px-3 py-1.5 rounded-full text-white flex-shrink-0"
-              style={{ background: G.grad }}>
+            <span className="text-[11px] font-black px-3 py-1.5 rounded-full flex-shrink-0"
+              style={{ background: "rgba(255,255,255,0.25)", color: "white" }}>
               รับหน้าร้าน
             </span>
           </div>
           <div className="px-4 pb-3 flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" style={{ color: G.primary }} />
-            <span className="text-xs text-gray-600">ร้านจะแจ้งเตือนเมื่อออเดอร์พร้อมรับ</span>
+            <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-white/80" />
+            <span className="text-xs text-white/80">ร้านจะแจ้งเตือนเมื่อออเดอร์พร้อมรับ</span>
           </div>
         </div>
 
