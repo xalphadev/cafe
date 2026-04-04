@@ -73,17 +73,15 @@ export default function ProfilePage() {
     window.location.href = "/login";
   };
 
-  if (activeSection === "addresses") {
-    return <AddressesSection addresses={addresses} isLoading={addrLoading} onBack={() => setActiveSection("main")} queryClient={queryClient} />;
-  }
-  if (activeSection === "points") {
-    return <PointsSection data={points} isLoading={false} onBack={() => setActiveSection("main")} />;
-  }
-  if (activeSection === "coupons") {
-    return <CouponsSection onBack={() => setActiveSection("main")} />;
-  }
-  if (activeSection === "change-pin") {
-    return <ChangePinSection onBack={() => setActiveSection("main")} />;
+  if (activeSection !== "main") {
+    return (
+      <SubPanel>
+        {activeSection === "addresses" && <AddressesSection addresses={addresses} isLoading={addrLoading} onBack={() => setActiveSection("main")} queryClient={queryClient} />}
+        {activeSection === "points"    && <PointsSection data={points} isLoading={false} onBack={() => setActiveSection("main")} />}
+        {activeSection === "coupons"   && <CouponsSection onBack={() => setActiveSection("main")} />}
+        {activeSection === "change-pin"&& <ChangePinSection onBack={() => setActiveSection("main")} />}
+      </SubPanel>
+    );
   }
 
   const initials = (user?.name ?? "U").slice(0, 1).toUpperCase();
@@ -231,6 +229,17 @@ export default function ProfilePage() {
         variant="danger"
         onConfirm={handleLogout}
       />
+    </div>
+  );
+}
+
+/* ─── Sub Panel (full-screen overlay, hides bottom nav) ────────── */
+function SubPanel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+      <div className="max-w-lg mx-auto min-h-full">
+        {children}
+      </div>
     </div>
   );
 }
@@ -557,45 +566,56 @@ function PinKeypad({ onPress, onDelete }: { onPress: (d: string) => void; onDele
 
 type PinStep = "current" | "new" | "confirm";
 
+const STEP_ORDER: PinStep[] = ["current", "new", "confirm"];
+const STEP_META: Record<PinStep, { title: string; sub: string; Icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }> = {
+  current: { title: "PIN ปัจจุบัน",  sub: "กรอก PIN 6 หลักที่ใช้อยู่",   Icon: Lock },
+  new:     { title: "PIN ใหม่",       sub: "กรอก PIN 6 หลักที่ต้องการ",   Icon: Key },
+  confirm: { title: "ยืนยัน PIN ใหม่", sub: "กรอก PIN อีกครั้งเพื่อยืนยัน", Icon: CheckCircle2 },
+};
+
 function ChangePinSection({ onBack }: { onBack: () => void }) {
   const [step, setStep] = useState<PinStep>("current");
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [shake, setShake] = useState(false);
 
-  const showError = (msg: string) => {
-    setErrorMsg(msg);
-    setTimeout(() => setErrorMsg(""), 2500);
+  const triggerShake = () => {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
   };
 
-  const handleCurrentKey = (d: string) => {
-    if (currentPin.length >= 6) return;
-    const next = currentPin + d;
-    setCurrentPin(next);
-    if (next.length === 6) setStep("new");
-  };
+  const currentValue = step === "current" ? currentPin : step === "new" ? newPin : confirmPin;
 
-  const handleNewKey = (d: string) => {
-    if (newPin.length >= 6) return;
-    const next = newPin + d;
-    setNewPin(next);
-    if (next.length === 6) setStep("confirm");
-  };
+  const handleKey = (d: string) => {
+    if (currentValue.length >= 6) return;
+    const next = currentValue + d;
 
-  const handleConfirmKey = (d: string) => {
-    if (confirmPin.length >= 6) return;
-    const next = confirmPin + d;
-    setConfirmPin(next);
-    if (next.length === 6) {
-      if (next !== newPin) {
-        showError("PIN ไม่ตรงกัน กรุณาลองใหม่");
-        setConfirmPin("");
-        return;
+    if (step === "current") {
+      setCurrentPin(next);
+      if (next.length === 6) setStep("new");
+    } else if (step === "new") {
+      setNewPin(next);
+      if (next.length === 6) setStep("confirm");
+    } else {
+      setConfirmPin(next);
+      if (next.length === 6) {
+        if (next !== newPin) {
+          triggerShake();
+          toast.error("PIN ไม่ตรงกัน กรุณาลองใหม่");
+          setTimeout(() => setConfirmPin(""), 400);
+          return;
+        }
+        doChangePin(next);
       }
-      doChangePin(next);
     }
+  };
+
+  const handleDelete = () => {
+    if (step === "current") setCurrentPin(p => p.slice(0, -1));
+    else if (step === "new") setNewPin(p => p.slice(0, -1));
+    else setConfirmPin(p => p.slice(0, -1));
   };
 
   const doChangePin = async (confirmedPin: string) => {
@@ -608,92 +628,136 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("เปลี่ยน PIN สำเร็จแล้ว!");
+        toast.success("เปลี่ยน PIN สำเร็จแล้ว");
         onBack();
       } else {
-        showError(data.error ?? "เกิดข้อผิดพลาด");
+        triggerShake();
+        toast.error(data.error ?? "เกิดข้อผิดพลาด");
         if (data.error?.includes("ปัจจุบัน")) {
-          setCurrentPin(""); setNewPin(""); setConfirmPin(""); setStep("current");
+          setTimeout(() => { setCurrentPin(""); setNewPin(""); setConfirmPin(""); setStep("current"); }, 400);
         } else {
-          setNewPin(""); setConfirmPin(""); setStep("new");
+          setTimeout(() => { setNewPin(""); setConfirmPin(""); setStep("new"); }, 400);
         }
       }
     } catch {
-      showError("เกิดข้อผิดพลาด");
+      toast.error("เกิดข้อผิดพลาด");
     } finally { setLoading(false); }
   };
 
-  const stepConfig = {
-    current: { title: "ใส่ PIN ปัจจุบัน", sub: "กรอก PIN 6 หลักที่ใช้อยู่", value: currentPin, icon: <Lock   className="w-7 h-7" style={{ color: G.primary }} /> },
-    new:     { title: "ตั้ง PIN ใหม่",    sub: "กรอก PIN 6 หลักที่ต้องการ",   value: newPin,     icon: <Key    className="w-7 h-7" style={{ color: G.primary }} /> },
-    confirm: { title: "ยืนยัน PIN ใหม่",  sub: "กรอก PIN ใหม่อีกครั้ง",       value: confirmPin, icon: <CheckCircle2 className="w-7 h-7" style={{ color: G.primary }} /> },
-  }[step];
-
-  const handleDelete = () => {
-    if (step === "current") setCurrentPin(p => p.slice(0, -1));
-    else if (step === "new") setNewPin(p => p.slice(0, -1));
-    else setConfirmPin(p => p.slice(0, -1));
-  };
-
-  const handlePress = step === "current" ? handleCurrentKey
-    : step === "new" ? handleNewKey
-    : handleConfirmKey;
+  const stepIdx = STEP_ORDER.indexOf(step);
+  const { title, sub, Icon } = STEP_META[step];
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <BackHeader title="เปลี่ยน PIN" onBack={onBack} />
+    <div className="flex flex-col min-h-screen" style={{ background: G.grad }}>
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 px-4 pt-14 pb-6">
+        <button onClick={onBack}
+          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: "rgba(255,255,255,0.18)" }}>
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </button>
+        <h1 className="font-extrabold text-lg text-white flex-1">เปลี่ยน PIN</h1>
+      </div>
 
-      <div className="flex-1 px-5 py-6">
-        {/* Error banner */}
-        {errorMsg && (
-          <div className="mb-4 flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold"
-            style={{ background: "oklch(0.97 0.03 25)", color: "oklch(0.50 0.22 25)", border: "1.5px solid oklch(0.90 0.10 25)" }}>
-            <AlertTriangle className="w-4 h-4 flex-shrink-0" /> {errorMsg}
-          </div>
-        )}
-
-        {/* Step indicator */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          {(["current", "new", "confirm"] as PinStep[]).map((s, i) => (
-            <div key={s} className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
-                style={{
-                  background: s === step ? G.primary : step === "confirm" && s === "new" ? G.primary : step !== "current" && s === "current" ? G.primary : "oklch(0.90 0.025 148)",
-                  color: (s === step || (step === "confirm" && s !== "confirm") || (step === "new" && s === "current")) ? "white" : "oklch(0.60 0.04 148)",
-                }}>
-                {(step === "confirm" && s !== "confirm") || (step === "new" && s === "current")
-                  ? <Check className="w-3.5 h-3.5" />
-                  : i + 1}
+      {/* ── White card body ── */}
+      <div className="flex-1 rounded-t-[2.5rem] bg-white flex flex-col px-6 pt-8 pb-6">
+        {/* Step progress */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          {STEP_ORDER.map((s, i) => {
+            const done = i < stepIdx;
+            const active = i === stepIdx;
+            return (
+              <div key={s} className="flex items-center gap-3">
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300"
+                    style={{
+                      background: done || active ? G.primary : "oklch(0.93 0.025 148)",
+                      boxShadow: active ? `0 4px 12px ${G.primary}55` : "none",
+                    }}>
+                    {done
+                      ? <Check className="w-4 h-4 text-white" />
+                      : <span className="text-xs font-black" style={{ color: active ? "white" : "oklch(0.70 0.04 148)" }}>{i + 1}</span>}
+                  </div>
+                  <span className="text-[10px] font-semibold"
+                    style={{ color: active ? G.primary : done ? G.primaryDk : "oklch(0.75 0.03 148)" }}>
+                    {STEP_META[s].title.replace(" ใหม่","").replace("ยืนยัน ","ยืนยัน")}
+                  </span>
+                </div>
+                {i < 2 && (
+                  <div className="w-10 h-0.5 rounded-full mb-4 transition-all duration-300"
+                    style={{ background: done ? G.primary : "oklch(0.90 0.025 148)" }} />
+                )}
               </div>
-              {i < 2 && <div className="w-8 h-0.5 rounded-full" style={{ background: "oklch(0.90 0.025 148)" }} />}
-            </div>
+            );
+          })}
+        </div>
+
+        {/* Icon + title */}
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 rounded-3xl mx-auto flex items-center justify-center mb-3"
+            style={{ background: G.primaryLt }}>
+            <Icon className="w-8 h-8" style={{ color: G.primary }} />
+          </div>
+          <h2 className="text-xl font-extrabold" style={{ color: G.fg }}>{title}</h2>
+          <p className="text-sm mt-1" style={{ color: G.fgMuted }}>{sub}</p>
+        </div>
+
+        {/* PIN dots */}
+        <div className={`flex gap-4 justify-center mb-8 transition-all ${shake ? "animate-shake" : ""}`}
+          style={{ animation: shake ? "shake 0.4s ease" : undefined }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="w-5 h-5 rounded-full transition-all duration-150"
+              style={{
+                background: i < currentValue.length ? G.primary : "oklch(0.90 0.025 148)",
+                transform: i < currentValue.length ? "scale(1.25)" : "scale(1)",
+                boxShadow: i < currentValue.length ? `0 2px 8px ${G.primary}55` : "none",
+              }} />
           ))}
         </div>
 
-        {/* Main card */}
-        <div className="rounded-3xl p-6 text-center" style={{ background: G.primaryXlt, border: `1.5px solid ${G.border}` }}>
-          <div className="flex justify-center mb-2">{stepConfig.icon}</div>
-          <h2 className="text-lg font-extrabold" style={{ color: G.fg }}>{stepConfig.title}</h2>
-          <p className="text-sm mt-1" style={{ color: G.fgMuted }}>{stepConfig.sub}</p>
-          <PinDots value={stepConfig.value} />
-        </div>
-
         {/* Keypad */}
-        {loading
-          ? <div className="flex justify-center mt-8"><span className="w-7 h-7 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
-          : <PinKeypad onPress={handlePress} onDelete={handleDelete} />
-        }
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <span className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: `${G.primary} transparent transparent transparent` }} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => {
+              if (k === "") return <div key={i} />;
+              if (k === "⌫") return (
+                <button key={i} onClick={handleDelete}
+                  className="h-16 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
+                  style={{ background: "oklch(0.95 0.02 148)" }}>
+                  <Delete className="w-5 h-5" style={{ color: G.fgMuted }} />
+                </button>
+              );
+              return (
+                <button key={i} onClick={() => handleKey(k)}
+                  className="h-16 rounded-2xl text-2xl font-bold active:scale-95 transition-all"
+                  style={{ background: "oklch(0.97 0.016 148)", color: G.fg, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
+                  {k}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Back to prev step */}
+        {/* Back step link */}
         {step !== "current" && !loading && (
           <button
-            onClick={() => { if (step === "confirm") { setConfirmPin(""); setStep("new"); } else { setNewPin(""); setStep("current"); } }}
-            className="w-full mt-3 text-sm font-semibold text-center py-2"
+            onClick={() => {
+              if (step === "confirm") { setConfirmPin(""); setStep("new"); }
+              else { setNewPin(""); setStep("current"); }
+            }}
+            className="mt-5 text-sm font-semibold text-center py-2 flex items-center justify-center gap-1"
             style={{ color: G.fgMuted }}>
-            ← ย้อนกลับ
+            <ChevronRight className="w-4 h-4 rotate-180" />
+            ย้อนกลับ
           </button>
         )}
       </div>
+
+      <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}`}</style>
     </div>
   );
 }
