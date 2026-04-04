@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense, type MouseEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Phone, ArrowRight, RotateCcw, ChevronLeft,
@@ -86,7 +86,9 @@ export default function LoginPage() {
 
 function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setUser } = useAuthStore();
+  const lineErrorHandled = useRef(false);
 
   const envAppBase = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
   const [lineLoginHref, setLineLoginHref] = useState(() =>
@@ -116,6 +118,23 @@ function LoginContent() {
       setLineLoginHref(`${window.location.origin}/api/line/login?returnTo=/home`);
     }
   }, [envAppBase]);
+
+  useEffect(() => {
+    const code = searchParams.get("line_error");
+    if (!code || lineErrorHandled.current) return;
+    lineErrorHandled.current = true;
+    const errMap: Record<string, string> = {
+      cancelled: "ยกเลิกการเข้าสู่ระบบ LINE",
+      invalid_state: "เซสชันหมดอายุ กรุณากดเข้าสู่ระบบด้วย LINE อีกครั้ง",
+      token_failed: "ยืนยันกับ LINE ไม่สำเร็จ — ตรวจสอบ Callback URL และ NEXT_PUBLIC_APP_URL ให้ตรงกัน",
+      profile_failed: "ดึงข้อมูลโปรไฟล์ LINE ไม่สำเร็จ",
+      server_error: "เกิดข้อผิดพลาด กรุณาลองใหม่",
+      misconfigured: "ตั้งค่าเซิร์ฟเวอร์ไม่ครบ (NEXT_PUBLIC_APP_URL)",
+      unauthenticated: "กรุณาเข้าสู่ระบบก่อนเชื่อม LINE",
+    };
+    toast.error(errMap[code] ?? "เข้าสู่ระบบ LINE ไม่สำเร็จ");
+    router.replace("/login", { scroll: false });
+  }, [searchParams, router]);
 
   const handleLineLoginClick = async (e: MouseEvent<HTMLAnchorElement>) => {
     const url = lineLoginHref.startsWith("http")

@@ -1,8 +1,9 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { signToken } from "@/lib/jwt";
 import { cookies } from "next/headers";
+import { getPublicAppBaseUrl } from "@/lib/app-url";
 
 type LineTokenResponse = {
   access_token: string;
@@ -18,8 +19,29 @@ type LineProfileResponse = {
   pictureUrl?: string;
 };
 
+function resolveBase(request: NextRequest): string {
+  return getPublicAppBaseUrl() || request.nextUrl.origin;
+}
+
+function redirectTo(request: NextRequest, pathWithQuery: string) {
+  const base = resolveBase(request);
+  return NextResponse.redirect(new URL(pathWithQuery, `${base}/`));
+}
+
+function redirectHomeWithSession(request: NextRequest, token: string) {
+  const base = resolveBase(request);
+  const res = NextResponse.redirect(new URL("/home?line_login=1", `${base}/`));
+  res.cookies.set("auth-token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
+  return res;
+}
+
 export async function GET(request: NextRequest) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
   const cookieStore = await cookies();
 
   const savedState = cookieStore.get("line_oauth_state")?.value;
@@ -37,16 +59,20 @@ export async function GET(request: NextRequest) {
 
   if (lineError || !code) {
     const dest = mode === "login" ? "/login" : returnTo;
-    return Response.redirect(`${appUrl}${dest}?line_error=cancelled`);
+    return redirectTo(request, `${dest}?line_error=cancelled`);
   }
 
   if (!savedState || state !== savedState) {
     const dest = mode === "login" ? "/login" : returnTo;
-    return Response.redirect(`${appUrl}${dest}?line_error=invalid_state`);
+    return redirectTo(request, `${dest}?line_error=invalid_state`);
   }
 
   try {
-    const callbackUrl = `${appUrl}/api/line/callback`;
+    const oauthBase = getPublicAppBaseUrl();
+    if (!oauthBase) {
+      return redirectTo(request, "/login?line_error=misconfigured");
+    }
+    const callbackUrl = `${oauthBase}/api/line/callback`;
 
     const tokenRes = await fetch("https://api.line.me/oauth2/v2.1/token", {
       method: "POST",
@@ -62,7 +88,7 @@ export async function GET(request: NextRequest) {
 
     if (!tokenRes.ok) {
       const dest = mode === "login" ? "/login" : returnTo;
-      return Response.redirect(`${appUrl}${dest}?line_error=token_failed`);
+      return redirectTo(request, `${dest}?line_error=token_failed`);
     }
 
     const tokenData: LineTokenResponse = await tokenRes.json();
@@ -73,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     if (!profileRes.ok) {
       const dest = mode === "login" ? "/login" : returnTo;
-      return Response.redirect(`${appUrl}${dest}?line_error=profile_failed`);
+      return redirectTo(request, `${dest}?line_error=profile_failed`);
     }
 
     const lineProfile: LineProfileResponse = await profileRes.json();
@@ -85,15 +111,14 @@ export async function GET(request: NextRequest) {
       });
 
       if (user && user.isActive) {
-        // User exists → สร้าง session แล้ว redirect ไป home
-        const token = await signToken({ userId: user.id, role: user.role, phone: user.phone ?? undefined });
-        const res = Response.redirect(`${appUrl}/home?line_login=1`);
-        const cookieHeader = `auth-token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
-        res.headers.set("Set-Cookie", cookieHeader);
-        return res;
+        const token = await signToken({
+          userId: user.id,
+          role: user.role,
+          phone: user.phone ?? undefined,
+        });
+        return redirectHomeWithSession(request, token);
       }
 
-      // User ไม่มีใน DB → สร้างบัญชีใหม่ด้วย LINE ทันที ไม่ต้องการเบอร์โทร
       const newUser = await prisma.user.create({
         data: {
           phone: null,
@@ -102,18 +127,13 @@ export async function GET(request: NextRequest) {
         },
       });
       const newToken = await signToken({ userId: newUser.id, role: newUser.role });
-      const newRes = Response.redirect(`${appUrl}/home?line_login=1`);
-      newRes.headers.set(
-        "Set-Cookie",
-        `auth-token=${newToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`
-      );
-      return newRes;
+      return redirectHomeWithSession(request, newToken);
     }
 
     // ── LINK MODE ──────────────────────────────────────────────────────────────
     const session = await getSession();
     if (!session) {
-      return Response.redirect(`${appUrl}/login?line_error=unauthenticated`);
+      return redirectTo(request, "/login?line_error=unauthenticated");
     }
 
     const existing = await prisma.user.findUnique({
@@ -121,7 +141,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (existing && existing.id !== session.userId) {
-      return Response.redirect(`${appUrl}${returnTo}?line_error=already_linked`);
+      return redirectTo(request, `${returnTo}?line_error=already_linked`);
     }
 
     await prisma.user.update({
@@ -129,9 +149,9 @@ export async function GET(request: NextRequest) {
       data: { lineUserId: lineProfile.userId },
     });
 
-    return Response.redirect(`${appUrl}${returnTo}?line_success=1`);
+    return redirectTo(request, `${returnTo}?line_success=1`);
   } catch {
     const dest = mode === "login" ? "/login" : returnTo;
-    return Response.redirect(`${appUrl}${dest}?line_error=server_error`);
+    return redirectTo(request, `${dest}?line_error=server_error`);
   }
 }
