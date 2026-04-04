@@ -127,6 +127,13 @@ function LoginContent() {
       if (!d.success) { toast.error(d.error); return; }
       const { exists, hasPin, name: n } = d.data;
       setUserName(n);
+
+      // LINE flow: ถ้าเบอร์ใหม่ → สร้างบัญชีทันที ไม่ต้อง OTP
+      if (fromLine && !exists) {
+        await handleLineRegister();
+        return;
+      }
+
       if (exists && hasPin) {
         setIsNew(false);
         setStep("pin");
@@ -135,6 +142,25 @@ function LoginContent() {
         await sendOTP();
       }
     } catch { toast.error("เกิดข้อผิดพลาด"); } finally { setLoading(false); }
+  };
+
+  // ── LINE register (เบอร์ใหม่ + มาจาก LINE) ──
+  const handleLineRegister = async () => {
+    try {
+      const r = await fetch("/api/line/register", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, name: name.trim() || undefined }),
+      });
+      const d = await r.json();
+      if (!d.success) {
+        // เบอร์มีบัญชีอยู่แล้ว → fallback ไป OTP flow ปกติ
+        if (r.status === 409) { setIsNew(false); await sendOTP(); return; }
+        toast.error(d.error); return;
+      }
+      setUser(d.data.user);
+      toast.success("สมัครสำเร็จ! ยินดีต้อนรับ 🎉");
+      router.replace("/home");
+    } catch { toast.error("เกิดข้อผิดพลาด"); }
   };
 
   // ── Send OTP ──
