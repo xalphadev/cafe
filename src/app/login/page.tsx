@@ -313,8 +313,8 @@ function LoginContent() {
 
             {fromLine && (
               <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl mb-4"
-                style={{ background: "linear-gradient(135deg, oklch(0.93 0.048 148), oklch(0.80 0.098 148))", border: "1px solid oklch(0.80 0.098 148)" }}>
-                <MessageCircle className="w-5 h-5 flex-shrink-0" style={{ color: "oklch(0.39 0.138 152)" }} />
+                style={{ background: "linear-gradient(135deg, oklch(0.96 0.020 148), oklch(0.91 0.048 148))", border: "1px solid oklch(0.91 0.048 148)" }}>
+                <MessageCircle className="w-5 h-5 flex-shrink-0" style={{ color: "oklch(0.48 0.125 152)" }} />
                 <p className="text-sm font-semibold" style={{ color: "oklch(0.45 0.082 148)" }}>
                   เชื่อมต่อ LINE แล้ว — กรอกเบอร์เพื่อผูกบัญชี
                 </p>
@@ -354,7 +354,7 @@ function LoginContent() {
                   <a
                     href="/api/line/login?returnTo=/home"
                     className="w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] text-white"
-                    style={{ background: "linear-gradient(135deg, oklch(0.49 0.152 150), oklch(0.39 0.138 152))", boxShadow: "0 4px 14px oklch(0.65 0.12 145 / 0.35)" }}
+                    style={{ background: "linear-gradient(135deg, oklch(0.59 0.138 150), oklch(0.48 0.125 152))", boxShadow: "0 4px 14px oklch(0.65 0.12 145 / 0.35)" }}
                   >
                     <MessageCircle className="w-5 h-5" />
                     เข้าสู่ระบบด้วย LINE
