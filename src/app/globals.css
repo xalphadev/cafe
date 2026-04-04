@@ -5,8 +5,8 @@
 
 :root {
   /* ── Brand palette — Natural Forest Green ── */
-  --brand:         oklch(0.59 0.138 150);  /* fresh medium green */
-  --brand-dark:    oklch(0.48 0.125 152);  /* deeper green */
+  --brand:         oklch(0.59 0.178 150);  /* fresh medium green */
+  --brand-dark:    oklch(0.48 0.160 152);  /* deeper green */
   --brand-light:   oklch(0.91 0.048 148);  /* soft green tint */
   --brand-xlight:  oklch(0.96 0.020 148);  /* barely-there green wash */
   --brand-foreground: oklch(1 0 0);
@@ -22,10 +22,10 @@
   --muted-foreground:     oklch(0.52 0.042 150);
   --border:               oklch(0.92 0.025 148);
   --input:                oklch(0.92 0.025 148);
-  --ring:                 oklch(0.59 0.138 150);
+  --ring:                 oklch(0.59 0.178 150);
 
   /* ── Semantic ── */
-  --primary:            oklch(0.59 0.138 150);
+  --primary:            oklch(0.59 0.178 150);
   --primary-foreground: oklch(1 0 0);
   --secondary:          oklch(0.91 0.048 148);
   --secondary-foreground: oklch(0.32 0.08 148);

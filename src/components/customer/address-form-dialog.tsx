@@ -36,8 +36,8 @@ interface FormState {
 const LABEL_PRESETS = ["บ้าน", "ที่ทำงาน", "ของฝาก", "อื่นๆ"];
 
 const G = {
-  primary: "oklch(0.59 0.138 150)",
-  primaryDk: "oklch(0.48 0.125 152)",
+  primary: "oklch(0.59 0.178 150)",
+  primaryDk: "oklch(0.48 0.160 152)",
   primaryLt: "oklch(0.91 0.048 148)",
   border: "oklch(0.92 0.025 148)",
   fg: "oklch(0.18 0.022 145)",
@@ -409,7 +409,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
                 color: "white",
                 borderRadius: "14px",
                 height: "52px",
-                boxShadow: "0 4px 16px oklch(0.48 0.105 152 / 0.35)",
+                boxShadow: "0 4px 16px oklch(0.48 0.140 152 / 0.35)",
               }}
             >
               {saving ? (

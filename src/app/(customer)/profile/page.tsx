@@ -21,15 +21,15 @@ import type { PointTransaction } from "@/types";
 
 // Design tokens
 const G = {
-  primary:    "oklch(0.59 0.138 150)",
-  primaryDk:  "oklch(0.48 0.125 152)",
+  primary:    "oklch(0.59 0.178 150)",
+  primaryDk:  "oklch(0.48 0.160 152)",
   primaryLt:  "oklch(0.91 0.048 148)",
   primaryXlt: "oklch(0.96 0.020 148)",
   fg:         "oklch(0.18 0.022 145)",
   fgMuted:    "oklch(0.52 0.042 150)",
   border:     "oklch(0.90 0.010 152)",
-  grad:       "linear-gradient(160deg, oklch(0.59 0.138 150) 0%, oklch(0.48 0.125 152) 100%)",
-  shadow:     "0 8px 24px oklch(0.48 0.105 152 / 0.22)",
+  grad:       "linear-gradient(160deg, oklch(0.59 0.178 150) 0%, oklch(0.48 0.160 152) 100%)",
+  shadow:     "0 8px 24px oklch(0.48 0.140 152 / 0.22)",
 };
 
 export default function ProfilePage() {
@@ -249,7 +249,7 @@ export default function ProfilePage() {
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.07)" }}>
           <div className="flex items-center gap-3.5 px-4 py-3.5">
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white"
-              style={{ background: "linear-gradient(135deg, oklch(0.59 0.138 150), oklch(0.48 0.125 152))" }}>
+              style={{ background: "linear-gradient(135deg, oklch(0.59 0.178 150), oklch(0.48 0.160 152))" }}>
               <MessageCircle className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
@@ -272,7 +272,7 @@ export default function ProfilePage() {
               <a
                 href="/api/line/login?returnTo=/profile"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white transition-all active:scale-95"
-                style={{ background: "linear-gradient(135deg, oklch(0.59 0.138 150), oklch(0.48 0.125 152))" }}
+                style={{ background: "linear-gradient(135deg, oklch(0.59 0.178 150), oklch(0.48 0.160 152))" }}
               >
                 <Check className="w-3.5 h-3.5" />
                 เชื่อมต่อ
@@ -373,7 +373,7 @@ function PointsSection({ data, isLoading, onBack }: {
 
         {/* History */}
         <div className="bg-white rounded-2xl overflow-hidden"
-          style={{ boxShadow: "0 2px 12px oklch(0.48 0.105 152 / 0.10)", border: "1px solid oklch(0.94 0.022 142)" }}>
+          style={{ boxShadow: "0 2px 12px oklch(0.48 0.140 152 / 0.10)", border: "1px solid oklch(0.94 0.022 142)" }}>
           <div className="px-4 py-3 border-b" style={{ borderColor: "oklch(0.94 0.022 142)" }}>
             <h3 className="font-extrabold text-sm" style={{ color: G.fg }}>ประวัติแต้ม</h3>
           </div>
@@ -478,7 +478,7 @@ function PinDots({ value, total = 6 }: { value: string; total?: number }) {
           className="w-4 h-4 rounded-full transition-all duration-150"
           style={{
             background: i < value.length
-              ? "oklch(0.59 0.138 150)"
+              ? "oklch(0.59 0.178 150)"
               : "oklch(0.90 0.010 152)",
             transform: i < value.length ? "scale(1.2)" : "scale(1)",
             boxShadow: i < value.length ? "0 2px 8px oklch(0.62 0.27 142 / 0.4)" : "none",
@@ -735,7 +735,7 @@ function CouponsSection({ onBack }: { onBack: () => void }) {
 
       <div className="flex-1 px-4 py-4 space-y-3 pb-8">
         <div className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: "linear-gradient(135deg, oklch(0.59 0.138 150) 0%, oklch(0.48 0.125 152) 100%)", border: "1px solid oklch(0.90 0.06 152)" }}>
+          style={{ background: "linear-gradient(135deg, oklch(0.59 0.178 150) 0%, oklch(0.48 0.160 152) 100%)", border: "1px solid oklch(0.90 0.06 152)" }}>
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white"
             style={{ background: G.grad }}>
             <Ticket className="w-5 h-5" />
