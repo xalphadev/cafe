@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyWebhookSignature, replyMessage } from "@/lib/line-messaging";
+import { verifyWebhookSignature, replyMessage, buildOrderFlexMessage, ORDER_STATUS_MESSAGES } from "@/lib/line-messaging";
 
 type LineEvent = {
   type: string;
@@ -99,9 +99,85 @@ export async function POST(request: NextRequest) {
             { type: "text", text: `🍽 ดูเมนูได้ที่นี่เลย:\n${appUrl}/menu` },
           ]);
         } else if (["ออเดอร์", "order", "คำสั่งซื้อ"].includes(text)) {
-          await replyMessage(event.replyToken!, [
-            { type: "text", text: `📦 ดูออเดอร์ของคุณได้ที่:\n${appUrl}/orders` },
-          ]);
+          const latestOrder = await prisma.order.findFirst({
+            where: {
+              user: { lineUserId },
+              status: { notIn: ["PENDING_PAYMENT"] },
+            },
+            orderBy: { createdAt: "desc" },
+            include: {
+              items: { include: { product: { select: { name: true } } } },
+            },
+          });
+
+          if (latestOrder) {
+            const statusText = ORDER_STATUS_MESSAGES[latestOrder.status] ?? latestOrder.status;
+            const shortId = latestOrder.id.slice(-8).toUpperCase();
+            const itemLines = latestOrder.items
+              .slice(0, 3)
+              .map((i) => `• ${i.product.name} x${i.quantity}`)
+              .join("\n");
+            const moreItems = latestOrder.items.length > 3 ? `\n+${latestOrder.items.length - 3} รายการ` : "";
+
+            await replyMessage(event.replyToken!, [
+              {
+                type: "flex",
+                altText: `ออเดอร์ล่าสุด #${shortId}`,
+                contents: {
+                  type: "bubble",
+                  size: "kilo",
+                  header: {
+                    type: "box",
+                    layout: "vertical",
+                    backgroundColor: "#22c55e",
+                    paddingAll: "16px",
+                    contents: [
+                      { type: "text", text: "📦 ออเดอร์ล่าสุดของคุณ", color: "#ffffff", weight: "bold", size: "sm" },
+                    ],
+                  },
+                  body: {
+                    type: "box",
+                    layout: "vertical",
+                    spacing: "sm",
+                    paddingAll: "16px",
+                    contents: [
+                      { type: "text", text: `#${shortId}`, weight: "bold", size: "md", color: "#111827" },
+                      { type: "text", text: statusText, size: "sm", color: "#22c55e", margin: "sm", wrap: true },
+                      { type: "separator", margin: "md" },
+                      { type: "text", text: itemLines + moreItems, size: "sm", color: "#6b7280", margin: "md", wrap: true },
+                      {
+                        type: "box",
+                        layout: "horizontal",
+                        margin: "md",
+                        contents: [
+                          { type: "text", text: "ยอดรวม", size: "sm", color: "#6b7280" },
+                          { type: "text", text: `฿${latestOrder.total.toFixed(2)}`, size: "sm", color: "#111827", weight: "bold", align: "end" },
+                        ],
+                      },
+                    ],
+                  },
+                  footer: {
+                    type: "box",
+                    layout: "vertical",
+                    paddingAll: "12px",
+                    contents: [
+                      {
+                        type: "button",
+                        style: "primary",
+                        color: "#22c55e",
+                        height: "sm",
+                        action: { type: "uri", label: "ดูรายละเอียด", uri: `${appUrl}/orders/${latestOrder.id}` },
+                      },
+                    ],
+                  },
+                },
+              },
+            ]);
+          } else {
+            await replyMessage(event.replyToken!, [
+              { type: "text", text: `📦 ยังไม่มีออเดอร์ในขณะนี้\nสั่งอาหารได้ที่:\n${appUrl}/menu` },
+            ]);
+          }
         } else if (["แต้ม", "point", "points"].includes(text)) {
           await replyMessage(event.replyToken!, [
             { type: "text", text: `⭐ ดูแต้มสะสมได้ที่:\n${appUrl}/profile` },

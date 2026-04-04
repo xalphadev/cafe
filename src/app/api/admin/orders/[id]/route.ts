@@ -51,7 +51,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return updatedOrder;
     });
 
-    if (status) {
+    const NOTIFY_STATUSES = ["CONFIRMED", "DELIVERING", "COMPLETED", "CANCELLED"];
+    if (status && NOTIFY_STATUSES.includes(status)) {
       const user = await prisma.user.findUnique({ where: { id: order.userId } });
       if (user?.lineUserId) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
