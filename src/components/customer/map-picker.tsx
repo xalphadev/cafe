@@ -25,7 +25,7 @@ const markerIcon = L.icon({
 const greenPin = L.divIcon({
   html: `<div style="
     width: 36px; height: 36px;
-    background: linear-gradient(135deg, oklch(0.66 0.24 168), oklch(0.44 0.22 182));
+    background: linear-gradient(135deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%);
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
     border: 3px solid white;

@@ -11,14 +11,14 @@ import {
 import { useAuthStore } from "@/store/auth";
 
 const G = {
-  primary:    "oklch(0.66 0.24 168)",
-  primaryDk:  "oklch(0.44 0.22 182)",
-  primaryLt:  "oklch(0.92 0.10 168)",
-  primaryXlt: "oklch(0.975 0.020 168)",
-  fg:         "oklch(0.13 0.02 168)",
-  fgMuted:    "oklch(0.50 0.04 168)",
-  border:     "oklch(0.93 0.018 168)",
-  grad:       "linear-gradient(135deg, oklch(0.67 0.19 168), oklch(0.44 0.22 182))",
+  primary:    "oklch(0.64 0.24 162)",
+  primaryDk:  "oklch(0.50 0.20 196)",
+  primaryLt:  "oklch(0.93 0.09 162)",
+  primaryXlt: "oklch(0.975 0.018 162)",
+  fg:         "oklch(0.13 0.02 162)",
+  fgMuted:    "oklch(0.50 0.04 162)",
+  border:     "oklch(0.93 0.016 162)",
+  grad:       "linear-gradient(135deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
   shadow:     "0 8px 28px oklch(0.55 0.22 145 / 0.32)",
 };
 

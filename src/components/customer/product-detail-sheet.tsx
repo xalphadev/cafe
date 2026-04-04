@@ -10,14 +10,14 @@ import type { SelectedOption, ProductWithCategory, ProductOptionGroup } from "@/
 import { toast } from "sonner";
 
 const G = {
-  primary:    "oklch(0.66 0.24 168)",
-  primaryDk:  "oklch(0.44 0.22 182)",
-  primaryLt:  "oklch(0.93 0.10 168)",
-  primaryXlt: "oklch(0.975 0.020 168)",
-  fg:         "oklch(0.15 0.02 168)",
-  fgMuted:    "oklch(0.50 0.04 168)",
-  border:     "oklch(0.93 0.018 168)",
-  grad:       "linear-gradient(160deg, oklch(0.66 0.24 168) 0%, oklch(0.44 0.22 182) 100%)",
+  primary:    "oklch(0.64 0.24 162)",
+  primaryDk:  "oklch(0.50 0.20 196)",
+  primaryLt:  "oklch(0.93 0.09 162)",
+  primaryXlt: "oklch(0.975 0.018 162)",
+  fg:         "oklch(0.15 0.02 162)",
+  fgMuted:    "oklch(0.50 0.04 162)",
+  border:     "oklch(0.93 0.016 162)",
+  grad:       "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
   shadow:     "0 8px 28px oklch(0.60 0.20 148 / 0.28)",
 };
 
@@ -244,7 +244,7 @@ export function ProductDetailSheet({ product, open, onClose, editKey, initialOpt
                           onClick={() => toggleOption(group, opt.id)}
                           className="w-full flex items-center gap-3 px-3 py-3.5 rounded-xl transition-all active:scale-[0.99]"
                           style={{
-                            background: isSelected ? "oklch(0.94 0.08 168)" : "transparent",
+                            background: isSelected ? "oklch(0.94 0.08 162)" : "transparent",
                             border: "1.5px solid " + (isSelected ? G.primary : "#e8e8e8"),
                           }}
                         >
@@ -332,7 +332,7 @@ export function ProductDetailSheet({ product, open, onClose, editKey, initialOpt
               onClick={handleAddToCart}
               className="flex-1 rounded-2xl font-bold text-[15px] flex items-center justify-between px-5 transition-all active:scale-[0.97]"
               style={{
-                background: missingRequired.length > 0 ? "oklch(0.76 0.12 168)" : G.grad,
+                background: missingRequired.length > 0 ? "oklch(0.76 0.12 162)" : G.grad,
                 color: "white",
                 boxShadow: missingRequired.length > 0 ? "none" : G.shadow,
                 height: "3.25rem",

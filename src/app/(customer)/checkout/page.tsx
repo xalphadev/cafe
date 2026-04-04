@@ -17,9 +17,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 const G = {
-  grad:    "linear-gradient(160deg, oklch(0.66 0.24 168) 0%, oklch(0.44 0.22 182) 100%)",
-  gradLt:  "linear-gradient(135deg, oklch(0.97 0.04 168) 0%, oklch(0.94 0.06 168) 100%)",
-  primary: "oklch(0.66 0.24 168)",
+  grad:    "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
+  gradLt:  "linear-gradient(135deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
+  primary: "oklch(0.64 0.24 162)",
   shadow:  "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
 };
 
@@ -112,7 +112,7 @@ export default function CheckoutPage() {
           <button
             onClick={() => router.push("/cart")}
             className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: "oklch(0.95 0.02 168)" }}
+            style={{ background: "oklch(0.95 0.02 162)" }}
           >
             <ChevronLeft className="w-5 h-5" style={{ color: G.primary }} />
           </button>
@@ -123,7 +123,7 @@ export default function CheckoutPage() {
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-6">
 
         {/* ── Pickup banner ── */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: G.gradLt, border: "1px solid oklch(0.88 0.08 168)" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: G.gradLt, border: "1px solid oklch(0.88 0.08 162)" }}>
           <div className="p-4 flex gap-3 items-center">
             <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center flex-shrink-0"
               style={{ boxShadow: "0 2px 8px oklch(0.55 0.18 148 / 0.15)" }}>
@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={() => setPointsToUse(loyalty)}
                   className="px-4 h-10 rounded-xl text-sm font-semibold flex-shrink-0"
-                  style={{ background: G.gradLt, color: G.primary, border: "1px solid oklch(0.88 0.08 168)" }}
+                  style={{ background: G.gradLt, color: G.primary, border: "1px solid oklch(0.88 0.08 162)" }}
                 >
                   ใช้ทั้งหมด
                 </button>

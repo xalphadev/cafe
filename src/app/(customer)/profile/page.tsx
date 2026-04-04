@@ -21,14 +21,14 @@ import type { Address, PointTransaction } from "@/types";
 
 // Design tokens
 const G = {
-  primary:    "oklch(0.66 0.24 168)",
-  primaryDk:  "oklch(0.44 0.22 182)",
-  primaryLt:  "oklch(0.92 0.10 168)",
-  primaryXlt: "oklch(0.975 0.020 168)",
-  fg:         "oklch(0.13 0.02 168)",
-  fgMuted:    "oklch(0.50 0.04 168)",
-  border:     "oklch(0.90 0.025 168)",
-  grad:       "linear-gradient(160deg, oklch(0.66 0.24 168) 0%, oklch(0.44 0.22 182) 100%)",
+  primary:    "oklch(0.64 0.24 162)",
+  primaryDk:  "oklch(0.50 0.20 196)",
+  primaryLt:  "oklch(0.93 0.09 162)",
+  primaryXlt: "oklch(0.975 0.018 162)",
+  fg:         "oklch(0.13 0.02 162)",
+  fgMuted:    "oklch(0.50 0.04 162)",
+  border:     "oklch(0.90 0.025 162)",
+  grad:       "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
   shadow:     "0 8px 24px oklch(0.55 0.22 145 / 0.22)",
 };
 
@@ -248,11 +248,11 @@ function SubPanel({ children }: { children: React.ReactNode }) {
 function BackHeader({ title, onBack, action }: { title: string; onBack: () => void; action?: React.ReactNode }) {
   return (
     <header className="sticky-header bg-white/95 backdrop-blur-md px-4 h-14 pt-2 flex items-center gap-3"
-      style={{ borderBottom: "1px solid oklch(0.93 0.018 168)" }}>
+      style={{ borderBottom: "1px solid oklch(0.93 0.016 162)" }}>
       <button
         onClick={onBack}
         className="w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-all"
-        style={{ background: "oklch(0.95 0.02 168)" }}
+        style={{ background: "oklch(0.95 0.02 162)" }}
       >
         <ArrowLeft className="w-4 h-4" style={{ color: G.fg }} />
       </button>
@@ -336,7 +336,7 @@ function AddressesSection({ addresses, isLoading, onBack, queryClient }: {
         ) : (
           addresses.map((addr) => (
             <div key={addr.id} className="bg-white rounded-2xl p-4"
-              style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 168)" }}>
+              style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 162)" }}>
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
@@ -361,7 +361,7 @@ function AddressesSection({ addresses, isLoading, onBack, queryClient }: {
                   <button
                     onClick={() => handleSetDefault(addr.id)}
                     className="text-xs px-3 py-1.5 rounded-full font-semibold"
-                    style={{ background: G.primaryXlt, color: G.primary, border: "1px solid oklch(0.90 0.06 168)" }}
+                    style={{ background: G.primaryXlt, color: G.primary, border: "1px solid oklch(0.90 0.06 162)" }}
                   >
                     ตั้งเป็นหลัก
                   </button>
@@ -423,8 +423,8 @@ function PointsSection({ data, isLoading, onBack }: {
 
         {/* History */}
         <div className="bg-white rounded-2xl overflow-hidden"
-          style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 168)" }}>
-          <div className="px-4 py-3 border-b" style={{ borderColor: "oklch(0.94 0.016 168)" }}>
+          style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 162)" }}>
+          <div className="px-4 py-3 border-b" style={{ borderColor: "oklch(0.94 0.016 162)" }}>
             <h3 className="font-extrabold text-sm" style={{ color: G.fg }}>ประวัติแต้ม</h3>
           </div>
           {isLoading ? (
@@ -479,7 +479,7 @@ function CouponCard({ c }: { c: PromoCoupon }) {
   };
 
   return (
-    <div className="rounded-2xl overflow-hidden flex shadow-sm" style={{ border: "1.5px solid oklch(0.90 0.06 168)" }}>
+    <div className="rounded-2xl overflow-hidden flex shadow-sm" style={{ border: "1.5px solid oklch(0.90 0.06 162)" }}>
       {/* Left */}
       <div className="flex flex-col items-center justify-center px-4 py-4 flex-shrink-0"
         style={{ background: G.grad, minWidth: 72 }}>
@@ -490,7 +490,7 @@ function CouponCard({ c }: { c: PromoCoupon }) {
       <div className="relative flex-shrink-0 w-0">
         <div className="absolute -top-2 left-0 -translate-x-1/2 w-4 h-4 rounded-full bg-background" />
         <div className="absolute -bottom-2 left-0 -translate-x-1/2 w-4 h-4 rounded-full bg-background" />
-        <div className="h-full border-l-2 border-dashed" style={{ borderColor: "oklch(0.90 0.06 168)" }} />
+        <div className="h-full border-l-2 border-dashed" style={{ borderColor: "oklch(0.90 0.06 162)" }} />
       </div>
       {/* Right */}
       <div className="flex-1 px-3 py-3 bg-white min-w-0 flex flex-col gap-2">
@@ -498,7 +498,7 @@ function CouponCard({ c }: { c: PromoCoupon }) {
         <button
           onClick={handleCopy}
           className="flex items-center justify-between px-3 py-2 rounded-xl active:scale-[0.97] transition-all"
-          style={{ background: "oklch(0.975 0.020 168)" }}
+          style={{ background: "oklch(0.975 0.018 162)" }}
         >
           <span className="font-black text-sm tracking-widest" style={{ color: G.primaryDk }}>{c.code}</span>
           <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: G.primary }}>
@@ -528,8 +528,8 @@ function PinDots({ value, total = 6 }: { value: string; total?: number }) {
           className="w-4 h-4 rounded-full transition-all duration-150"
           style={{
             background: i < value.length
-              ? "oklch(0.66 0.24 168)"
-              : "oklch(0.90 0.025 168)",
+              ? "oklch(0.64 0.24 162)"
+              : "oklch(0.90 0.025 162)",
             transform: i < value.length ? "scale(1.2)" : "scale(1)",
             boxShadow: i < value.length ? "0 2px 8px oklch(0.68 0.20 148 / 0.4)" : "none",
           }}
@@ -548,14 +548,14 @@ function PinKeypad({ onPress, onDelete }: { onPress: (d: string) => void; onDele
         if (k === "⌫") return (
           <button key={i} onClick={onDelete}
             className="h-14 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
-            style={{ background: "oklch(0.95 0.02 168)" }}>
-            <Delete className="w-5 h-5" style={{ color: "oklch(0.50 0.04 168)" }} />
+            style={{ background: "oklch(0.95 0.02 162)" }}>
+            <Delete className="w-5 h-5" style={{ color: "oklch(0.50 0.04 162)" }} />
           </button>
         );
         return (
           <button key={i} onClick={() => onPress(k)}
             className="h-14 rounded-2xl text-xl font-bold active:scale-95 transition-all"
-            style={{ background: "oklch(0.97 0.016 168)", color: "oklch(0.13 0.02 168)" }}>
+            style={{ background: "oklch(0.97 0.016 162)", color: "oklch(0.13 0.02 162)" }}>
             {k}
           </button>
         );
@@ -671,21 +671,21 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
                 <div className="flex flex-col items-center gap-1">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300"
                     style={{
-                      background: done || active ? G.primary : "oklch(0.93 0.025 168)",
+                      background: done || active ? G.primary : "oklch(0.93 0.025 162)",
                       boxShadow: active ? `0 4px 12px ${G.primary}55` : "none",
                     }}>
                     {done
                       ? <Check className="w-4 h-4 text-white" />
-                      : <span className="text-xs font-black" style={{ color: active ? "white" : "oklch(0.70 0.04 168)" }}>{i + 1}</span>}
+                      : <span className="text-xs font-black" style={{ color: active ? "white" : "oklch(0.70 0.04 162)" }}>{i + 1}</span>}
                   </div>
                   <span className="text-[10px] font-semibold"
-                    style={{ color: active ? G.primary : done ? G.primaryDk : "oklch(0.75 0.03 168)" }}>
+                    style={{ color: active ? G.primary : done ? G.primaryDk : "oklch(0.75 0.03 162)" }}>
                     {STEP_META[s].title.replace(" ใหม่","").replace("ยืนยัน ","ยืนยัน")}
                   </span>
                 </div>
                 {i < 2 && (
                   <div className="w-10 h-0.5 rounded-full mb-4 transition-all duration-300"
-                    style={{ background: done ? G.primary : "oklch(0.90 0.025 168)" }} />
+                    style={{ background: done ? G.primary : "oklch(0.90 0.025 162)" }} />
                 )}
               </div>
             );
@@ -708,7 +708,7 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="w-5 h-5 rounded-full transition-all duration-150"
               style={{
-                background: i < currentValue.length ? G.primary : "oklch(0.90 0.025 168)",
+                background: i < currentValue.length ? G.primary : "oklch(0.90 0.025 162)",
                 transform: i < currentValue.length ? "scale(1.25)" : "scale(1)",
                 boxShadow: i < currentValue.length ? `0 2px 8px ${G.primary}55` : "none",
               }} />
@@ -727,14 +727,14 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
               if (k === "⌫") return (
                 <button key={i} onClick={handleDelete}
                   className="h-16 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
-                  style={{ background: "oklch(0.95 0.02 168)" }}>
+                  style={{ background: "oklch(0.95 0.02 162)" }}>
                   <Delete className="w-5 h-5" style={{ color: G.fgMuted }} />
                 </button>
               );
               return (
                 <button key={i} onClick={() => handleKey(k)}
                   className="h-16 rounded-2xl text-2xl font-bold active:scale-95 transition-all"
-                  style={{ background: "oklch(0.97 0.016 168)", color: G.fg, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
+                  style={{ background: "oklch(0.97 0.016 162)", color: G.fg, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
                   {k}
                 </button>
               );
@@ -785,7 +785,7 @@ function CouponsSection({ onBack }: { onBack: () => void }) {
 
       <div className="flex-1 px-4 py-4 space-y-3 pb-8">
         <div className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: "linear-gradient(135deg, oklch(0.97 0.04 168) 0%, oklch(0.94 0.06 168) 100%)", border: "1px solid oklch(0.90 0.06 168)" }}>
+          style={{ background: "linear-gradient(135deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)", border: "1px solid oklch(0.90 0.06 162)" }}>
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white"
             style={{ background: G.grad }}>
             <Ticket className="w-5 h-5" />
