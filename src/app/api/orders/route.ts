@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { ok, created, error, unauthorized } from "@/lib/response";
 import { pushMessage } from "@/lib/line-messaging";
+import { sendWebPush } from "@/lib/web-push";
 
 const createOrderSchema = z.object({
   orderType: z.enum(["DELIVERY", "PICKUP"]).default("DELIVERY"),
@@ -178,29 +179,45 @@ export async function POST(request: NextRequest) {
       return newOrder;
     });
 
-    // Push LINE message to all admins who have linked their LINE account
-    const admins = await prisma.user.findMany({
+    const shortId = order.id.slice(-8).toUpperCase();
+    const orderTypeLabel = data.orderType === "PICKUP" ? "รับเองที่ร้าน" : "ส่งถึงบ้าน";
+    const paymentLabel = data.paymentMethod === "COD" ? "เงินสดปลายทาง" : "QR PromptPay";
+    const itemSummary = data.items.map((item) => {
+      const product = allProducts.find((p) => p.id === item.productId);
+      return `${product?.name ?? item.productId} ×${item.quantity}`;
+    }).join(", ");
+
+    // Web Push — ฟรี 100%
+    const pushSubs = await prisma.adminPushSubscription.findMany();
+    if (pushSubs.length > 0) {
+      await Promise.all(
+        pushSubs.map((sub) =>
+          sendWebPush(sub, {
+            title: `🛒 ออเดอร์ใหม่ #${shortId}`,
+            body: `${user.name ?? user.phone} | ${orderTypeLabel} | ${total.toLocaleString("th-TH")} บาท\n${itemSummary}`,
+            url: "/admin/orders",
+            tag: `order-${order.id}`,
+          })
+        )
+      );
+    }
+
+    // LINE Messaging API push (bonus — ถ้า admin เชื่อม LINE ไว้)
+    const lineAdmins = await prisma.user.findMany({
       where: { role: "ADMIN", lineUserId: { not: null } },
       select: { lineUserId: true },
     });
-    if (admins.length > 0) {
-      const orderTypeLabel = data.orderType === "PICKUP" ? "🏪 รับเองที่ร้าน" : "🛵 ส่งถึงบ้าน";
-      const paymentLabel = data.paymentMethod === "COD" ? "เงินสดปลายทาง" : "QR PromptPay";
-      const shortId = order.id.slice(-8).toUpperCase();
-      const itemLines = data.items.map((item) => {
-        const product = allProducts.find((p) => p.id === item.productId);
-        return `• ${product?.name ?? item.productId} ×${item.quantity}`;
-      }).join("\n");
+    if (lineAdmins.length > 0) {
       const notifyText = [
         `🛒 ออเดอร์ใหม่ #${shortId}`,
         `👤 ${user.name ?? user.phone}`,
-        `${orderTypeLabel} | 💳 ${paymentLabel}`,
+        `${data.orderType === "PICKUP" ? "🏪" : "🛵"} ${orderTypeLabel} | 💳 ${paymentLabel}`,
         `💰 ${total.toLocaleString("th-TH")} บาท`,
-        itemLines,
+        itemSummary,
         data.note ? `📝 ${data.note}` : null,
       ].filter(Boolean).join("\n");
       await Promise.all(
-        admins.map((a) => pushMessage(a.lineUserId!, [{ type: "text", text: notifyText }]))
+        lineAdmins.map((a) => pushMessage(a.lineUserId!, [{ type: "text", text: notifyText }]))
       );
     }
 

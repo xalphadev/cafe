@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ToggleLeft, ToggleRight, Save, CheckCircle2, XCircle, QrCode, Upload, Trash2, RefreshCw, Bell, ExternalLink } from "lucide-react";
+import { ToggleLeft, ToggleRight, Save, CheckCircle2, XCircle, QrCode, Upload, Trash2, RefreshCw, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -253,36 +253,32 @@ export default function AdminSettingsPage() {
         </CardContent>
       </Card>
 
-      {/* LINE push notification info */}
+      {/* Web Push notification info */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <Bell className="w-4 h-4 text-[#00B900]" />
-            แจ้งเตือนออเดอร์ใหม่ผ่าน LINE
+            <Bell className="w-4 h-4 text-primary" />
+            แจ้งเตือนออเดอร์ใหม่ (ฟรี 100%)
           </CardTitle>
           <p className="text-xs text-muted-foreground mt-0.5">
-            เมื่อลูกค้าสั่งอาหาร ระบบจะส่งข้อความแจ้งเตือนไปที่ LINE ของคุณทันที แม้ไม่ได้เปิดหน้าเว็บทิ้งไว้
+            Web Push — แจ้งเตือนผ่านเบราว์เซอร์โดยตรง ไม่ต้องสมัครบริการใดๆ ไม่มีค่าใช้จ่าย
           </p>
         </CardHeader>
         <CardContent>
-          <div className="rounded-xl bg-[#00B900]/5 border border-[#00B900]/20 p-4 space-y-2.5 text-sm">
+          <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 space-y-2.5 text-sm">
             <p className="font-medium text-foreground flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#00B900]" />
-              วิธีเปิดใช้งาน (ไม่ต้องตั้งค่าอะไรเพิ่ม)
+              <CheckCircle2 className="w-4 h-4 text-primary" />
+              วิธีเปิดใช้งาน
             </p>
             <ol className="space-y-1.5 text-muted-foreground text-xs list-none pl-0">
-              <li className="flex gap-2"><span className="font-bold text-foreground/60 shrink-0">1.</span>ล็อกอินเข้าระบบแอดมินด้วยบัญชีปกติก่อน</li>
-              <li className="flex gap-2"><span className="font-bold text-foreground/60 shrink-0">2.</span>ไปที่เมนูโปรไฟล์ → เชื่อมบัญชี LINE</li>
-              <li className="flex gap-2"><span className="font-bold text-foreground/60 shrink-0">3.</span>หลังจากเชื่อม LINE แล้ว ระบบจะส่งแจ้งเตือนออเดอร์ใหม่มาให้อัตโนมัติ</li>
+              <li className="flex gap-2"><span className="font-bold text-foreground/60 shrink-0">1.</span>กดปุ่ม 🔕 ที่มุมขวาบนของหน้า Admin</li>
+              <li className="flex gap-2"><span className="font-bold text-foreground/60 shrink-0">2.</span>กด "อนุญาต" เมื่อเบราว์เซอร์ถามขอสิทธิ์แจ้งเตือน</li>
+              <li className="flex gap-2"><span className="font-bold text-foreground/60 shrink-0">3.</span>ไอคอนจะเปลี่ยนเป็น 🔔 สีเขียว = พร้อมรับแจ้งเตือนแล้ว</li>
+              <li className="flex gap-2"><span className="font-bold text-foreground/60 shrink-0">4.</span>ติดตั้งเว็บเป็นแอปในมือถือ (Add to Home Screen) เพื่อรับแจ้งเตือนแม้ไม่ได้เปิดเบราว์เซอร์</li>
             </ol>
-            <a
-              href="https://developers.line.biz/console/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
-            >
-              LINE Developers Console <ExternalLink className="w-3 h-3" />
-            </a>
+            <p className="text-xs text-muted-foreground/70 pt-1 border-t border-border">
+              รองรับ Chrome, Edge, Firefox, Safari (iOS 16.4+) — ใช้ได้ทั้ง Android และ iPhone
+            </p>
           </div>
         </CardContent>
       </Card>

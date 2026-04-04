@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Coffee } from "lucide-react";
+import { Coffee } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { AdminBottomNav } from "@/components/admin/bottom-nav";
 import { NewOrderAlert } from "@/components/admin/new-order-alert";
+import { AdminPushButton } from "@/components/admin/push-button";
 import { useAuthStore } from "@/store/auth";
 import { usePathname } from "next/navigation";
 
@@ -33,9 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <div className="flex-1" />
 
-          <button className="relative p-2 rounded-xl hover:bg-muted transition-colors">
-            <Bell className="w-5 h-5 text-muted-foreground" />
-          </button>
+          <AdminPushButton />
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
               {user?.name?.[0]?.toUpperCase() ?? "A"}

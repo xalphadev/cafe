@@ -78,6 +78,7 @@ model User {
   couponUsages        CouponUsage[]
   reviews             Review[]
   favorites           Favorite[]
+  pushSubscriptions   AdminPushSubscription[]
 
   @@map("users")
 }
@@ -381,4 +382,17 @@ model Favorite {
 
   @@unique([userId, productId])
   @@map("favorites")
+}
+
+model AdminPushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin_push_subscriptions")
 }
