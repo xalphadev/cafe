@@ -28,15 +28,22 @@ export async function pushMessage(lineUserId: string, messages: LineMessage[]): 
 }
 
 export async function replyMessage(replyToken: string, messages: LineMessage[]): Promise<void> {
-  if (!process.env.LINE_CHANNEL_ACCESS_TOKEN) return;
+  if (!process.env.LINE_CHANNEL_ACCESS_TOKEN) {
+    console.warn("[LINE] LINE_CHANNEL_ACCESS_TOKEN not set");
+    return;
+  }
   try {
-    await fetch(LINE_REPLY_URL, {
+    const res = await fetch(LINE_REPLY_URL, {
       method: "POST",
       headers: authHeader(),
       body: JSON.stringify({ replyToken, messages }),
     });
-  } catch {
-    // Silent fail
+    if (!res.ok) {
+      const body = await res.text();
+      console.error(`[LINE] replyMessage failed ${res.status}:`, body);
+    }
+  } catch (err) {
+    console.error("[LINE] replyMessage error:", err);
   }
 }
 
