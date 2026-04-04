@@ -4,33 +4,33 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* ── Brand palette — Fresh Emerald ── */
-  --brand:         oklch(0.68 0.20 148);   /* fresh vibrant green */
-  --brand-dark:    oklch(0.46 0.17 150);   /* medium-deep green (no longer near-black) */
-  --brand-light:   oklch(0.93 0.06 148);   /* soft mint tint */
-  --brand-xlight:  oklch(0.976 0.016 148); /* near-white green wash */
+  /* ── Brand palette — LINE MAN Green ── */
+  --brand:         oklch(0.69 0.21 152);   /* fresh vibrant green */
+  --brand-dark:    oklch(0.50 0.22 155);   /* medium-deep green (no longer near-black) */
+  --brand-light:   oklch(0.93 0.07 152);   /* soft mint tint */
+  --brand-xlight:  oklch(0.976 0.014 152); /* near-white green wash */
   --brand-foreground: oklch(1 0 0);
 
   /* ── Base ── */
-  --background:           oklch(0.978 0.016 148);
-  --foreground:           oklch(0.15 0.02 148);
+  --background:           oklch(0.978 0.014 152);
+  --foreground:           oklch(0.15 0.02 152);
   --card:                 oklch(1 0 0);
-  --card-foreground:      oklch(0.15 0.02 148);
+  --card-foreground:      oklch(0.15 0.02 152);
   --popover:              oklch(1 0 0);
-  --popover-foreground:   oklch(0.15 0.02 148);
-  --muted:                oklch(0.965 0.020 148);
-  --muted-foreground:     oklch(0.50 0.04 148);
-  --border:               oklch(0.93 0.016 148);
-  --input:                oklch(0.93 0.016 148);
-  --ring:                 oklch(0.68 0.20 148);
+  --popover-foreground:   oklch(0.15 0.02 152);
+  --muted:                oklch(0.965 0.016 152);
+  --muted-foreground:     oklch(0.50 0.04 152);
+  --border:               oklch(0.93 0.012 152);
+  --input:                oklch(0.93 0.012 152);
+  --ring:                 oklch(0.69 0.21 152);
 
   /* ── Semantic ── */
-  --primary:            oklch(0.68 0.20 148);
+  --primary:            oklch(0.69 0.21 152);
   --primary-foreground: oklch(1 0 0);
-  --secondary:          oklch(0.93 0.06 148);
-  --secondary-foreground: oklch(0.32 0.08 148);
-  --accent:             oklch(0.92 0.08 148);
-  --accent-foreground:  oklch(0.32 0.08 148);
+  --secondary:          oklch(0.93 0.07 152);
+  --secondary-foreground: oklch(0.32 0.10 152);
+  --accent:             oklch(0.92 0.07 152);
+  --accent-foreground:  oklch(0.32 0.10 152);
   --destructive:        oklch(0.55 0.20 25);
   --destructive-foreground: oklch(1 0 0);
 

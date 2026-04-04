@@ -20,13 +20,13 @@ interface Banner {
 }
 
 const G = {
-  primary:   "oklch(0.68 0.20 148)",
-  primaryDk: "oklch(0.46 0.17 150)",
-  primaryLt: "oklch(0.93 0.06 148)",
-  fg:        "oklch(0.13 0.02 148)",
-  fgMuted:   "oklch(0.50 0.04 148)",
-  border:    "oklch(0.90 0.025 148)",
-  grad:      "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
+  primary:   "oklch(0.69 0.21 152)",
+  primaryDk: "oklch(0.50 0.22 155)",
+  primaryLt: "oklch(0.93 0.07 152)",
+  fg:        "oklch(0.13 0.02 152)",
+  fgMuted:   "oklch(0.50 0.04 152)",
+  border:    "oklch(0.90 0.010 152)",
+  grad:      "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
 };
 
 const emptyForm = { title: "", imageUrl: "", linkUrl: "" };
@@ -107,7 +107,7 @@ export default function AdminBannersPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white px-4 py-3 flex items-center justify-between gap-3"
-        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 6px oklch(0.55 0.18 145 / 0.07)" }}>
+        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 6px oklch(0.55 0.20 152 / 0.07)" }}>
         <div className="flex items-center gap-2">
           <ImagePlay className="w-5 h-5" style={{ color: G.primary }} />
           <h1 className="font-extrabold text-[16px]" style={{ color: G.fg }}>แบนเนอร์หน้าแรก</h1>
@@ -126,7 +126,7 @@ export default function AdminBannersPage() {
         {/* Add form */}
         {showForm && (
           <div className="bg-white rounded-2xl p-4 space-y-3"
-            style={{ border: `1.5px solid ${G.border}`, boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.08)" }}>
+            style={{ border: `1.5px solid ${G.border}`, boxShadow: "0 2px 12px oklch(0.55 0.20 152 / 0.08)" }}>
             <p className="font-bold text-[14px]" style={{ color: G.fg }}>เพิ่มแบนเนอร์ใหม่</p>
 
             {/* Image upload */}
@@ -233,7 +233,7 @@ export default function AdminBannersPage() {
                 style={{
                   border: `1.5px solid ${banner.isActive ? G.border : "oklch(0.90 0 0)"}`,
                   opacity: banner.isActive ? 1 : 0.6,
-                  boxShadow: "0 2px 8px oklch(0.55 0.18 145 / 0.06)",
+                  boxShadow: "0 2px 8px oklch(0.55 0.20 152 / 0.06)",
                 }}>
                 {/* Image */}
                 <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/6" }}>

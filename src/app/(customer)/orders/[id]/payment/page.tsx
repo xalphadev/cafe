@@ -11,10 +11,10 @@ import { toast } from "sonner";
 import { formatPrice } from "@/lib/format";
 
 const G = {
-  grad:    "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  gradLt:  "linear-gradient(135deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  primary: "oklch(0.68 0.20 148)",
-  shadow:  "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
+  grad:    "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  gradLt:  "linear-gradient(135deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  primary: "oklch(0.69 0.21 152)",
+  shadow:  "0 8px 24px oklch(0.55 0.20 152 / 0.28)",
 };
 
 type QrData = { qrDataUrl: string | null; shopQrUrl: string | null; amount: number };
@@ -166,7 +166,7 @@ export default function PaymentPage() {
           <button
             onClick={() => router.push(`/orders/${params.id}`)}
             className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: "oklch(0.95 0.02 148)" }}
+            style={{ background: "oklch(0.95 0.028 142)" }}
           >
             <ChevronLeft className="w-5 h-5" style={{ color: G.primary }} />
           </button>
@@ -175,7 +175,7 @@ export default function PaymentPage() {
           </div>
           {/* Countdown chip */}
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-            style={{ background: countdown < 120 ? "oklch(0.97 0.04 25)" : "oklch(0.95 0.02 148)" }}>
+            style={{ background: countdown < 120 ? "oklch(0.97 0.04 25)" : "oklch(0.95 0.028 142)" }}>
             <Clock className="w-3 h-3" style={{ color: countdown < 120 ? "oklch(0.58 0.22 25)" : G.primary }} />
             <span className="text-xs font-black tabular-nums"
               style={{ color: countdown < 120 ? "oklch(0.58 0.22 25)" : G.primary }}>
@@ -204,7 +204,7 @@ export default function PaymentPage() {
           {qrSrc && (
             <div className="flex justify-center px-6 py-5">
               <div className="relative p-4 rounded-2xl bg-white"
-                style={{ border: "2px solid oklch(0.90 0.06 148)", boxShadow: "0 4px 20px oklch(0.55 0.18 148 / 0.12)" }}>
+                style={{ border: "2px solid oklch(0.90 0.06 152)", boxShadow: "0 4px 20px oklch(0.55 0.20 152 / 0.12)" }}>
                 <Image
                   src={qrSrc}
                   alt="QR PromptPay"
@@ -286,10 +286,10 @@ export default function PaymentPage() {
               <button
                 onClick={() => fileRef.current?.click()}
                 className="w-full flex flex-col items-center gap-2 py-7 rounded-2xl border-2 border-dashed transition-all active:scale-[0.98]"
-                style={{ borderColor: "oklch(0.82 0.10 145)", background: G.gradLt }}
+                style={{ borderColor: "oklch(0.82 0.10 152)", background: G.gradLt }}
               >
                 <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center"
-                  style={{ boxShadow: "0 2px 8px oklch(0.55 0.18 148 / 0.15)" }}>
+                  style={{ boxShadow: "0 2px 8px oklch(0.55 0.20 152 / 0.15)" }}>
                   <ImageIcon className="w-6 h-6" style={{ color: G.primary }} />
                 </div>
                 <p className="text-sm font-bold" style={{ color: G.primary }}>แตะเพื่อเลือกรูปสลิป</p>

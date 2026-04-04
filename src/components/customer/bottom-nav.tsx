@@ -7,8 +7,8 @@ import { Home, UtensilsCrossed, ClipboardList, User } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
 
-const primary    = "oklch(0.68 0.20 148)";
-const primaryXlt = "oklch(0.93 0.06 148)";
+const primary    = "oklch(0.69 0.21 152)";
+const primaryXlt = "oklch(0.93 0.07 152)";
 const fgMuted    = "oklch(0.55 0.04 148)";
 
 export function BottomNav() {
@@ -35,9 +35,9 @@ export function BottomNav() {
         background: "oklch(1 0 0 / 0.95)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        borderTop: "1px solid oklch(0.93 0.016 148)",
+        borderTop: "1px solid oklch(0.93 0.012 152)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        boxShadow: "0 -2px 16px oklch(0.63 0.18 145 / 0.08)",
+        boxShadow: "0 -2px 16px oklch(0.62 0.20 152 / 0.08)",
       }}
     >
       <div className="max-w-lg mx-auto flex">

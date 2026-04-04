@@ -11,15 +11,15 @@ import {
 import { useAuthStore } from "@/store/auth";
 
 const G = {
-  primary:    "oklch(0.68 0.20 148)",
-  primaryDk:  "oklch(0.46 0.17 150)",
-  primaryLt:  "oklch(0.93 0.06 148)",
-  primaryXlt: "oklch(0.976 0.016 148)",
-  fg:         "oklch(0.13 0.02 148)",
-  fgMuted:    "oklch(0.50 0.04 148)",
-  border:     "oklch(0.93 0.016 148)",
-  grad:       "linear-gradient(135deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  shadow:     "0 8px 28px oklch(0.55 0.22 145 / 0.32)",
+  primary:    "oklch(0.69 0.21 152)",
+  primaryDk:  "oklch(0.50 0.22 155)",
+  primaryLt:  "oklch(0.93 0.07 152)",
+  primaryXlt: "oklch(0.976 0.014 152)",
+  fg:         "oklch(0.13 0.02 152)",
+  fgMuted:    "oklch(0.50 0.04 152)",
+  border:     "oklch(0.93 0.012 152)",
+  grad:       "linear-gradient(135deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  shadow:     "0 8px 28px oklch(0.55 0.20 152 / 0.32)",
 };
 
 // step flow:
@@ -229,13 +229,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col overflow-hidden"
-      style={{ background: "linear-gradient(170deg, oklch(0.94 0.08 145) 0%, oklch(0.98 0.03 145) 45%, white 100%)" }}>
+      style={{ background: "linear-gradient(170deg, oklch(0.94 0.08 152) 0%, oklch(0.98 0.03 152) 45%, white 100%)" }}>
 
       {/* Deco blobs */}
       <div className="absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none opacity-40"
-        style={{ background: "radial-gradient(circle, oklch(0.70 0.22 145), transparent 70%)", transform: "translate(35%,-35%)" }} />
+        style={{ background: "radial-gradient(circle, oklch(0.70 0.22 152), transparent 70%)", transform: "translate(35%,-35%)" }} />
       <div className="absolute top-32 left-0 w-52 h-52 rounded-full pointer-events-none opacity-25"
-        style={{ background: "radial-gradient(circle, oklch(0.78 0.18 145), transparent 70%)", transform: "translate(-40%,0)" }} />
+        style={{ background: "radial-gradient(circle, oklch(0.78 0.18 152), transparent 70%)", transform: "translate(-40%,0)" }} />
 
       {/* Logo */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 pt-16 pb-6 relative z-10">
@@ -249,7 +249,7 @@ export default function LoginPage() {
           {[{icon:Coffee,label:"กาแฟ"},{icon:GlassWater,label:"ชา"},{icon:CupSoda,label:"ปั่น"},{icon:Milk,label:"นม"}]
             .map(({ icon: Icon, label }) => (
               <span key={label} className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
-                style={{ background: "white", color: G.primary, boxShadow: "0 1px 4px oklch(0.63 0.18 145 / 0.15)" }}>
+                style={{ background: "white", color: G.primary, boxShadow: "0 1px 4px oklch(0.62 0.20 152 / 0.15)" }}>
                 <Icon className="w-3 h-3" />{label}
               </span>
             ))}
@@ -258,7 +258,7 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="relative z-10 rounded-t-[2.5rem] px-6 pt-6 pb-10 bg-white"
-        style={{ boxShadow: "0 -6px 32px oklch(0.55 0.18 145 / 0.12)" }}>
+        style={{ boxShadow: "0 -6px 32px oklch(0.55 0.20 152 / 0.12)" }}>
         <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: G.border }} />
 
         {/* ── PHONE step ── */}

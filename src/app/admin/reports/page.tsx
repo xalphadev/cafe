@@ -21,13 +21,13 @@ import { formatPrice } from "@/lib/format";
 
 // ── Design tokens ────────────────────────────────────────────────
 const G = {
-  primary:   "oklch(0.68 0.20 148)",
-  primaryDk: "oklch(0.46 0.17 150)",
-  primaryLt: "oklch(0.93 0.06 148)",
-  grad: "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  fg:      "oklch(0.13 0.02 148)",
-  fgMuted: "oklch(0.50 0.04 148)",
-  border:  "oklch(0.90 0.025 148)",
+  primary:   "oklch(0.69 0.21 152)",
+  primaryDk: "oklch(0.50 0.22 155)",
+  primaryLt: "oklch(0.93 0.07 152)",
+  grad: "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  fg:      "oklch(0.13 0.02 152)",
+  fgMuted: "oklch(0.50 0.04 152)",
+  border:  "oklch(0.90 0.010 152)",
 };
 const PERIOD_LABELS: Record<string, string> = {
   "1d": "วันนี้", "7d": "7 วัน", "30d": "30 วัน", "90d": "90 วัน", "custom": "เลือกวัน",
@@ -36,7 +36,7 @@ const PAYMENT_LABELS: Record<string, string> = {
   QR_PROMPTPAY: "QR PromptPay", CASH: "เงินสด",
 };
 const PIE_COLORS = [
-  "oklch(0.68 0.20 148)", "oklch(0.60 0.18 200)", "oklch(0.70 0.17 260)",
+  "oklch(0.69 0.21 152)", "oklch(0.60 0.18 200)", "oklch(0.70 0.17 260)",
   "oklch(0.72 0.16 35)", "oklch(0.75 0.15 320)", "oklch(0.65 0.14 90)",
 ];
 
@@ -46,7 +46,7 @@ function PctBadge({ pct }: { pct: number | null }) {
   const up = pct >= 0;
   return (
     <span className="inline-flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded-full"
-      style={{ background: up ? "oklch(0.93 0.08 148)" : "oklch(0.96 0.05 25)", color: up ? G.primaryDk : "oklch(0.50 0.22 25)" }}>
+      style={{ background: up ? "oklch(0.93 0.07 152)" : "oklch(0.96 0.05 25)", color: up ? G.primaryDk : "oklch(0.50 0.22 25)" }}>
       {up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
       {Math.abs(pct)}%
     </span>
@@ -58,7 +58,7 @@ function KpiCard({ icon: Icon, label, value, sub, pct, accent }: {
 }) {
   return (
     <div className="bg-white rounded-2xl p-4 flex flex-col gap-2"
-      style={{ border: `1.5px solid ${G.border}`, boxShadow: "0 2px 8px oklch(0.55 0.18 145 / 0.07)" }}>
+      style={{ border: `1.5px solid ${G.border}`, boxShadow: "0 2px 8px oklch(0.55 0.20 152 / 0.07)" }}>
       <div className="flex items-center justify-between">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{ background: accent ? G.grad : G.primaryLt }}>
@@ -101,7 +101,7 @@ function CalendarHeader({ month, onPrev, onNext }: { month: Date; onPrev: () => 
 function SectionCard({ title, icon: Icon, children }: { title: string; icon?: React.ElementType; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden"
-      style={{ border: `1.5px solid ${G.border}`, boxShadow: "0 2px 8px oklch(0.55 0.18 145 / 0.07)" }}>
+      style={{ border: `1.5px solid ${G.border}`, boxShadow: "0 2px 8px oklch(0.55 0.20 152 / 0.07)" }}>
       <div className="px-4 py-3.5 flex items-center gap-2" style={{ borderBottom: `1px solid ${G.border}` }}>
         {Icon && <Icon className="w-4 h-4 flex-shrink-0" style={{ color: G.primary }} />}
         <h3 className="font-bold text-[14px]" style={{ color: G.fg }}>{title}</h3>
@@ -175,7 +175,7 @@ export default function AdminReportsPage() {
     <div className="min-h-screen bg-background">
       {/* ── Header ── */}
       <div className="sticky top-0 z-10 bg-white px-4 pt-4 pb-3"
-        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 8px oklch(0.55 0.18 145 / 0.06)" }}>
+        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 8px oklch(0.55 0.20 152 / 0.06)" }}>
         <div className="flex items-center justify-between gap-3 mb-3">
           <h1 className="font-extrabold text-lg" style={{ color: G.fg }}>รายงานยอดขาย</h1>
           <button
@@ -315,7 +315,7 @@ export default function AdminReportsPage() {
           {isLoading ? <Skeleton className="h-56 rounded-xl" /> : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={data?.dailyData ?? []} margin={{ left: -8, right: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.016 148)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.012 152)" vertical={false} />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: G.fgMuted }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: G.fgMuted }} axisLine={false} tickLine={false}
                   tickFormatter={v => v === 0 ? "฿0" : `฿${(v / 1000).toFixed(0)}k`} />
@@ -331,7 +331,7 @@ export default function AdminReportsPage() {
           {isLoading ? <Skeleton className="h-48 rounded-xl" /> : (
             <ResponsiveContainer width="100%" height={190}>
               <LineChart data={data?.dailyData ?? []} margin={{ left: -8, right: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.016 148)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.012 152)" vertical={false} />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: G.fgMuted }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: G.fgMuted }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <Tooltip content={<CustomTooltip />} />
@@ -349,7 +349,7 @@ export default function AdminReportsPage() {
             <>
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={data?.hourlyData ?? []} margin={{ left: -8, right: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.016 148)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.93 0.012 152)" vertical={false} />
                   <XAxis dataKey="hour" tick={{ fontSize: 9, fill: G.fgMuted }} axisLine={false} tickLine={false}
                     interval={2} />
                   <YAxis tick={{ fontSize: 10, fill: G.fgMuted }} axisLine={false} tickLine={false} allowDecimals={false} />

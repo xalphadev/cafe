@@ -171,10 +171,17 @@ export default function AdminProductsPage() {
   const [showTemplatePanel, setShowTemplatePanel] = useState(false);
   const [copyFromId, setCopyFromId] = useState("");
   const [pendingToggle, setPendingToggle] = useState<ProductWithCategory | null>(null);
+  const [statusTab, setStatusTab] = useState<"all" | "open" | "closed">("all");
 
   const { data: products = [], isLoading } = useQuery<ProductWithCategory[]>({
     queryKey: ["admin-products", search],
     queryFn: () => fetch(`/api/admin/products?search=${search}`).then(r => r.json()).then(d => d.data),
+  });
+
+  const filteredProducts = products.filter(p => {
+    if (statusTab === "open")   return p.isAvailable;
+    if (statusTab === "closed") return !p.isAvailable;
+    return true;
   });
 
   const { data: categories = [] } = useQuery<Category[]>({
@@ -325,6 +332,47 @@ export default function AdminProductsPage() {
         <Input placeholder="ค้นหาสินค้า..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
       </div>
 
+      {/* Status tabs */}
+      {(() => {
+        const allCount    = products.length;
+        const openCount   = products.filter(p => p.isAvailable).length;
+        const closedCount = products.filter(p => !p.isAvailable).length;
+        const tabs = [
+          { key: "all",    label: "ทั้งหมด",  count: allCount },
+          { key: "open",   label: "เปิดขาย",  count: openCount },
+          { key: "closed", label: "ปิดขาย",   count: closedCount },
+        ] as const;
+        return (
+          <div className="flex gap-2">
+            {tabs.map(t => (
+              <button
+                key={t.key}
+                onClick={() => setStatusTab(t.key)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                style={{
+                  background: statusTab === t.key
+                    ? t.key === "open" ? "oklch(0.93 0.07 152)" : t.key === "closed" ? "oklch(0.93 0.08 25)" : "oklch(0.15 0.02 152)"
+                    : "oklch(0.96 0.012 152)",
+                  color: statusTab === t.key
+                    ? t.key === "open" ? "oklch(0.36 0.18 152)" : t.key === "closed" ? "oklch(0.45 0.18 25)" : "white"
+                    : "oklch(0.50 0.04 152)",
+                  boxShadow: statusTab === t.key ? "0 1px 4px rgba(0,0,0,0.12)" : "none",
+                }}
+              >
+                {t.label}
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none"
+                  style={{
+                    background: statusTab === t.key ? "rgba(255,255,255,0.25)" : "oklch(0.91 0.012 152)",
+                    color: statusTab === t.key ? "inherit" : "oklch(0.50 0.04 152)",
+                  }}>
+                  {t.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        );
+      })()}
+
       {/* ════════════════════════════════════════════
           MOBILE — card list (hidden on md+)
       ════════════════════════════════════════════ */}
@@ -342,12 +390,12 @@ export default function AdminProductsPage() {
               </div>
             </div>
           ))
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="bg-white rounded-2xl p-10 text-center">
             <UtensilsCrossed className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-muted-foreground text-sm">ไม่พบสินค้า</p>
           </div>
-        ) : products.map(p => {
+        ) : filteredProducts.map(p => {
           const optCount = p.optionGroups?.length ?? 0;
           return (
             <div key={p.id} className={"bg-white rounded-2xl p-4 transition-all " + (!p.isAvailable ? "opacity-60" : "")}>
@@ -413,12 +461,12 @@ export default function AdminProductsPage() {
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i}><td colSpan={6} className="px-5 py-3"><div className="h-8 bg-muted rounded animate-pulse" /></td></tr>
               ))
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <tr><td colSpan={6} className="px-5 py-12 text-center">
                 <UtensilsCrossed className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
                 <p className="text-muted-foreground text-sm">ไม่พบสินค้า</p>
               </td></tr>
-            ) : products.map(p => {
+            ) : filteredProducts.map(p => {
               const optCount = p.optionGroups?.length ?? 0;
               return (
                 <tr key={p.id} className={"hover:bg-muted/20 transition-colors " + (!p.isAvailable ? "opacity-60" : "")}>

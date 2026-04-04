@@ -10,15 +10,15 @@ import type { SelectedOption, ProductWithCategory, ProductOptionGroup } from "@/
 import { toast } from "sonner";
 
 const G = {
-  primary:    "oklch(0.68 0.20 148)",
-  primaryDk:  "oklch(0.46 0.17 150)",
-  primaryLt:  "oklch(0.93 0.06 148)",
-  primaryXlt: "oklch(0.976 0.016 148)",
-  fg:         "oklch(0.15 0.02 148)",
-  fgMuted:    "oklch(0.50 0.04 148)",
-  border:     "oklch(0.93 0.016 148)",
-  grad:       "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  shadow:     "0 8px 28px oklch(0.60 0.20 148 / 0.28)",
+  primary:    "oklch(0.69 0.21 152)",
+  primaryDk:  "oklch(0.50 0.22 155)",
+  primaryLt:  "oklch(0.93 0.07 152)",
+  primaryXlt: "oklch(0.976 0.014 152)",
+  fg:         "oklch(0.15 0.02 152)",
+  fgMuted:    "oklch(0.50 0.04 152)",
+  border:     "oklch(0.93 0.012 152)",
+  grad:       "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  shadow:     "0 8px 28px oklch(0.60 0.20 152 / 0.28)",
 };
 
 interface Props {
@@ -206,7 +206,7 @@ export function ProductDetailSheet({ product, open, onClose, editKey, initialOpt
                           ? { background: G.primaryLt, color: G.primary }
                           : group.isRequired
                             ? { background: "oklch(0.96 0.10 25)", color: "oklch(0.50 0.22 25)" }
-                            : { background: "oklch(0.94 0.02 145)", color: G.fgMuted }
+                            : { background: "oklch(0.94 0.02 152)", color: G.fgMuted }
                         }
                       >
                         {isFulfilled && group.isRequired ? "เลือกแล้ว"
@@ -321,7 +321,7 @@ export function ProductDetailSheet({ product, open, onClose, editKey, initialOpt
               <button
                 onClick={() => setQty(q => q + 1)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90"
-                style={{ background: G.primary, color: "white", boxShadow: "0 3px 10px oklch(0.60 0.20 148 / 0.28)" }}
+                style={{ background: G.primary, color: "white", boxShadow: "0 3px 10px oklch(0.60 0.20 152 / 0.28)" }}
               >
                 <Plus className="w-4 h-4" strokeWidth={2.5} />
               </button>
@@ -332,7 +332,7 @@ export function ProductDetailSheet({ product, open, onClose, editKey, initialOpt
               onClick={handleAddToCart}
               className="flex-1 rounded-2xl font-bold text-[15px] flex items-center justify-between px-5 transition-all active:scale-[0.97]"
               style={{
-                background: missingRequired.length > 0 ? "oklch(0.76 0.12 148)" : G.grad,
+                background: missingRequired.length > 0 ? "oklch(0.78 0.13 152)" : G.grad,
                 color: "white",
                 boxShadow: missingRequired.length > 0 ? "none" : G.shadow,
                 height: "3.25rem",

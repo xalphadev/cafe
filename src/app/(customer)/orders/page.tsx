@@ -315,7 +315,7 @@ export default function OrdersPage() {
                     ? "text-white shadow-sm"
                     : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                 )}
-                style={isSelected ? { background: "oklch(0.68 0.20 148)" } : {}}
+                style={isSelected ? { background: "oklch(0.69 0.21 152)" } : {}}
               >
                 {t.label}
                 {cnt > 0 && (
@@ -348,7 +348,7 @@ export default function OrdersPage() {
                 ? <XCircle className="w-9 h-9 text-gray-300" />
                 : tab === "done"
                   ? <CheckCircle2 className="w-9 h-9 text-gray-300" />
-                  : <UtensilsCrossed className="w-9 h-9" style={{ color: "oklch(0.68 0.20 148)" }} />}
+                  : <UtensilsCrossed className="w-9 h-9" style={{ color: "oklch(0.69 0.21 152)" }} />}
             </div>
             <p className="font-medium text-gray-600 mb-1">
               {tab === "all" ? "ยังไม่มีออเดอร์" : "ไม่มีออเดอร์ในหมวดนี้"}
@@ -359,7 +359,7 @@ export default function OrdersPage() {
                 <Link href="/menu">
                   <button
                     className="px-7 py-2.5 rounded-full text-sm font-semibold text-white"
-                    style={{ background: "oklch(0.68 0.20 148)" }}
+                    style={{ background: "oklch(0.69 0.21 152)" }}
                   >
                     ดูเมนู
                   </button>

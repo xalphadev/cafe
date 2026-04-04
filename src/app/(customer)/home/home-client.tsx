@@ -17,17 +17,17 @@ import { ProductDetailSheet } from "@/components/customer/product-detail-sheet";
 
 // ─── Design tokens ───────────────────────────────────────────────
 const G = {
-  primary:    "oklch(0.68 0.20 148)",
-  primaryDk:  "oklch(0.46 0.17 150)",
-  primaryLt:  "oklch(0.93 0.06 148)",
-  primaryXlt: "oklch(0.976 0.016 148)",
-  fg:         "oklch(0.13 0.02 148)",
-  fgMuted:    "oklch(0.50 0.04 148)",
-  border:     "oklch(0.93 0.016 148)",
-  bg:         "oklch(0.955 0.022 148)",
-  grad:       "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  gradDiag:   "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  shadow:     "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
+  primary:    "oklch(0.69 0.21 152)",
+  primaryDk:  "oklch(0.50 0.22 155)",
+  primaryLt:  "oklch(0.93 0.07 152)",
+  primaryXlt: "oklch(0.976 0.014 152)",
+  fg:         "oklch(0.13 0.02 152)",
+  fgMuted:    "oklch(0.50 0.04 152)",
+  border:     "oklch(0.93 0.012 152)",
+  bg:         "oklch(0.955 0.018 152)",
+  grad:       "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  gradDiag:   "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  shadow:     "0 8px 24px oklch(0.55 0.20 152 / 0.28)",
 };
 
 type HomeData = {
@@ -456,7 +456,7 @@ function MenuCard({ product, onAdd, shopClosed, isFavorited, onFavorite }: {
   return (
     <Link href="/menu">
       <div className="flex-shrink-0 w-36 rounded-2xl overflow-hidden bg-card active:scale-[0.97] transition-all"
-        style={{ boxShadow: "0 2px 10px oklch(0.55 0.18 145 / 0.10)" }}>
+        style={{ boxShadow: "0 2px 10px oklch(0.55 0.20 152 / 0.10)" }}>
         <div className="relative w-full" style={{ aspectRatio: "1/1" }}>
           {product.image ? (
             <Image src={product.image} alt={product.name} fill className="object-cover" sizes="144px" />
@@ -500,7 +500,7 @@ function BestSellerRow({ product, rank, onAdd, shopClosed }: {
     { bg: "oklch(0.93 0.05 0)", color: "oklch(0.60 0.05 0)" },
     { bg: "oklch(0.95 0.08 50)", color: "oklch(0.62 0.18 45)" },
   ];
-  const rc = rankColors[rank - 1] ?? { bg: "oklch(0.94 0.02 145)", color: G.fgMuted };
+  const rc = rankColors[rank - 1] ?? { bg: "oklch(0.94 0.02 152)", color: G.fgMuted };
 
   return (
     <div className="flex items-center gap-3 bg-card rounded-2xl p-3"
@@ -541,7 +541,7 @@ function BestSellerRow({ product, rank, onAdd, shopClosed }: {
           className="w-9 h-9 rounded-xl flex items-center justify-center"
           style={{
             background: shopClosed ? "oklch(0.93 0.01 0)" : G.grad,
-            boxShadow: shopClosed ? "none" : "0 3px 8px oklch(0.60 0.20 148 / 0.28)",
+            boxShadow: shopClosed ? "none" : "0 3px 8px oklch(0.60 0.20 152 / 0.28)",
           }}
         >
           <span className="text-white font-bold text-lg">{shopClosed ? "—" : "+"}</span>

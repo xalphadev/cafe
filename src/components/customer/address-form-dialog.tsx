@@ -36,12 +36,12 @@ interface FormState {
 const LABEL_PRESETS = ["บ้าน", "ที่ทำงาน", "ของฝาก", "อื่นๆ"];
 
 const G = {
-  primary: "oklch(0.68 0.20 148)",
-  primaryDk: "oklch(0.46 0.17 150)",
-  primaryLt: "oklch(0.93 0.06 148)",
-  border: "oklch(0.93 0.016 148)",
-  fg: "oklch(0.13 0.02 148)",
-  fgMuted: "oklch(0.50 0.04 148)",
+  primary: "oklch(0.69 0.21 152)",
+  primaryDk: "oklch(0.50 0.22 155)",
+  primaryLt: "oklch(0.93 0.07 152)",
+  border: "oklch(0.93 0.012 152)",
+  fg: "oklch(0.13 0.02 152)",
+  fgMuted: "oklch(0.50 0.04 152)",
 };
 
 export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props) {
@@ -231,7 +231,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
               className="w-full flex items-center gap-3 p-3.5 rounded-2xl transition-all active:scale-[0.98]"
               style={{
                 background: G.primaryLt,
-                border: `1.5px solid oklch(0.88 0.08 145)`,
+                border: `1.5px solid oklch(0.88 0.06 152)`,
               }}
             >
               <div
@@ -295,7 +295,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
                     style={
                       form.label === preset
                         ? { background: G.primary, color: "white" }
-                        : { background: G.primaryLt, color: G.fg, border: `1px solid oklch(0.88 0.06 145)` }
+                        : { background: G.primaryLt, color: G.fg, border: `1px solid oklch(0.88 0.06 152)` }
                     }
                   >
                     {preset}
@@ -381,7 +381,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
             {/* Default checkbox */}
             <label
               className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer"
-              style={{ background: G.primaryLt, border: `1px solid oklch(0.90 0.06 145)` }}
+              style={{ background: G.primaryLt, border: `1px solid oklch(0.90 0.06 152)` }}
             >
               <div
                 className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all"
@@ -409,7 +409,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
                 color: "white",
                 borderRadius: "14px",
                 height: "52px",
-                boxShadow: "0 4px 16px oklch(0.55 0.22 145 / 0.35)",
+                boxShadow: "0 4px 16px oklch(0.55 0.20 152 / 0.35)",
               }}
             >
               {saving ? (

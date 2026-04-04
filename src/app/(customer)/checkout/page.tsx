@@ -17,10 +17,10 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 const G = {
-  grad:    "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  gradLt:  "linear-gradient(135deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  primary: "oklch(0.68 0.20 148)",
-  shadow:  "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
+  grad:    "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  gradLt:  "linear-gradient(135deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  primary: "oklch(0.69 0.21 152)",
+  shadow:  "0 8px 24px oklch(0.55 0.20 152 / 0.28)",
 };
 
 type PaymentMethod = "QR_PROMPTPAY" | "COD";
@@ -112,7 +112,7 @@ export default function CheckoutPage() {
           <button
             onClick={() => router.push("/cart")}
             className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: "oklch(0.95 0.02 148)" }}
+            style={{ background: "oklch(0.95 0.028 142)" }}
           >
             <ChevronLeft className="w-5 h-5" style={{ color: G.primary }} />
           </button>
@@ -123,10 +123,10 @@ export default function CheckoutPage() {
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-6">
 
         {/* ── Pickup banner ── */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: G.gradLt, border: "1px solid oklch(0.88 0.08 148)" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: G.gradLt, border: "1px solid oklch(0.88 0.06 152)" }}>
           <div className="p-4 flex gap-3 items-center">
             <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center flex-shrink-0"
-              style={{ boxShadow: "0 2px 8px oklch(0.55 0.18 148 / 0.15)" }}>
+              style={{ boxShadow: "0 2px 8px oklch(0.55 0.20 152 / 0.15)" }}>
               <Store className="w-6 h-6" style={{ color: G.primary }} />
             </div>
             <div className="flex-1 min-w-0">
@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={() => setPointsToUse(loyalty)}
                   className="px-4 h-10 rounded-xl text-sm font-semibold flex-shrink-0"
-                  style={{ background: G.gradLt, color: G.primary, border: "1px solid oklch(0.88 0.08 148)" }}
+                  style={{ background: G.gradLt, color: G.primary, border: "1px solid oklch(0.88 0.06 152)" }}
                 >
                   ใช้ทั้งหมด
                 </button>

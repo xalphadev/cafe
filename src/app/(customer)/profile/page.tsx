@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  MapPin, ChevronRight, LogOut, Edit2, Plus, Trash2,
+  ChevronRight, LogOut, Edit2,
   Ticket, Tag, Copy, Check, X,
   ArrowLeft, Phone, Award, Sparkles, KeyRound, Delete,
   Lock, Key, CheckCircle2, AlertTriangle,
@@ -13,23 +13,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import AddressFormDialog from "@/components/customer/address-form-dialog";
 import { useAuthStore } from "@/store/auth";
 import { formatPhone, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { Address, PointTransaction } from "@/types";
+import type { PointTransaction } from "@/types";
 
 // Design tokens
 const G = {
-  primary:    "oklch(0.68 0.20 148)",
-  primaryDk:  "oklch(0.46 0.17 150)",
-  primaryLt:  "oklch(0.93 0.06 148)",
-  primaryXlt: "oklch(0.976 0.016 148)",
-  fg:         "oklch(0.13 0.02 148)",
-  fgMuted:    "oklch(0.50 0.04 148)",
-  border:     "oklch(0.90 0.025 148)",
-  grad:       "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  shadow:     "0 8px 24px oklch(0.55 0.22 145 / 0.22)",
+  primary:    "oklch(0.69 0.21 152)",
+  primaryDk:  "oklch(0.50 0.22 155)",
+  primaryLt:  "oklch(0.93 0.07 152)",
+  primaryXlt: "oklch(0.976 0.014 152)",
+  fg:         "oklch(0.13 0.02 152)",
+  fgMuted:    "oklch(0.50 0.04 152)",
+  border:     "oklch(0.90 0.010 152)",
+  grad:       "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
+  shadow:     "0 8px 24px oklch(0.55 0.20 152 / 0.22)",
 };
 
 export default function ProfilePage() {
@@ -37,19 +36,13 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [editName, setEditName] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
-  const [activeSection, setActiveSection] = useState<"main" | "addresses" | "points" | "coupons" | "change-pin">("main");
+  const [activeSection, setActiveSection] = useState<"main" | "points" | "coupons" | "change-pin">("main");
   const [confirmLogout, setConfirmLogout] = useState(false);
 
   const { data: points } = useQuery<{ balance: number; transactions: PointTransaction[] }>({
     queryKey: ["user-points"],
     queryFn: () => fetch("/api/user/points").then((r) => r.json()).then((d) => d.data),
     enabled: activeSection === "points",
-  });
-
-  const { data: addresses = [], isLoading: addrLoading } = useQuery<Address[]>({
-    queryKey: ["addresses"],
-    queryFn: () => fetch("/api/addresses").then((r) => r.json()).then((d) => d.data),
-    enabled: activeSection === "addresses",
   });
 
   const handleSaveName = async () => {
@@ -76,7 +69,6 @@ export default function ProfilePage() {
   if (activeSection !== "main") {
     return (
       <SubPanel>
-        {activeSection === "addresses" && <AddressesSection addresses={addresses} isLoading={addrLoading} onBack={() => setActiveSection("main")} queryClient={queryClient} />}
         {activeSection === "points"    && <PointsSection data={points} isLoading={false} onBack={() => setActiveSection("main")} />}
         {activeSection === "coupons"   && <CouponsSection onBack={() => setActiveSection("main")} />}
         {activeSection === "change-pin"&& <ChangePinSection onBack={() => setActiveSection("main")} />}
@@ -88,13 +80,6 @@ export default function ProfilePage() {
   const pts = user?.pointsBalance ?? 0;
 
   const menuItems = [
-    {
-      id: "addresses",
-      icon: <MapPin className="w-5 h-5" />,
-      iconBg: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-      label: "ที่อยู่จัดส่ง",
-      sub: "จัดการที่อยู่สำหรับจัดส่ง",
-    },
     {
       id: "points",
       icon: <Award className="w-5 h-5" />,
@@ -248,139 +233,17 @@ function SubPanel({ children }: { children: React.ReactNode }) {
 function BackHeader({ title, onBack, action }: { title: string; onBack: () => void; action?: React.ReactNode }) {
   return (
     <header className="sticky-header bg-white/95 backdrop-blur-md px-4 h-14 pt-2 flex items-center gap-3"
-      style={{ borderBottom: "1px solid oklch(0.93 0.016 148)" }}>
+      style={{ borderBottom: "1px solid oklch(0.93 0.012 152)" }}>
       <button
         onClick={onBack}
         className="w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-all"
-        style={{ background: "oklch(0.95 0.02 148)" }}
+        style={{ background: "oklch(0.95 0.028 142)" }}
       >
         <ArrowLeft className="w-4 h-4" style={{ color: G.fg }} />
       </button>
       <h1 className="font-extrabold text-base flex-1" style={{ color: G.fg }}>{title}</h1>
       {action}
     </header>
-  );
-}
-
-/* ─── Addresses Section ──────────────────────────────────────────── */
-function AddressesSection({ addresses, isLoading, onBack, queryClient }: {
-  addresses: Address[];
-  isLoading: boolean;
-  onBack: () => void;
-  queryClient: ReturnType<typeof useQueryClient>;
-}) {
-  const [addOpen, setAddOpen] = useState(false);
-
-  const handleSaved = () => queryClient.invalidateQueries({ queryKey: ["addresses"] });
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("ยืนยันการลบที่อยู่?")) return;
-    const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
-    const data = await res.json();
-    if (data.success) {
-      toast.success("ลบที่อยู่แล้ว");
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
-    } else {
-      toast.error(data.error ?? "เกิดข้อผิดพลาด");
-    }
-  };
-
-  const handleSetDefault = async (id: string) => {
-    const res = await fetch(`/api/addresses/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isDefault: true }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      toast.success("ตั้งเป็นที่อยู่หลักแล้ว");
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
-    }
-  };
-
-  return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <BackHeader
-        title="ที่อยู่จัดส่ง"
-        onBack={onBack}
-        action={
-          <button
-            onClick={() => setAddOpen(true)}
-            className="w-8 h-8 rounded-full flex items-center justify-center ml-auto"
-            style={{ background: G.primaryLt }}
-          >
-            <Plus className="w-4 h-4" style={{ color: G.primary }} />
-          </button>
-        }
-      />
-
-      <div className="flex-1 px-4 py-4 space-y-3 pb-8">
-        {isLoading ? (
-          Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)
-        ) : addresses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 rounded-3xl flex items-center justify-center mb-3"
-              style={{ background: "linear-gradient(135deg, #dbeafe, #bfdbfe)" }}>
-              <MapPin className="w-7 h-7 text-blue-500" />
-            </div>
-            <p className="font-bold text-sm" style={{ color: G.fg }}>ยังไม่มีที่อยู่</p>
-            <p className="text-xs mt-1 mb-4" style={{ color: G.fgMuted }}>เพิ่มที่อยู่สำหรับจัดส่งสินค้า</p>
-            <button
-              onClick={() => setAddOpen(true)}
-              className="px-6 py-2.5 rounded-2xl text-sm font-bold text-white"
-              style={{ background: G.grad, boxShadow: G.shadow }}
-            >
-              + เพิ่มที่อยู่
-            </button>
-          </div>
-        ) : (
-          addresses.map((addr) => (
-            <div key={addr.id} className="bg-white rounded-2xl p-4"
-              style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 148)" }}>
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
-                  <MapPin className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <p className="font-bold text-sm" style={{ color: G.fg }}>{addr.label}</p>
-                    {addr.isDefault && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
-                        style={{ background: G.grad }}>
-                        หลัก
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs leading-relaxed" style={{ color: G.fgMuted }}>{addr.fullAddress}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-2 mt-3 ml-12">
-                {!addr.isDefault && (
-                  <button
-                    onClick={() => handleSetDefault(addr.id)}
-                    className="text-xs px-3 py-1.5 rounded-full font-semibold"
-                    style={{ background: G.primaryXlt, color: G.primary, border: "1px solid oklch(0.90 0.06 148)" }}
-                  >
-                    ตั้งเป็นหลัก
-                  </button>
-                )}
-                <button
-                  onClick={() => handleDelete(addr.id)}
-                  className="text-xs px-3 py-1.5 rounded-full font-semibold flex items-center gap-1"
-                  style={{ background: "oklch(0.98 0.012 20)", color: "oklch(0.55 0.22 25)", border: "1px solid oklch(0.93 0.04 20)" }}
-                >
-                  <Trash2 className="w-3 h-3" /> ลบ
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      <AddressFormDialog open={addOpen} onOpenChange={setAddOpen} onSaved={handleSaved} />
-    </div>
   );
 }
 
@@ -423,8 +286,8 @@ function PointsSection({ data, isLoading, onBack }: {
 
         {/* History */}
         <div className="bg-white rounded-2xl overflow-hidden"
-          style={{ boxShadow: "0 2px 12px oklch(0.55 0.18 145 / 0.10)", border: "1px solid oklch(0.94 0.016 148)" }}>
-          <div className="px-4 py-3 border-b" style={{ borderColor: "oklch(0.94 0.016 148)" }}>
+          style={{ boxShadow: "0 2px 12px oklch(0.55 0.20 152 / 0.10)", border: "1px solid oklch(0.94 0.022 142)" }}>
+          <div className="px-4 py-3 border-b" style={{ borderColor: "oklch(0.94 0.022 142)" }}>
             <h3 className="font-extrabold text-sm" style={{ color: G.fg }}>ประวัติแต้ม</h3>
           </div>
           {isLoading ? (
@@ -479,7 +342,7 @@ function CouponCard({ c }: { c: PromoCoupon }) {
   };
 
   return (
-    <div className="rounded-2xl overflow-hidden flex shadow-sm" style={{ border: "1.5px solid oklch(0.90 0.06 148)" }}>
+    <div className="rounded-2xl overflow-hidden flex shadow-sm" style={{ border: "1.5px solid oklch(0.90 0.06 152)" }}>
       {/* Left */}
       <div className="flex flex-col items-center justify-center px-4 py-4 flex-shrink-0"
         style={{ background: G.grad, minWidth: 72 }}>
@@ -490,7 +353,7 @@ function CouponCard({ c }: { c: PromoCoupon }) {
       <div className="relative flex-shrink-0 w-0">
         <div className="absolute -top-2 left-0 -translate-x-1/2 w-4 h-4 rounded-full bg-background" />
         <div className="absolute -bottom-2 left-0 -translate-x-1/2 w-4 h-4 rounded-full bg-background" />
-        <div className="h-full border-l-2 border-dashed" style={{ borderColor: "oklch(0.90 0.06 148)" }} />
+        <div className="h-full border-l-2 border-dashed" style={{ borderColor: "oklch(0.90 0.06 152)" }} />
       </div>
       {/* Right */}
       <div className="flex-1 px-3 py-3 bg-white min-w-0 flex flex-col gap-2">
@@ -498,7 +361,7 @@ function CouponCard({ c }: { c: PromoCoupon }) {
         <button
           onClick={handleCopy}
           className="flex items-center justify-between px-3 py-2 rounded-xl active:scale-[0.97] transition-all"
-          style={{ background: "oklch(0.976 0.016 148)" }}
+          style={{ background: "oklch(0.976 0.014 152)" }}
         >
           <span className="font-black text-sm tracking-widest" style={{ color: G.primaryDk }}>{c.code}</span>
           <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: G.primary }}>
@@ -528,10 +391,10 @@ function PinDots({ value, total = 6 }: { value: string; total?: number }) {
           className="w-4 h-4 rounded-full transition-all duration-150"
           style={{
             background: i < value.length
-              ? "oklch(0.68 0.20 148)"
-              : "oklch(0.90 0.025 148)",
+              ? "oklch(0.69 0.21 152)"
+              : "oklch(0.90 0.010 152)",
             transform: i < value.length ? "scale(1.2)" : "scale(1)",
-            boxShadow: i < value.length ? "0 2px 8px oklch(0.68 0.20 148 / 0.4)" : "none",
+            boxShadow: i < value.length ? "0 2px 8px oklch(0.62 0.27 142 / 0.4)" : "none",
           }}
         />
       ))}
@@ -548,14 +411,14 @@ function PinKeypad({ onPress, onDelete }: { onPress: (d: string) => void; onDele
         if (k === "⌫") return (
           <button key={i} onClick={onDelete}
             className="h-14 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
-            style={{ background: "oklch(0.95 0.02 148)" }}>
-            <Delete className="w-5 h-5" style={{ color: "oklch(0.50 0.04 148)" }} />
+            style={{ background: "oklch(0.95 0.028 142)" }}>
+            <Delete className="w-5 h-5" style={{ color: "oklch(0.50 0.04 152)" }} />
           </button>
         );
         return (
           <button key={i} onClick={() => onPress(k)}
             className="h-14 rounded-2xl text-xl font-bold active:scale-95 transition-all"
-            style={{ background: "oklch(0.97 0.016 148)", color: "oklch(0.13 0.02 148)" }}>
+            style={{ background: "oklch(0.97 0.024 142)", color: "oklch(0.13 0.02 152)" }}>
             {k}
           </button>
         );
@@ -685,7 +548,7 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
                 </div>
                 {i < 2 && (
                   <div className="w-10 h-0.5 rounded-full mb-4 transition-all duration-300"
-                    style={{ background: done ? G.primary : "oklch(0.90 0.025 148)" }} />
+                    style={{ background: done ? G.primary : "oklch(0.90 0.010 152)" }} />
                 )}
               </div>
             );
@@ -708,7 +571,7 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="w-5 h-5 rounded-full transition-all duration-150"
               style={{
-                background: i < currentValue.length ? G.primary : "oklch(0.90 0.025 148)",
+                background: i < currentValue.length ? G.primary : "oklch(0.90 0.010 152)",
                 transform: i < currentValue.length ? "scale(1.25)" : "scale(1)",
                 boxShadow: i < currentValue.length ? `0 2px 8px ${G.primary}55` : "none",
               }} />
@@ -727,14 +590,14 @@ function ChangePinSection({ onBack }: { onBack: () => void }) {
               if (k === "⌫") return (
                 <button key={i} onClick={handleDelete}
                   className="h-16 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
-                  style={{ background: "oklch(0.95 0.02 148)" }}>
+                  style={{ background: "oklch(0.95 0.028 142)" }}>
                   <Delete className="w-5 h-5" style={{ color: G.fgMuted }} />
                 </button>
               );
               return (
                 <button key={i} onClick={() => handleKey(k)}
                   className="h-16 rounded-2xl text-2xl font-bold active:scale-95 transition-all"
-                  style={{ background: "oklch(0.97 0.016 148)", color: G.fg, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
+                  style={{ background: "oklch(0.97 0.024 142)", color: G.fg, boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
                   {k}
                 </button>
               );
@@ -785,7 +648,7 @@ function CouponsSection({ onBack }: { onBack: () => void }) {
 
       <div className="flex-1 px-4 py-4 space-y-3 pb-8">
         <div className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: "linear-gradient(135deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)", border: "1px solid oklch(0.90 0.06 148)" }}>
+          style={{ background: "linear-gradient(135deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)", border: "1px solid oklch(0.90 0.06 152)" }}>
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white"
             style={{ background: G.grad }}>
             <Ticket className="w-5 h-5" />
