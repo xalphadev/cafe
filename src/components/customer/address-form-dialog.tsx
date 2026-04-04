@@ -36,12 +36,12 @@ interface FormState {
 const LABEL_PRESETS = ["บ้าน", "ที่ทำงาน", "ของฝาก", "อื่นๆ"];
 
 const G = {
-  primary: "oklch(0.68 0.20 148)",
-  primaryDk: "oklch(0.46 0.17 150)",
-  primaryLt: "oklch(0.93 0.06 148)",
-  border: "oklch(0.93 0.016 148)",
-  fg: "oklch(0.13 0.02 148)",
-  fgMuted: "oklch(0.50 0.04 148)",
+  primary: "oklch(0.66 0.24 168)",
+  primaryDk: "oklch(0.44 0.22 182)",
+  primaryLt: "oklch(0.92 0.10 168)",
+  border: "oklch(0.93 0.018 168)",
+  fg: "oklch(0.13 0.02 168)",
+  fgMuted: "oklch(0.50 0.04 168)",
 };
 
 export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props) {
@@ -211,7 +211,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
                 </div>
                 <Button
                   className="w-full font-bold"
-                  style={{ background: `linear-gradient(135deg, oklch(0.67 0.19 148), ${G.primaryDk})`, color: "white", borderRadius: "12px", height: "44px" }}
+                  style={{ background: `linear-gradient(135deg, oklch(0.67 0.19 168), ${G.primaryDk})`, color: "white", borderRadius: "12px", height: "44px" }}
                   onClick={handleConfirmMap}
                 >
                   ยืนยันตำแหน่งนี้
@@ -236,7 +236,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
             >
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: `linear-gradient(135deg, oklch(0.67 0.19 148), ${G.primaryDk})` }}
+                style={{ background: `linear-gradient(135deg, oklch(0.67 0.19 168), ${G.primaryDk})` }}
               >
                 <MapPin className="w-4 h-4 text-white" />
               </div>
@@ -405,7 +405,7 @@ export default function AddressFormDialog({ open, onOpenChange, onSaved }: Props
               disabled={saving || !form.fullAddress.trim()}
               className="w-full font-bold text-base"
               style={{
-                background: `linear-gradient(135deg, oklch(0.67 0.19 148), ${G.primaryDk})`,
+                background: `linear-gradient(135deg, oklch(0.67 0.19 168), ${G.primaryDk})`,
                 color: "white",
                 borderRadius: "14px",
                 height: "52px",

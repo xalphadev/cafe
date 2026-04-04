@@ -22,10 +22,10 @@ import dynamic from "next/dynamic";
 const MapPicker = dynamic(() => import("@/components/customer/map-picker"), { ssr: false });
 
 const G = {
-  primary:   "oklch(0.68 0.20 148)",
-  primaryDk: "oklch(0.46 0.17 150)",
-  primaryLt: "oklch(0.96 0.04 148)",
-  grad:      "linear-gradient(135deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
+  primary:   "oklch(0.66 0.24 168)",
+  primaryDk: "oklch(0.44 0.22 182)",
+  primaryLt: "oklch(0.96 0.04 168)",
+  grad:      "linear-gradient(135deg, oklch(0.66 0.24 168) 0%, oklch(0.44 0.22 182) 100%)",
 };
 
 /* ── Status step definitions ─────────────────────────────── */

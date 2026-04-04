@@ -55,7 +55,7 @@ export function ConfirmDialog({
             style={
               variant === "danger"
                 ? { background: "oklch(0.55 0.22 25)" }
-                : { background: "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)" }
+                : { background: "linear-gradient(160deg, oklch(0.66 0.24 168) 0%, oklch(0.44 0.22 182) 100%)" }
             }
             onClick={() => {
               onOpenChange(false);

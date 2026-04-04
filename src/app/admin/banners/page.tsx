@@ -20,13 +20,13 @@ interface Banner {
 }
 
 const G = {
-  primary:   "oklch(0.68 0.20 148)",
-  primaryDk: "oklch(0.46 0.17 150)",
-  primaryLt: "oklch(0.93 0.06 148)",
-  fg:        "oklch(0.13 0.02 148)",
-  fgMuted:   "oklch(0.50 0.04 148)",
-  border:    "oklch(0.90 0.025 148)",
-  grad:      "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
+  primary:   "oklch(0.66 0.24 168)",
+  primaryDk: "oklch(0.44 0.22 182)",
+  primaryLt: "oklch(0.92 0.10 168)",
+  fg:        "oklch(0.13 0.02 168)",
+  fgMuted:   "oklch(0.50 0.04 168)",
+  border:    "oklch(0.90 0.025 168)",
+  grad:      "linear-gradient(160deg, oklch(0.66 0.24 168) 0%, oklch(0.44 0.22 182) 100%)",
 };
 
 const emptyForm = { title: "", imageUrl: "", linkUrl: "" };

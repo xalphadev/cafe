@@ -11,9 +11,9 @@ import { toast } from "sonner";
 import { formatPrice } from "@/lib/format";
 
 const G = {
-  grad:    "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
-  gradLt:  "linear-gradient(135deg, oklch(0.97 0.04 148) 0%, oklch(0.94 0.06 148) 100%)",
-  primary: "oklch(0.68 0.20 148)",
+  grad:    "linear-gradient(160deg, oklch(0.66 0.24 168) 0%, oklch(0.44 0.22 182) 100%)",
+  gradLt:  "linear-gradient(135deg, oklch(0.97 0.04 168) 0%, oklch(0.94 0.06 168) 100%)",
+  primary: "oklch(0.66 0.24 168)",
   shadow:  "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
 };
 
@@ -166,7 +166,7 @@ export default function PaymentPage() {
           <button
             onClick={() => router.push(`/orders/${params.id}`)}
             className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: "oklch(0.95 0.02 148)" }}
+            style={{ background: "oklch(0.95 0.02 168)" }}
           >
             <ChevronLeft className="w-5 h-5" style={{ color: G.primary }} />
           </button>
@@ -175,7 +175,7 @@ export default function PaymentPage() {
           </div>
           {/* Countdown chip */}
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-            style={{ background: countdown < 120 ? "oklch(0.97 0.04 25)" : "oklch(0.95 0.02 148)" }}>
+            style={{ background: countdown < 120 ? "oklch(0.97 0.04 25)" : "oklch(0.95 0.02 168)" }}>
             <Clock className="w-3 h-3" style={{ color: countdown < 120 ? "oklch(0.58 0.22 25)" : G.primary }} />
             <span className="text-xs font-black tabular-nums"
               style={{ color: countdown < 120 ? "oklch(0.58 0.22 25)" : G.primary }}>
@@ -204,7 +204,7 @@ export default function PaymentPage() {
           {qrSrc && (
             <div className="flex justify-center px-6 py-5">
               <div className="relative p-4 rounded-2xl bg-white"
-                style={{ border: "2px solid oklch(0.90 0.06 148)", boxShadow: "0 4px 20px oklch(0.55 0.18 148 / 0.12)" }}>
+                style={{ border: "2px solid oklch(0.90 0.06 168)", boxShadow: "0 4px 20px oklch(0.55 0.18 148 / 0.12)" }}>
                 <Image
                   src={qrSrc}
                   alt="QR PromptPay"
