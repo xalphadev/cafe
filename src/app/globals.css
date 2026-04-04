@@ -88,10 +88,25 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), "Kanit", sans-serif;
-  font-weight: 400;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ── Font weight constraints ──────────────────────────
+   Regular = 300 (light)   |   Bold max = 500 (medium)
+────────────────────────────────────────────────────── */
+.font-thin,
+.font-extralight,
+.font-light,
+.font-normal     { font-weight: 300; }
+
+.font-medium     { font-weight: 400; }
+
+.font-semibold,
+.font-bold,
+.font-extrabold,
+.font-black      { font-weight: 500; }
 
 /* Bottom nav safe area */
 .pb-safe {
