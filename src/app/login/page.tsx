@@ -270,28 +270,29 @@ function LoginContent() {
   const otpReady   = otp.length === 6;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-hidden"
-      style={{ background: "linear-gradient(170deg, oklch(0.94 0.08 152) 0%, oklch(0.98 0.03 152) 45%, white 100%)" }}>
+    <div className="min-h-screen flex flex-col overflow-hidden" style={{ background: G.grad }}>
 
-      {/* Deco blobs */}
-      <div className="absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none opacity-40"
-        style={{ background: "radial-gradient(circle, oklch(0.70 0.22 152), transparent 70%)", transform: "translate(35%,-35%)" }} />
-      <div className="absolute top-32 left-0 w-52 h-52 rounded-full pointer-events-none opacity-25"
-        style={{ background: "radial-gradient(circle, oklch(0.78 0.18 152), transparent 70%)", transform: "translate(-40%,0)" }} />
+      {/* Deco circles */}
+      <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
+        style={{ background: "rgba(255,255,255,0.10)" }} />
+      <div className="absolute top-40 -left-12 w-44 h-44 rounded-full pointer-events-none"
+        style={{ background: "rgba(255,255,255,0.07)" }} />
+      <div className="absolute bottom-60 right-0 w-32 h-32 rounded-full pointer-events-none"
+        style={{ background: "rgba(255,255,255,0.08)" }} />
 
-      {/* Logo */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8 pt-16 pb-6 relative z-10">
-        <div className="w-20 h-20 rounded-[1.75rem] flex items-center justify-center mb-4"
-          style={{ background: G.grad, boxShadow: G.shadow }}>
-          <CupSoda className="w-10 h-10 text-white" />
+      {/* Logo section */}
+      <div className="flex-1 flex flex-col items-center justify-center px-8 pt-16 pb-8 relative z-10">
+        <div className="w-24 h-24 rounded-[2rem] flex items-center justify-center mb-5"
+          style={{ background: "rgba(255,255,255,0.20)", boxShadow: "0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.30)" }}>
+          <CupSoda className="w-12 h-12 text-white" />
         </div>
-        <h1 className="text-2xl font-extrabold tracking-tight mb-1" style={{ color: G.fg }}>ช่วงเวลาคาเฟ่</h1>
-        <p className="text-xs font-medium" style={{ color: G.fgMuted }}>สั่งเครื่องดื่มสดใหม่ รับหน้าร้าน</p>
-        <div className="flex gap-1.5 mt-4 flex-wrap justify-center">
+        <h1 className="text-3xl font-extrabold tracking-tight text-white mb-1">ช่วงเวลาคาเฟ่</h1>
+        <p className="text-sm font-medium text-white/70">สั่งเครื่องดื่มสดใหม่ รับหน้าร้าน</p>
+        <div className="flex gap-2 mt-5 flex-wrap justify-center">
           {[{icon:Coffee,label:"กาแฟ"},{icon:GlassWater,label:"ชา"},{icon:CupSoda,label:"ปั่น"},{icon:Milk,label:"นม"}]
             .map(({ icon: Icon, label }) => (
-              <span key={label} className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
-                style={{ background: "white", color: G.primary, boxShadow: "0 1px 4px oklch(0.62 0.20 152 / 0.15)" }}>
+              <span key={label} className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                style={{ background: "rgba(255,255,255,0.20)", color: "white", border: "1px solid rgba(255,255,255,0.25)" }}>
                 <Icon className="w-3 h-3" />{label}
               </span>
             ))}
@@ -299,28 +300,45 @@ function LoginContent() {
       </div>
 
       {/* Card */}
-      <div className="relative z-10 rounded-t-[2.5rem] px-6 pt-6 pb-10 bg-white"
-        style={{ boxShadow: "0 -6px 32px oklch(0.55 0.20 152 / 0.12)" }}>
-        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: G.border }} />
+      <div className="relative z-10 rounded-t-[2.5rem] px-6 pt-7 pb-10 bg-white"
+        style={{ boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
+        <div className="w-10 h-1 rounded-full mx-auto mb-6" style={{ background: G.border }} />
 
-        {/* ── PHONE step ── */}
-        {step === "phone" && (
+        {/* ── LINE-only login (default) ── */}
+        {step === "phone" && !fromLine && (
           <>
-            <h2 className="text-xl font-extrabold mb-0.5" style={{ color: G.fg }}>เข้าสู่ระบบ</h2>
-            <p className="text-sm mb-4" style={{ color: G.fgMuted }}>
-              {fromLine ? "ผูกเบอร์โทรกับบัญชี LINE ของคุณ" : "กรอกเบอร์โทรของคุณ"}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-extrabold mb-1" style={{ color: G.fg }}>ยินดีต้อนรับ</h2>
+              <p className="text-sm" style={{ color: G.fgMuted }}>เข้าสู่ระบบเพื่อสั่งอาหารและติดตามออเดอร์</p>
+            </div>
+
+            <a
+              href="/api/line/login?returnTo=/home"
+              className="w-full h-16 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] text-white"
+              style={{ background: G.grad, boxShadow: "0 6px 20px oklch(0.55 0.20 152 / 0.45)" }}
+            >
+              <MessageCircle className="w-6 h-6" />
+              เข้าสู่ระบบด้วย LINE
+            </a>
+
+            <p className="text-center text-xs mt-5" style={{ color: G.fgMuted }}>
+              การเข้าสู่ระบบถือว่าคุณยอมรับ<br />นโยบายความเป็นส่วนตัวของร้านค้า
             </p>
+          </>
+        )}
 
-            {fromLine && (
-              <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl mb-4"
-                style={{ background: "linear-gradient(135deg, oklch(0.976 0.018 152), oklch(0.93 0.07 152))", border: "1px solid oklch(0.93 0.07 152)" }}>
-                <MessageCircle className="w-5 h-5 flex-shrink-0" style={{ color: "oklch(0.55 0.22 155)" }} />
-                <p className="text-sm font-semibold" style={{ color: "oklch(0.45 0.082 148)" }}>
-                  เชื่อมต่อ LINE แล้ว — กรอกเบอร์เพื่อผูกบัญชี
-                </p>
-              </div>
-            )}
-
+        {/* ── fromLine: phone linking step ── */}
+        {step === "phone" && fromLine && (
+          <>
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl mb-5"
+              style={{ background: "linear-gradient(135deg, oklch(0.976 0.018 152), oklch(0.93 0.07 152))", border: "1px solid oklch(0.93 0.07 152)" }}>
+              <MessageCircle className="w-5 h-5 flex-shrink-0" style={{ color: "oklch(0.55 0.22 155)" }} />
+              <p className="text-sm font-semibold" style={{ color: "oklch(0.45 0.082 148)" }}>
+                เชื่อมต่อ LINE แล้ว — กรอกเบอร์เพื่อผูกบัญชี
+              </p>
+            </div>
+            <h2 className="text-xl font-extrabold mb-0.5" style={{ color: G.fg }}>ผูกเบอร์โทร</h2>
+            <p className="text-sm mb-4" style={{ color: G.fgMuted }}>กรอกเบอร์โทรของคุณเพื่อสร้างบัญชี</p>
             <div className="space-y-3">
               <div className="flex items-center gap-3 px-4 h-14 rounded-2xl border-2"
                 style={{ borderColor: G.border, background: G.primaryXlt }}>
@@ -343,24 +361,6 @@ function LoginContent() {
                   ? <><span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />กำลังตรวจสอบ...</>
                   : <><span>ถัดไป</span><ArrowRight className="w-4 h-4" /></>}
               </button>
-
-              {!fromLine && (
-                <>
-                  <div className="flex items-center gap-3 my-1">
-                    <div className="flex-1 h-px" style={{ background: G.border }} />
-                    <span className="text-xs font-semibold" style={{ color: G.fgMuted }}>หรือ</span>
-                    <div className="flex-1 h-px" style={{ background: G.border }} />
-                  </div>
-                  <a
-                    href="/api/line/login?returnTo=/home"
-                    className="w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] text-white"
-                    style={{ background: "linear-gradient(135deg, oklch(0.72 0.22 152), oklch(0.55 0.22 155))", boxShadow: "0 4px 14px oklch(0.65 0.12 145 / 0.35)" }}
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    เข้าสู่ระบบด้วย LINE
-                  </a>
-                </>
-              )}
             </div>
           </>
         )}
