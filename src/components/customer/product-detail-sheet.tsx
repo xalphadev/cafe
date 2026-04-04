@@ -10,15 +10,15 @@ import type { SelectedOption, ProductWithCategory, ProductOptionGroup } from "@/
 import { toast } from "sonner";
 
 const G = {
-  primary:    "oklch(0.59 0.178 150)",
-  primaryDk:  "oklch(0.48 0.160 152)",
-  primaryLt:  "oklch(0.91 0.048 148)",
-  primaryXlt: "oklch(0.96 0.020 148)",
+  primary:    "oklch(0.72 0.22 152)",
+  primaryDk:  "oklch(0.55 0.22 155)",
+  primaryLt:  "oklch(0.93 0.07 152)",
+  primaryXlt: "oklch(0.976 0.018 152)",
   fg:         "oklch(0.18 0.022 145)",
-  fgMuted:    "oklch(0.52 0.042 150)",
-  border:     "oklch(0.92 0.025 148)",
-  grad:       "linear-gradient(160deg, oklch(0.59 0.178 150) 0%, oklch(0.48 0.160 152) 100%)",
-  shadow:     "0 8px 28px oklch(0.57 0.14 150 / 0.28)",
+  fgMuted:    "oklch(0.50 0.04 152)",
+  border:     "oklch(0.93 0.012 152)",
+  grad:       "linear-gradient(160deg, oklch(0.72 0.22 152) 0%, oklch(0.55 0.22 155) 100%)",
+  shadow:     "0 8px 28px oklch(0.65 0.20 152 / 0.28)",
 };
 
 interface Props {
@@ -321,7 +321,7 @@ export function ProductDetailSheet({ product, open, onClose, editKey, initialOpt
               <button
                 onClick={() => setQty(q => q + 1)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90"
-                style={{ background: G.primary, color: "white", boxShadow: "0 3px 10px oklch(0.57 0.14 150 / 0.28)" }}
+                style={{ background: G.primary, color: "white", boxShadow: "0 3px 10px oklch(0.65 0.20 152 / 0.28)" }}
               >
                 <Plus className="w-4 h-4" strokeWidth={2.5} />
               </button>

@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
               header: {
                 type: "box",
                 layout: "vertical",
-                backgroundColor: "#2D7A47",
+                backgroundColor: "#06C755",
                 paddingAll: "16px",
                 contents: [
                   { type: "text", text: "👋 ยินดีต้อนรับ!", color: "#ffffff", weight: "bold", size: "md" },
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
                   {
                     type: "button",
                     style: "primary",
-                    color: "#2D7A47",
+                    color: "#06C755",
                     height: "sm",
                     action: {
                       type: "uri",
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
                     header: {
                       type: "box",
                       layout: "vertical",
-                      backgroundColor: "#2D7A47",
+                      backgroundColor: "#06C755",
                       paddingAll: "16px",
                       contents: [
                         { type: "text", text: "📦 ออเดอร์ล่าสุดของคุณ", color: "#ffffff", weight: "bold", size: "sm" },
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
                       paddingAll: "16px",
                       contents: [
                         { type: "text", text: `#${shortId}`, weight: "bold", size: "md", color: "#111827" },
-                        { type: "text", text: statusText, size: "sm", color: "#2D7A47", margin: "sm", wrap: true },
+                        { type: "text", text: statusText, size: "sm", color: "#06C755", margin: "sm", wrap: true },
                         { type: "separator", margin: "md" },
                         { type: "text", text: itemLines + moreItems, size: "sm", color: "#6b7280", margin: "md", wrap: true },
                         {
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
                         {
                           type: "button",
                           style: "primary",
-                          color: "#2D7A47",
+                          color: "#06C755",
                           height: "sm",
                           action: { type: "uri", label: "ดูรายละเอียด", uri: `${appUrl}/orders/${latestOrder.id}` },
                         },

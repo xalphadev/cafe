@@ -5,10 +5,10 @@
 
 :root {
   /* ── Brand palette — Natural Forest Green ── */
-  --brand:         oklch(0.59 0.178 150);  /* fresh medium green */
-  --brand-dark:    oklch(0.48 0.160 152);  /* deeper green */
-  --brand-light:   oklch(0.91 0.048 148);  /* soft green tint */
-  --brand-xlight:  oklch(0.96 0.020 148);  /* barely-there green wash */
+  --brand:         oklch(0.72 0.22 152);   /* LINE Pay green #06C755 */
+  --brand-dark:    oklch(0.55 0.22 155);   /* LINE green dark */
+  --brand-light:   oklch(0.93 0.07 152);   /* soft LINE green tint */
+  --brand-xlight:  oklch(0.976 0.018 152); /* barely-there LINE green */
   --brand-foreground: oklch(1 0 0);
 
   /* ── Base ── */
@@ -19,17 +19,17 @@
   --popover:              oklch(1 0 0);
   --popover-foreground:   oklch(0.15 0.018 150);
   --muted:                oklch(0.965 0.010 148);
-  --muted-foreground:     oklch(0.52 0.042 150);
-  --border:               oklch(0.92 0.025 148);
-  --input:                oklch(0.92 0.025 148);
-  --ring:                 oklch(0.59 0.178 150);
+  --muted-foreground:     oklch(0.50 0.04 152);
+  --border:               oklch(0.93 0.012 152);
+  --input:                oklch(0.93 0.012 152);
+  --ring:                 oklch(0.72 0.22 152);
 
   /* ── Semantic ── */
-  --primary:            oklch(0.59 0.178 150);
+  --primary:            oklch(0.72 0.22 152);
   --primary-foreground: oklch(1 0 0);
-  --secondary:          oklch(0.91 0.048 148);
+  --secondary:          oklch(0.93 0.07 152);
   --secondary-foreground: oklch(0.32 0.08 148);
-  --accent:             oklch(0.91 0.048 148);
+  --accent:             oklch(0.93 0.07 152);
   --accent-foreground:  oklch(0.32 0.08 148);
   --destructive:        oklch(0.55 0.20 25);
   --destructive-foreground: oklch(1 0 0);
