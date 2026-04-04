@@ -17,17 +17,17 @@ import { ProductDetailSheet } from "@/components/customer/product-detail-sheet";
 
 // ─── Design tokens ───────────────────────────────────────────────
 const G = {
-  primary:    "oklch(0.69 0.21 152)",
-  primaryDk:  "oklch(0.50 0.22 155)",
-  primaryLt:  "oklch(0.93 0.07 152)",
-  primaryXlt: "oklch(0.976 0.014 152)",
-  fg:         "oklch(0.13 0.02 152)",
-  fgMuted:    "oklch(0.50 0.04 152)",
-  border:     "oklch(0.93 0.012 152)",
-  bg:         "oklch(0.955 0.018 152)",
-  grad:       "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
-  gradDiag:   "linear-gradient(160deg, oklch(0.69 0.21 152) 0%, oklch(0.50 0.22 155) 100%)",
-  shadow:     "0 8px 24px oklch(0.55 0.20 152 / 0.28)",
+  primary:    "oklch(0.64 0.200 145)",
+  primaryDk:  "oklch(0.51 0.185 148)",
+  primaryLt:  "oklch(0.83 0.130 140)",
+  primaryXlt: "oklch(0.93 0.068 140)",
+  fg:         "oklch(0.18 0.022 145)",
+  fgMuted:    "oklch(0.52 0.060 148)",
+  border:     "oklch(0.87 0.075 140)",
+  bg:         "oklch(0.972 0.010 87)",
+  grad:       "linear-gradient(160deg, oklch(0.64 0.200 145) 0%, oklch(0.51 0.185 148) 100%)",
+  gradDiag:   "linear-gradient(160deg, oklch(0.64 0.200 145) 0%, oklch(0.51 0.185 148) 100%)",
+  shadow:     "0 8px 24px oklch(0.51 0.18 148 / 0.28)",
 };
 
 type HomeData = {
@@ -456,7 +456,7 @@ function MenuCard({ product, onAdd, shopClosed, isFavorited, onFavorite }: {
   return (
     <Link href="/menu">
       <div className="flex-shrink-0 w-36 rounded-2xl overflow-hidden bg-card active:scale-[0.97] transition-all"
-        style={{ boxShadow: "0 2px 10px oklch(0.55 0.20 152 / 0.10)" }}>
+        style={{ boxShadow: "0 2px 10px oklch(0.51 0.18 148 / 0.10)" }}>
         <div className="relative w-full" style={{ aspectRatio: "1/1" }}>
           {product.image ? (
             <Image src={product.image} alt={product.name} fill className="object-cover" sizes="144px" />
@@ -541,7 +541,7 @@ function BestSellerRow({ product, rank, onAdd, shopClosed }: {
           className="w-9 h-9 rounded-xl flex items-center justify-center"
           style={{
             background: shopClosed ? "oklch(0.93 0.01 0)" : G.grad,
-            boxShadow: shopClosed ? "none" : "0 3px 8px oklch(0.60 0.20 152 / 0.28)",
+            boxShadow: shopClosed ? "none" : "0 3px 8px oklch(0.51 0.16 148 / 0.28)",
           }}
         >
           <span className="text-white font-bold text-lg">{shopClosed ? "—" : "+"}</span>
