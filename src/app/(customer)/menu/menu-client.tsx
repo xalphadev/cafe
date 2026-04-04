@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Search, Plus, Minus, ShoppingBag, MapPin, ChevronLeft, ChevronRight, Coffee, UtensilsCrossed, Star, AlertCircle, SlidersHorizontal, Store, Heart } from "lucide-react";
 import { toast } from "sonner";
@@ -32,7 +33,9 @@ const G = {
 };
 
 export function MenuClient() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const searchParams = useSearchParams();
+  const initTab = searchParams.get("tab") === "featured" ? "featured" : "all";
+  const [selectedCategory, setSelectedCategory] = useState<string>(initTab);
   const [search, setSearch] = useState("");
   const [detailProduct, setDetailProduct] = useState<ProductWithCategory | null>(null);
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -58,13 +61,14 @@ export function MenuClient() {
     queryFn: () => fetch("/api/categories").then(r => r.json()).then(d => d.data),
   });
 
-  const isFavTab = selectedCategory === "favorites";
+  const isFavTab      = selectedCategory === "favorites";
+  const isFeaturedTab = selectedCategory === "featured";
 
   const { data: products = [], isLoading: prodLoading } = useQuery<ProductWithCategory[]>({
     queryKey: ["products", selectedCategory, search],
     queryFn: () => {
       const p = new URLSearchParams();
-      if (selectedCategory !== "all") p.set("categoryId", selectedCategory);
+      if (selectedCategory !== "all" && !isFeaturedTab) p.set("categoryId", selectedCategory);
       if (search) p.set("search", search);
       return fetch(`/api/products?${p}`).then(r => r.json()).then(d => d.data);
     },
@@ -72,11 +76,16 @@ export function MenuClient() {
   });
 
   // Favorites tab: use cached data from useFavorites directly — no extra API call
-  const displayProducts: ProductWithCategory[] = isFavTab
+  const rawProducts: ProductWithCategory[] = isFavTab
     ? (search
         ? favoriteProducts.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
         : favoriteProducts)
     : products;
+
+  // Featured tab: filter to isFeatured only
+  const displayProducts: ProductWithCategory[] = isFeaturedTab
+    ? rawProducts.filter(p => (p as { isFeatured?: boolean }).isFeatured)
+    : rawProducts;
 
   const shopClosed = shopSetting && !shopSetting.isOpen;
   const featuredProducts = displayProducts.filter((p) => (p as { isFeatured?: boolean }).isFeatured);
@@ -174,6 +183,21 @@ export function MenuClient() {
               )}
             </button>
           )}
+
+          {/* Featured tab */}
+          <button
+            onClick={() => setSelectedCategory("featured")}
+            className="flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all whitespace-nowrap"
+            style={{
+              background: selectedCategory === "featured" ? "linear-gradient(135deg, oklch(0.72 0.18 85), oklch(0.60 0.20 70))" : "oklch(0.98 0.012 85)",
+              color: selectedCategory === "featured" ? "white" : "oklch(0.55 0.18 80)",
+              boxShadow: selectedCategory === "featured" ? "0 3px 10px oklch(0.60 0.20 80 / 0.30)" : "none",
+              transform: selectedCategory === "featured" ? "scale(1.03)" : "scale(1)",
+            }}
+          >
+            <Star className="w-3.5 h-3.5" fill={selectedCategory === "featured" ? "white" : "oklch(0.55 0.18 80)"} strokeWidth={0} />
+            แนะนำ
+          </button>
 
           {[{ id: "all", name: "ทั้งหมด" }, ...(!catLoading ? categories : [])].map(cat => (
             <button
@@ -274,7 +298,7 @@ export function MenuClient() {
 
       {/* ── Products ── */}
       <main className="flex-1 px-4 pt-4 pb-36">
-        {(prodLoading && !isFavTab) ? (
+        {(prodLoading && !isFavTab && !isFeaturedTab) ? (
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: 6 }).map((_, i) => <ProductSkeleton key={i} />)}
           </div>
@@ -287,6 +311,13 @@ export function MenuClient() {
                 </div>
                 <p className="font-bold" style={{ color: G.fg }}>ยังไม่มีเมนูโปรด</p>
                 <p className="text-sm mt-1" style={{ color: G.fgMuted }}>กดไอคอนหัวใจบนเมนูที่ชอบ</p>
+              </>
+            ) : isFeaturedTab ? (
+              <>
+                <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-4" style={{ background: "oklch(0.98 0.012 85)" }}>
+                  <Star className="w-8 h-8" fill="oklch(0.72 0.18 85)" strokeWidth={0} style={{ opacity: 0.5 }} />
+                </div>
+                <p className="font-bold" style={{ color: G.fg }}>ยังไม่มีเมนูแนะนำ</p>
               </>
             ) : (
               <>

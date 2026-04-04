@@ -310,7 +310,7 @@ export default function HomeClient() {
           <Section
             icon={<Star className="w-4 h-4" style={{ color: "oklch(0.75 0.20 85)" }} />}
             title="เมนูแนะนำ"
-            href="/menu"
+            href="/menu?tab=featured"
           >
             <div className="flex gap-3 overflow-x-auto px-4 pb-1" style={{ scrollbarWidth: "none" }}>
               {data!.featuredProducts.map((p) => (
