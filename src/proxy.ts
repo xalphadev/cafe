@@ -8,7 +8,7 @@ const PUBLIC_PATHS = [
   "/admin/login",
 ];
 
-const CUSTOMER_PATHS = ["/checkout", "/orders", "/profile", "/cart", "/home"];
+const CUSTOMER_PATHS = ["/checkout", "/orders", "/profile", "/cart"];
 const ADMIN_PATHS = ["/admin"];
 
 export async function proxy(request: NextRequest) {
@@ -59,6 +59,5 @@ export const config = {
     "/orders/:path*",
     "/profile/:path*",
     "/cart",
-    "/home",
   ],
 };
