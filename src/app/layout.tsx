@@ -16,7 +16,18 @@ export const metadata: Metadata = {
     template: "%s | ช่วงเวลาคาเฟ่",
   },
   description: "สั่งเครื่องดื่มสดใหม่ รับหน้าร้านได้เลย",
-  appleWebApp: { capable: true, statusBarStyle: "default" },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ช่วงเวลาคาเฟ่",
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

@@ -4,11 +4,12 @@ self.addEventListener("push", function (event) {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: data.icon || "/icon-192x192.png",
+      icon: "/icon-192x192.png",
       badge: "/icon-192x192.png",
       vibrate: [200, 100, 200],
       tag: data.tag || "new-order",
       renotify: true,
+      requireInteraction: false,
       data: { url: data.url || "/admin/orders" },
     })
   );

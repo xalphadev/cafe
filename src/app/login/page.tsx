@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   Phone, ArrowRight, RotateCcw, ChevronLeft,
@@ -86,9 +86,7 @@ export default function LoginPage() {
 
 function LoginContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { setUser } = useAuthStore();
-  const fromLine = searchParams.get("from_line") === "1";
 
   const [step, setStep]         = useState<Step>("phone");
   const [phone, setPhone]       = useState("");
@@ -97,14 +95,13 @@ function LoginContent() {
   const [pinConfirm, setPinConfirm] = useState("");
   const [name, setName]         = useState("");
   const [otpToken, setOtpToken] = useState("");
-  const [userName, setUserName] = useState<string | null>(null); // from check-phone
+  const [userName, setUserName] = useState<string | null>(null);
   const [isForgot, setIsForgot] = useState(false);
   const [isNew, setIsNew]       = useState(false);
   const [loading, setLoading]   = useState(false);
   const [countdown, setCountdown] = useState(0);
   const nameRef = useRef<HTMLInputElement>(null);
 
-  // Focus name input when step changes
   useEffect(() => {
     if (step === "setup_name") setTimeout(() => nameRef.current?.focus(), 100);
   }, [step]);
@@ -114,7 +111,7 @@ function LoginContent() {
     const t = setInterval(() => setCountdown(c => { if (c <= 1) { clearInterval(t); return 0; } return c - 1; }), 1000);
   };
 
-  // ── Step 1: check phone ──
+  // ── Step 1: check phone (only for existing phone-account users) ──
   const handleCheckPhone = async () => {
     if (!phone.match(/^0[0-9]{9}$/)) { toast.error("กรุณากรอกเบอร์โทรให้ถูกต้อง (10 หลัก)"); return; }
     setLoading(true);
@@ -127,40 +124,9 @@ function LoginContent() {
       if (!d.success) { toast.error(d.error); return; }
       const { exists, hasPin, name: n } = d.data;
       setUserName(n);
-
-      // LINE flow: ถ้าเบอร์ใหม่ → สร้างบัญชีทันที ไม่ต้อง OTP
-      if (fromLine && !exists) {
-        await handleLineRegister();
-        return;
-      }
-
-      if (exists && hasPin) {
-        setIsNew(false);
-        setStep("pin");
-      } else {
-        setIsNew(!exists);
-        await sendOTP();
-      }
+      if (exists && hasPin) { setIsNew(false); setStep("pin"); }
+      else { setIsNew(!exists); await sendOTP(); }
     } catch { toast.error("เกิดข้อผิดพลาด"); } finally { setLoading(false); }
-  };
-
-  // ── LINE register (เบอร์ใหม่ + มาจาก LINE) ──
-  const handleLineRegister = async () => {
-    try {
-      const r = await fetch("/api/line/register", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, name: name.trim() || undefined }),
-      });
-      const d = await r.json();
-      if (!d.success) {
-        // เบอร์มีบัญชีอยู่แล้ว → fallback ไป OTP flow ปกติ
-        if (r.status === 409) { setIsNew(false); await sendOTP(); return; }
-        toast.error(d.error); return;
-      }
-      setUser(d.data.user);
-      toast.success("สมัครสำเร็จ! ยินดีต้อนรับ 🎉");
-      router.replace("/home");
-    } catch { toast.error("เกิดข้อผิดพลาด"); }
   };
 
   // ── Send OTP ──
@@ -208,9 +174,6 @@ function LoginContent() {
       const d = await r.json();
       if (!d.success) { toast.error(d.error); setPin(""); return; }
       setUser(d.data.user);
-      if (fromLine) {
-        await fetch("/api/line/link-pending", { method: "POST" });
-      }
       toast.success(`ยินดีต้อนรับ${d.data.user.name ? " " + d.data.user.name : ""}!`);
       router.replace("/home");
     } catch { toast.error("เกิดข้อผิดพลาด"); setPin(""); } finally { setLoading(false); }
@@ -229,9 +192,6 @@ function LoginContent() {
       const d = await r.json();
       if (!d.success) { toast.error(d.error); return; }
       setUser(d.data.user);
-      if (fromLine) {
-        await fetch("/api/line/link-pending", { method: "POST" });
-      }
       toast.success(isNew ? "สมัครสำเร็จ! ยินดีต้อนรับ" : "เปลี่ยน PIN สำเร็จ!");
       router.replace("/home");
     } catch { toast.error("เกิดข้อผิดพลาด"); } finally { setLoading(false); }
@@ -304,8 +264,8 @@ function LoginContent() {
         style={{ boxShadow: "0 -8px 40px rgba(0,0,0,0.18)" }}>
         <div className="w-10 h-1 rounded-full mx-auto mb-6" style={{ background: G.border }} />
 
-        {/* ── LINE-only login (default) ── */}
-        {step === "phone" && !fromLine && (
+        {/* ── LINE-only login ── */}
+        {step === "phone" && (
           <>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-extrabold mb-1" style={{ color: G.fg }}>ยินดีต้อนรับ</h2>
@@ -327,43 +287,6 @@ function LoginContent() {
           </>
         )}
 
-        {/* ── fromLine: phone linking step ── */}
-        {step === "phone" && fromLine && (
-          <>
-            <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl mb-5"
-              style={{ background: "linear-gradient(135deg, oklch(0.976 0.018 152), oklch(0.93 0.07 152))", border: "1px solid oklch(0.93 0.07 152)" }}>
-              <MessageCircle className="w-5 h-5 flex-shrink-0" style={{ color: "oklch(0.55 0.22 155)" }} />
-              <p className="text-sm font-semibold" style={{ color: "oklch(0.45 0.082 148)" }}>
-                เชื่อมต่อ LINE แล้ว — กรอกเบอร์เพื่อผูกบัญชี
-              </p>
-            </div>
-            <h2 className="text-xl font-extrabold mb-0.5" style={{ color: G.fg }}>ผูกเบอร์โทร</h2>
-            <p className="text-sm mb-4" style={{ color: G.fgMuted }}>กรอกเบอร์โทรของคุณเพื่อสร้างบัญชี</p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 px-4 h-14 rounded-2xl border-2"
-                style={{ borderColor: G.border, background: G.primaryXlt }}>
-                <Phone className="w-5 h-5 flex-shrink-0" style={{ color: G.primary }} />
-                <input
-                  type="tel" placeholder="0812345678" value={phone}
-                  onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  className="flex-1 bg-transparent text-base outline-none font-semibold"
-                  style={{ color: G.fg }} inputMode="tel"
-                  onKeyDown={e => e.key === "Enter" && handleCheckPhone()}
-                  autoFocus
-                />
-                {phoneReady && <Check className="w-4 h-4 flex-shrink-0" style={{ color: G.primary }} />}
-              </div>
-              <button
-                onClick={handleCheckPhone} disabled={loading || !phoneReady}
-                className="w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
-                style={{ background: phoneReady ? G.grad : G.primaryXlt, color: phoneReady ? "white" : G.fgMuted, boxShadow: phoneReady ? G.shadow : "none" }}>
-                {loading
-                  ? <><span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />กำลังตรวจสอบ...</>
-                  : <><span>ถัดไป</span><ArrowRight className="w-4 h-4" /></>}
-              </button>
-            </div>
-          </>
-        )}
 
         {/* ── OTP step ── */}
         {step === "otp" && (

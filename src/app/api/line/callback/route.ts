@@ -86,29 +86,28 @@ export async function GET(request: NextRequest) {
 
       if (user && user.isActive) {
         // User exists → สร้าง session แล้ว redirect ไป home
-        const token = await signToken({ userId: user.id, role: user.role, phone: user.phone });
+        const token = await signToken({ userId: user.id, role: user.role, phone: user.phone ?? undefined });
         const res = Response.redirect(`${appUrl}/home?line_login=1`);
         const cookieHeader = `auth-token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
         res.headers.set("Set-Cookie", cookieHeader);
         return res;
       }
 
-      // User ไม่มีใน DB → เก็บ LINE info ไว้ใน temp cookie แล้วให้กรอกเบอร์ผูกบัญชี
-      cookieStore.set("line_pending_id", lineProfile.userId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 600,
-        path: "/",
-        sameSite: "lax",
+      // User ไม่มีใน DB → สร้างบัญชีใหม่ด้วย LINE ทันที ไม่ต้องการเบอร์โทร
+      const newUser = await prisma.user.create({
+        data: {
+          phone: null,
+          name: lineProfile.displayName,
+          lineUserId: lineProfile.userId,
+        },
       });
-      cookieStore.set("line_pending_name", lineProfile.displayName, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 600,
-        path: "/",
-        sameSite: "lax",
-      });
-      return Response.redirect(`${appUrl}/login?from_line=1`);
+      const newToken = await signToken({ userId: newUser.id, role: newUser.role });
+      const newRes = Response.redirect(`${appUrl}/home?line_login=1`);
+      newRes.headers.set(
+        "Set-Cookie",
+        `auth-token=${newToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`
+      );
+      return newRes;
     }
 
     // ── LINK MODE ──────────────────────────────────────────────────────────────

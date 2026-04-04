@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ToggleLeft, ToggleRight, Save, CheckCircle2, XCircle, QrCode, Upload, Trash2, RefreshCw, Bell } from "lucide-react";
+import { ToggleLeft, ToggleRight, Save, CheckCircle2, XCircle, QrCode, Upload, Trash2, RefreshCw, Bell, SendHorizonal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ export default function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
   const [qrUploading, setQrUploading] = useState(false);
+  const [testingPush, setTestingPush] = useState(false);
   const qrFileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     isOpen: true,
@@ -89,6 +90,18 @@ export default function AdminSettingsPage() {
     });
     toast.success("ลบ QR Code แล้ว");
     queryClient.invalidateQueries({ queryKey: ["admin-shop-settings"] });
+  };
+
+  const handleTestPush = async () => {
+    setTestingPush(true);
+    try {
+      const res = await fetch("/api/push/test", { method: "POST" });
+      const d = await res.json();
+      if (d.success) toast.success("ส่งการแจ้งเตือนทดสอบแล้ว — ตรวจสอบอุปกรณ์ของคุณ");
+      else toast.error(d.error ?? "เกิดข้อผิดพลาด");
+    } finally {
+      setTestingPush(false);
+    }
   };
 
   const handleSave = async () => {
@@ -280,6 +293,17 @@ export default function AdminSettingsPage() {
               รองรับ Chrome, Edge, Firefox, Safari (iOS 16.4+) — ใช้ได้ทั้ง Android และ iPhone
             </p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full mt-3"
+            onClick={handleTestPush}
+            disabled={testingPush}
+          >
+            {testingPush
+              ? <><RefreshCw className="w-3.5 h-3.5 mr-2 animate-spin" />กำลังส่ง...</>
+              : <><SendHorizonal className="w-3.5 h-3.5 mr-2" />ทดสอบการแจ้งเตือน</>}
+          </Button>
         </CardContent>
       </Card>
 

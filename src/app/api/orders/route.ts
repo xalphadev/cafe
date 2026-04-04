@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
         pushSubs.map((sub) =>
           sendWebPush(sub, {
             title: `🛒 ออเดอร์ใหม่ #${shortId}`,
-            body: `${user.name ?? user.phone} | ${orderTypeLabel} | ${total.toLocaleString("th-TH")} บาท\n${itemSummary}`,
+            body: `${user.name ?? user.phone ?? "ลูกค้า"} | ${orderTypeLabel} | ${total.toLocaleString("th-TH")} บาท\n${itemSummary}`,
             url: "/admin/orders",
             tag: `order-${order.id}`,
           })
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
     if (lineAdmins.length > 0) {
       const notifyText = [
         `🛒 ออเดอร์ใหม่ #${shortId}`,
-        `👤 ${user.name ?? user.phone}`,
+        `👤 ${user.name ?? user.phone ?? "ลูกค้า"}`,
         `${data.orderType === "PICKUP" ? "🏪" : "🛵"} ${orderTypeLabel} | 💳 ${paymentLabel}`,
         `💰 ${total.toLocaleString("th-TH")} บาท`,
         itemSummary,
