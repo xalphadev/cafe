@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { signToken } from "@/lib/jwt";
 import { cookies } from "next/headers";
 
 type LineTokenResponse = {
@@ -9,7 +10,6 @@ type LineTokenResponse = {
   refresh_token: string;
   expires_in: number;
   scope: string;
-  id_token?: string;
 };
 
 type LineProfileResponse = {
@@ -19,31 +19,30 @@ type LineProfileResponse = {
 };
 
 export async function GET(request: NextRequest) {
-  const session = await getSession();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
-
-  if (!session) {
-    return Response.redirect(`${appUrl}/login?error=unauthenticated`);
-  }
-
   const cookieStore = await cookies();
+
   const savedState = cookieStore.get("line_oauth_state")?.value;
+  const mode = cookieStore.get("line_oauth_mode")?.value ?? "link";
   const returnTo = cookieStore.get("line_oauth_return_to")?.value ?? "/profile";
 
   cookieStore.delete("line_oauth_state");
+  cookieStore.delete("line_oauth_mode");
   cookieStore.delete("line_oauth_return_to");
 
   const { searchParams } = request.nextUrl;
   const code = searchParams.get("code");
   const state = searchParams.get("state");
-  const error = searchParams.get("error");
+  const lineError = searchParams.get("error");
 
-  if (error || !code) {
-    return Response.redirect(`${appUrl}${returnTo}?line_error=cancelled`);
+  if (lineError || !code) {
+    const dest = mode === "login" ? "/login" : returnTo;
+    return Response.redirect(`${appUrl}${dest}?line_error=cancelled`);
   }
 
   if (!savedState || state !== savedState) {
-    return Response.redirect(`${appUrl}${returnTo}?line_error=invalid_state`);
+    const dest = mode === "login" ? "/login" : returnTo;
+    return Response.redirect(`${appUrl}${dest}?line_error=invalid_state`);
   }
 
   try {
@@ -62,7 +61,8 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tokenRes.ok) {
-      return Response.redirect(`${appUrl}${returnTo}?line_error=token_failed`);
+      const dest = mode === "login" ? "/login" : returnTo;
+      return Response.redirect(`${appUrl}${dest}?line_error=token_failed`);
     }
 
     const tokenData: LineTokenResponse = await tokenRes.json();
@@ -72,13 +72,53 @@ export async function GET(request: NextRequest) {
     });
 
     if (!profileRes.ok) {
-      return Response.redirect(`${appUrl}${returnTo}?line_error=profile_failed`);
+      const dest = mode === "login" ? "/login" : returnTo;
+      return Response.redirect(`${appUrl}${dest}?line_error=profile_failed`);
     }
 
-    const profile: LineProfileResponse = await profileRes.json();
+    const lineProfile: LineProfileResponse = await profileRes.json();
+
+    // ── LOGIN MODE ─────────────────────────────────────────────────────────────
+    if (mode === "login") {
+      const user = await prisma.user.findUnique({
+        where: { lineUserId: lineProfile.userId },
+      });
+
+      if (user && user.isActive) {
+        // User exists → สร้าง session แล้ว redirect ไป home
+        const token = await signToken({ userId: user.id, role: user.role, phone: user.phone });
+        const res = Response.redirect(`${appUrl}/home?line_login=1`);
+        const cookieHeader = `auth-token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
+        res.headers.set("Set-Cookie", cookieHeader);
+        return res;
+      }
+
+      // User ไม่มีใน DB → เก็บ LINE info ไว้ใน temp cookie แล้วให้กรอกเบอร์ผูกบัญชี
+      cookieStore.set("line_pending_id", lineProfile.userId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 600,
+        path: "/",
+        sameSite: "lax",
+      });
+      cookieStore.set("line_pending_name", lineProfile.displayName, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 600,
+        path: "/",
+        sameSite: "lax",
+      });
+      return Response.redirect(`${appUrl}/login?from_line=1`);
+    }
+
+    // ── LINK MODE ──────────────────────────────────────────────────────────────
+    const session = await getSession();
+    if (!session) {
+      return Response.redirect(`${appUrl}/login?line_error=unauthenticated`);
+    }
 
     const existing = await prisma.user.findUnique({
-      where: { lineUserId: profile.userId },
+      where: { lineUserId: lineProfile.userId },
     });
 
     if (existing && existing.id !== session.userId) {
@@ -87,11 +127,12 @@ export async function GET(request: NextRequest) {
 
     await prisma.user.update({
       where: { id: session.userId },
-      data: { lineUserId: profile.userId },
+      data: { lineUserId: lineProfile.userId },
     });
 
     return Response.redirect(`${appUrl}${returnTo}?line_success=1`);
   } catch {
-    return Response.redirect(`${appUrl}${returnTo}?line_error=server_error`);
+    const dest = mode === "login" ? "/login" : returnTo;
+    return Response.redirect(`${appUrl}${dest}?line_error=server_error`);
   }
 }

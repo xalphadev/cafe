@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Phone, ArrowRight, RotateCcw, ChevronLeft,
   Coffee, GlassWater, CupSoda, Milk,
-  User, Lock, KeyRound, Check, Delete,
+  User, Lock, KeyRound, Check, Delete, MessageCircle,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 
@@ -77,8 +77,18 @@ function Keypad({ onPress, onDelete }: { onPress: (d: string) => void; onDelete:
 
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setUser } = useAuthStore();
+  const fromLine = searchParams.get("from_line") === "1";
 
   const [step, setStep]         = useState<Step>("phone");
   const [phone, setPhone]       = useState("");
@@ -172,6 +182,9 @@ export default function LoginPage() {
       const d = await r.json();
       if (!d.success) { toast.error(d.error); setPin(""); return; }
       setUser(d.data.user);
+      if (fromLine) {
+        await fetch("/api/line/link-pending", { method: "POST" });
+      }
       toast.success(`ยินดีต้อนรับ${d.data.user.name ? " " + d.data.user.name : ""}!`);
       router.replace("/home");
     } catch { toast.error("เกิดข้อผิดพลาด"); setPin(""); } finally { setLoading(false); }
@@ -190,6 +203,9 @@ export default function LoginPage() {
       const d = await r.json();
       if (!d.success) { toast.error(d.error); return; }
       setUser(d.data.user);
+      if (fromLine) {
+        await fetch("/api/line/link-pending", { method: "POST" });
+      }
       toast.success(isNew ? "สมัครสำเร็จ! ยินดีต้อนรับ" : "เปลี่ยน PIN สำเร็จ!");
       router.replace("/home");
     } catch { toast.error("เกิดข้อผิดพลาด"); } finally { setLoading(false); }
@@ -265,7 +281,20 @@ export default function LoginPage() {
         {step === "phone" && (
           <>
             <h2 className="text-xl font-extrabold mb-0.5" style={{ color: G.fg }}>เข้าสู่ระบบ</h2>
-            <p className="text-sm mb-6" style={{ color: G.fgMuted }}>กรอกเบอร์โทรของคุณ</p>
+            <p className="text-sm mb-4" style={{ color: G.fgMuted }}>
+              {fromLine ? "ผูกเบอร์โทรกับบัญชี LINE ของคุณ" : "กรอกเบอร์โทรของคุณ"}
+            </p>
+
+            {fromLine && (
+              <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl mb-4"
+                style={{ background: "linear-gradient(135deg, #dcfce7, #bbf7d0)", border: "1px solid #86efac" }}>
+                <MessageCircle className="w-5 h-5 flex-shrink-0" style={{ color: "#16a34a" }} />
+                <p className="text-sm font-semibold" style={{ color: "#15803d" }}>
+                  เชื่อมต่อ LINE แล้ว — กรอกเบอร์เพื่อผูกบัญชี
+                </p>
+              </div>
+            )}
+
             <div className="space-y-3">
               <div className="flex items-center gap-3 px-4 h-14 rounded-2xl border-2"
                 style={{ borderColor: G.border, background: G.primaryXlt }}>
@@ -288,6 +317,24 @@ export default function LoginPage() {
                   ? <><span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />กำลังตรวจสอบ...</>
                   : <><span>ถัดไป</span><ArrowRight className="w-4 h-4" /></>}
               </button>
+
+              {!fromLine && (
+                <>
+                  <div className="flex items-center gap-3 my-1">
+                    <div className="flex-1 h-px" style={{ background: G.border }} />
+                    <span className="text-xs font-semibold" style={{ color: G.fgMuted }}>หรือ</span>
+                    <div className="flex-1 h-px" style={{ background: G.border }} />
+                  </div>
+                  <a
+                    href="/api/line/login?returnTo=/home"
+                    className="w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] text-white"
+                    style={{ background: "linear-gradient(135deg, #06c755, #00a544)", boxShadow: "0 4px 14px rgba(6,199,85,0.35)" }}
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    เข้าสู่ระบบด้วย LINE
+                  </a>
+                </>
+              )}
             </div>
           </>
         )}
@@ -465,3 +512,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
