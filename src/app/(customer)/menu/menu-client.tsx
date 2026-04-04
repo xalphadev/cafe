@@ -16,17 +16,17 @@ import { useFavorites } from "@/hooks/useFavorites";
 
 // Grab-green palette tokens
 const G = {
-  primary:    "oklch(0.64 0.24 162)",
-  primaryDk:  "oklch(0.50 0.20 196)",
-  primaryLt:  "oklch(0.93 0.09 162)",
-  primaryXlt: "oklch(0.975 0.018 162)",
-  fg:         "oklch(0.13 0.02 162)",
-  fgMuted:    "oklch(0.50 0.04 162)",
-  border:     "oklch(0.93 0.016 162)",
-  bg:         "oklch(0.955 0.020 162)",
-  card:       "oklch(0.995 0.003 162)",
-  grad:       "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
-  gradLight:  "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
+  primary:    "oklch(0.68 0.20 148)",
+  primaryDk:  "oklch(0.46 0.17 150)",
+  primaryLt:  "oklch(0.93 0.06 148)",
+  primaryXlt: "oklch(0.976 0.016 148)",
+  fg:         "oklch(0.13 0.02 148)",
+  fgMuted:    "oklch(0.50 0.04 148)",
+  border:     "oklch(0.93 0.016 148)",
+  bg:         "oklch(0.955 0.022 148)",
+  card:       "oklch(0.995 0.003 148)",
+  grad:       "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
+  gradLight:  "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
   shadow:     "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
   shadowSm:   "0 2px 12px oklch(0.63 0.18 145 / 0.14)",
 };
@@ -97,7 +97,7 @@ export function MenuClient() {
     <div className="flex flex-col min-h-screen bg-background">
 
       {/* ── Header ── */}
-      <header className="sticky-header bg-white" style={{ boxShadow: "0 1px 0 oklch(0.93 0.016 162)" }}>
+      <header className="sticky-header bg-white" style={{ boxShadow: "0 1px 0 oklch(0.93 0.016 148)" }}>
         <div className="px-4 pt-4 pb-3">
           {/* Top row */}
           <div className="flex items-center justify-between mb-3">
@@ -372,14 +372,14 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
         {product.image ? (
           <Image src={product.image} alt={product.name} fill className="object-cover transition-transform duration-300 hover:scale-105" sizes="(max-width: 768px) 50vw, 200px" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center" style={{ background: "oklch(0.93 0.09 162)" }}><UtensilsCrossed className="w-10 h-10 text-gray-300" /></div>
+          <div className="w-full h-full flex items-center justify-center" style={{ background: "oklch(0.93 0.06 148)" }}><UtensilsCrossed className="w-10 h-10 text-gray-300" /></div>
         )}
         {/* Gradient — light vignette only for readability */}
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.14) 0%, transparent 45%)" }} />
 
         {/* Category badge */}
         <span className="absolute top-2.5 left-2.5 text-[10px] font-extrabold px-2.5 py-1 rounded-full"
-          style={{ background: "rgba(255,255,255,0.88)", color: "oklch(0.50 0.20 196)", backdropFilter: "blur(6px)" }}>
+          style={{ background: "rgba(255,255,255,0.88)", color: "oklch(0.46 0.17 150)", backdropFilter: "blur(6px)" }}>
           {product.category.name}
         </span>
 
@@ -406,7 +406,7 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
         {/* In-cart badge */}
         {qty > 0 && (
           <span className="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-extrabold"
-            style={{ background: "oklch(0.64 0.24 162)", color: "white",
+            style={{ background: "oklch(0.68 0.20 148)", color: "white",
                      boxShadow: "0 2px 8px oklch(0.50 0.22 145 / 0.5)" }}>
             {qty}
           </span>
@@ -417,12 +417,12 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
       <div className="px-3 pt-2.5 pb-3 flex flex-col gap-2.5 flex-1">
         <div className="flex-1">
           <h3 className="font-bold text-[13px] leading-snug line-clamp-2"
-            style={{ color: "oklch(0.13 0.02 162)" }}>
+            style={{ color: "oklch(0.13 0.02 148)" }}>
             {product.name}
           </h3>
           {product.description && (
             <p className="text-[11px] mt-0.5 line-clamp-1"
-              style={{ color: "oklch(0.50 0.04 162)" }}>
+              style={{ color: "oklch(0.50 0.04 148)" }}>
               {product.description}
             </p>
           )}
@@ -446,7 +446,7 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
                 </span>
               </div>
             ) : (
-              <span className="font-extrabold text-sm" style={{ color: "oklch(0.64 0.24 162)" }}>
+              <span className="font-extrabold text-sm" style={{ color: "oklch(0.68 0.20 148)" }}>
                 {formatPrice(product.price)}
               </span>
             )}
@@ -462,24 +462,24 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
             <button
               onClick={e => { e.stopPropagation(); onAdd(); }}
               className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-              style={{ background: "linear-gradient(135deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
+              style={{ background: "linear-gradient(135deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
                        color: "white", boxShadow: "0 4px 12px oklch(0.55 0.22 145 / 0.35)" }}
             >
               <Plus className="w-4 h-4" strokeWidth={3} />
             </button>
           ) : (
             <div className="flex items-center gap-1.5 rounded-xl px-1 py-1"
-              style={{ background: "oklch(0.975 0.018 162)" }}
+              style={{ background: "oklch(0.976 0.016 148)" }}
               onClick={e => e.stopPropagation()}>
               <button onClick={onDecrease}
                 className="w-7 h-7 rounded-lg bg-white flex items-center justify-center active:scale-90"
                 style={{ boxShadow: "0 1px 3px oklch(0.55 0.18 145 / 0.15)" }}>
-                <Minus className="w-3.5 h-3.5" style={{ color: "oklch(0.64 0.24 162)" }} strokeWidth={2.5} />
+                <Minus className="w-3.5 h-3.5" style={{ color: "oklch(0.68 0.20 148)" }} strokeWidth={2.5} />
               </button>
-              <span className="text-sm font-extrabold w-5 text-center" style={{ color: "oklch(0.13 0.02 162)" }}>{qty}</span>
+              <span className="text-sm font-extrabold w-5 text-center" style={{ color: "oklch(0.13 0.02 148)" }}>{qty}</span>
               <button onClick={onIncrease}
                 className="w-7 h-7 rounded-lg flex items-center justify-center active:scale-90"
-                style={{ background: "oklch(0.64 0.24 162)", color: "white" }}>
+                style={{ background: "oklch(0.68 0.20 148)", color: "white" }}>
                 <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
               </button>
             </div>

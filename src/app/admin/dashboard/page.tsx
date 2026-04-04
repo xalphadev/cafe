@@ -218,8 +218,8 @@ export default function DashboardPage() {
                 <AreaChart data={data?.dailyRevenue ?? []} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
                   <defs>
                     <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="oklch(0.64 0.24 162)" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="oklch(0.64 0.24 162)" stopOpacity={0.02} />
+                      <stop offset="5%"  stopColor="oklch(0.68 0.20 148)" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="oklch(0.68 0.20 148)" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -229,10 +229,10 @@ export default function DashboardPage() {
                   <Tooltip content={<ChartTooltip />} />
                   <Area
                     type="monotone" dataKey="revenue"
-                    stroke="oklch(0.64 0.24 162)" strokeWidth={2.5}
+                    stroke="oklch(0.68 0.20 148)" strokeWidth={2.5}
                     fill="url(#revenueGrad)"
-                    dot={{ r: 3, fill: "oklch(0.64 0.24 162)", strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: "oklch(0.64 0.24 162)", strokeWidth: 0 }}
+                    dot={{ r: 3, fill: "oklch(0.68 0.20 148)", strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: "oklch(0.68 0.20 148)", strokeWidth: 0 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>

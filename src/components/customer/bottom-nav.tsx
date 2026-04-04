@@ -7,9 +7,9 @@ import { Home, UtensilsCrossed, ClipboardList, User } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
 
-const primary    = "oklch(0.64 0.24 162)";
-const primaryXlt = "oklch(0.93 0.09 162)";
-const fgMuted    = "oklch(0.55 0.04 162)";
+const primary    = "oklch(0.68 0.20 148)";
+const primaryXlt = "oklch(0.93 0.06 148)";
+const fgMuted    = "oklch(0.55 0.04 148)";
 
 export function BottomNav() {
   const pathname  = usePathname();
@@ -35,7 +35,7 @@ export function BottomNav() {
         background: "oklch(1 0 0 / 0.95)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        borderTop: "1px solid oklch(0.93 0.016 162)",
+        borderTop: "1px solid oklch(0.93 0.016 148)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
         boxShadow: "0 -2px 16px oklch(0.63 0.18 145 / 0.08)",
       }}

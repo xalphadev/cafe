@@ -13,15 +13,15 @@ import type { CartItem } from "@/types";
 import type { ProductWithCategory } from "@/types";
 
 const G = {
-  primary:    "oklch(0.64 0.24 162)",
-  primaryDk:  "oklch(0.50 0.20 196)",
-  primaryLt:  "oklch(0.93 0.09 162)",
-  primaryXlt: "oklch(0.975 0.018 162)",
-  fg:         "oklch(0.13 0.02 162)",
-  fgMuted:    "oklch(0.50 0.04 162)",
-  border:     "oklch(0.93 0.016 162)",
-  bg:         "oklch(0.955 0.020 162)",
-  grad:       "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
+  primary:    "oklch(0.68 0.20 148)",
+  primaryDk:  "oklch(0.46 0.17 150)",
+  primaryLt:  "oklch(0.93 0.06 148)",
+  primaryXlt: "oklch(0.976 0.016 148)",
+  fg:         "oklch(0.13 0.02 148)",
+  fgMuted:    "oklch(0.50 0.04 148)",
+  border:     "oklch(0.93 0.016 148)",
+  bg:         "oklch(0.955 0.022 148)",
+  grad:       "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
   shadow:     "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
 };
 
@@ -56,7 +56,7 @@ export default function CartPage() {
     return (
       <div className="flex flex-col min-h-screen pb-24 bg-background">
         <header className="sticky-header bg-white px-4 h-14 pt-2 flex items-center gap-3"
-          style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.93 0.016 162)" }}>
+          style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.93 0.016 148)" }}>
           <button onClick={() => router.push("/menu")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-transform"
             style={{ background: G.primaryLt }}>
             <ArrowLeft className="w-4.5 h-4.5" style={{ color: G.primary }} />
@@ -90,7 +90,7 @@ export default function CartPage() {
 
       {/* ── Header ── */}
       <header className="sticky-header bg-white px-4 h-14 pt-2 flex items-center gap-3"
-        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.93 0.016 162)" }}>
+        style={{ borderBottom: `1px solid ${G.border}`, boxShadow: "0 1px 0 oklch(0.93 0.016 148)" }}>
         <button onClick={() => router.push("/menu")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
           style={{ background: G.primaryLt }}>
           <ArrowLeft className="w-4 h-4" style={{ color: G.primary }} />

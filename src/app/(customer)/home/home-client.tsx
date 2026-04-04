@@ -17,16 +17,16 @@ import { ProductDetailSheet } from "@/components/customer/product-detail-sheet";
 
 // ─── Design tokens ───────────────────────────────────────────────
 const G = {
-  primary:    "oklch(0.64 0.24 162)",
-  primaryDk:  "oklch(0.50 0.20 196)",
-  primaryLt:  "oklch(0.93 0.09 162)",
-  primaryXlt: "oklch(0.975 0.018 162)",
-  fg:         "oklch(0.13 0.02 162)",
-  fgMuted:    "oklch(0.50 0.04 162)",
-  border:     "oklch(0.93 0.016 162)",
-  bg:         "oklch(0.955 0.020 162)",
-  grad:       "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
-  gradDiag:   "linear-gradient(160deg, oklch(0.75 0.26 145) 0%, oklch(0.67 0.22 178) 50%, oklch(0.79 0.13 218) 100%)",
+  primary:    "oklch(0.68 0.20 148)",
+  primaryDk:  "oklch(0.46 0.17 150)",
+  primaryLt:  "oklch(0.93 0.06 148)",
+  primaryXlt: "oklch(0.976 0.016 148)",
+  fg:         "oklch(0.13 0.02 148)",
+  fgMuted:    "oklch(0.50 0.04 148)",
+  border:     "oklch(0.93 0.016 148)",
+  bg:         "oklch(0.955 0.022 148)",
+  grad:       "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
+  gradDiag:   "linear-gradient(160deg, oklch(0.68 0.20 148) 0%, oklch(0.46 0.17 150) 100%)",
   shadow:     "0 8px 24px oklch(0.55 0.22 145 / 0.28)",
 };
 
