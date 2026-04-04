@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   MapPin, ChevronRight, LogOut, Edit2, Plus, Trash2,
   Ticket, Tag, Copy, Check, X,
-  ArrowLeft, Phone, Award, Sparkles,
+  ArrowLeft, Phone, Award, Sparkles, KeyRound, Delete,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [editName, setEditName] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
-  const [activeSection, setActiveSection] = useState<"main" | "addresses" | "points" | "coupons">("main");
+  const [activeSection, setActiveSection] = useState<"main" | "addresses" | "points" | "coupons" | "change-pin">("main");
   const [confirmLogout, setConfirmLogout] = useState(false);
 
   const { data: points } = useQuery<{ balance: number; transactions: PointTransaction[] }>({
@@ -52,17 +52,19 @@ export default function ProfilePage() {
   });
 
   const handleSaveName = async () => {
+    if (!name.trim()) { toast.error("กรุณากรอกชื่อ"); return; }
+    if (name.trim().length > 50) { toast.error("ชื่อยาวเกินไป (ไม่เกิน 50 ตัวอักษร)"); return; }
     const res = await fetch("/api/user/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name: name.trim() }),
     });
     const data = await res.json();
     if (data.success) {
       toast.success("บันทึกชื่อแล้ว");
       setUser({ ...user!, name: data.data.name });
       setEditName(false);
-    } else toast.error(data.error);
+    } else toast.error(data.error ?? "เกิดข้อผิดพลาด");
   };
 
   const handleLogout = async () => {
@@ -78,6 +80,9 @@ export default function ProfilePage() {
   }
   if (activeSection === "coupons") {
     return <CouponsSection onBack={() => setActiveSection("main")} />;
+  }
+  if (activeSection === "change-pin") {
+    return <ChangePinSection onBack={() => setActiveSection("main")} />;
   }
 
   const initials = (user?.name ?? "U").slice(0, 1).toUpperCase();
@@ -104,6 +109,13 @@ export default function ProfilePage() {
       iconBg: "linear-gradient(135deg, #f97316, #ea580c)",
       label: "คูปอง & โปรโมชั่น",
       sub: "โค้ดส่วนลดพิเศษ",
+    },
+    {
+      id: "change-pin",
+      icon: <KeyRound className="w-5 h-5" />,
+      iconBg: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+      label: "เปลี่ยน PIN",
+      sub: "แก้ไขรหัส PIN สำหรับเข้าสู่ระบบ",
     },
   ];
 
@@ -491,6 +503,195 @@ function CouponCard({ c }: { c: PromoCoupon }) {
             </span>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Change PIN Section ─────────────────────────────────────────── */
+function PinDots({ value, total = 6 }: { value: string; total?: number }) {
+  return (
+    <div className="flex gap-3 justify-center my-4">
+      {Array.from({ length: total }).map((_, i) => (
+        <div
+          key={i}
+          className="w-4 h-4 rounded-full transition-all duration-150"
+          style={{
+            background: i < value.length
+              ? "oklch(0.68 0.20 148)"
+              : "oklch(0.90 0.025 148)",
+            transform: i < value.length ? "scale(1.2)" : "scale(1)",
+            boxShadow: i < value.length ? "0 2px 8px oklch(0.68 0.20 148 / 0.4)" : "none",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function PinKeypad({ onPress, onDelete }: { onPress: (d: string) => void; onDelete: () => void }) {
+  const rows = [["1","2","3"],["4","5","6"],["7","8","9"],["","0","⌫"]];
+  return (
+    <div className="grid grid-cols-3 gap-3 mt-4">
+      {rows.flat().map((k, i) => {
+        if (k === "") return <div key={i} />;
+        if (k === "⌫") return (
+          <button key={i} onClick={onDelete}
+            className="h-14 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
+            style={{ background: "oklch(0.95 0.02 148)" }}>
+            <Delete className="w-5 h-5" style={{ color: "oklch(0.50 0.04 148)" }} />
+          </button>
+        );
+        return (
+          <button key={i} onClick={() => onPress(k)}
+            className="h-14 rounded-2xl text-xl font-bold active:scale-95 transition-all"
+            style={{ background: "oklch(0.97 0.016 148)", color: "oklch(0.13 0.02 148)" }}>
+            {k}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+type PinStep = "current" | "new" | "confirm";
+
+function ChangePinSection({ onBack }: { onBack: () => void }) {
+  const [step, setStep] = useState<PinStep>("current");
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const showError = (msg: string) => {
+    setErrorMsg(msg);
+    setTimeout(() => setErrorMsg(""), 2500);
+  };
+
+  const handleCurrentKey = (d: string) => {
+    if (currentPin.length >= 6) return;
+    const next = currentPin + d;
+    setCurrentPin(next);
+    if (next.length === 6) setStep("new");
+  };
+
+  const handleNewKey = (d: string) => {
+    if (newPin.length >= 6) return;
+    const next = newPin + d;
+    setNewPin(next);
+    if (next.length === 6) setStep("confirm");
+  };
+
+  const handleConfirmKey = (d: string) => {
+    if (confirmPin.length >= 6) return;
+    const next = confirmPin + d;
+    setConfirmPin(next);
+    if (next.length === 6) {
+      if (next !== newPin) {
+        showError("PIN ไม่ตรงกัน กรุณาลองใหม่");
+        setConfirmPin("");
+        return;
+      }
+      doChangePin(next);
+    }
+  };
+
+  const doChangePin = async (confirmedPin: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/user/change-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPin, newPin: confirmedPin }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("เปลี่ยน PIN สำเร็จแล้ว!");
+        onBack();
+      } else {
+        showError(data.error ?? "เกิดข้อผิดพลาด");
+        if (data.error?.includes("ปัจจุบัน")) {
+          setCurrentPin(""); setNewPin(""); setConfirmPin(""); setStep("current");
+        } else {
+          setNewPin(""); setConfirmPin(""); setStep("new");
+        }
+      }
+    } catch {
+      showError("เกิดข้อผิดพลาด");
+    } finally { setLoading(false); }
+  };
+
+  const stepConfig = {
+    current: { title: "ใส่ PIN ปัจจุบัน", sub: "กรอก PIN 6 หลักที่ใช้อยู่", value: currentPin, icon: "🔒" },
+    new:     { title: "ตั้ง PIN ใหม่",    sub: "กรอก PIN 6 หลักที่ต้องการ",   value: newPin,     icon: "🔑" },
+    confirm: { title: "ยืนยัน PIN ใหม่",  sub: "กรอก PIN ใหม่อีกครั้ง",       value: confirmPin, icon: "✅" },
+  }[step];
+
+  const handleDelete = () => {
+    if (step === "current") setCurrentPin(p => p.slice(0, -1));
+    else if (step === "new") setNewPin(p => p.slice(0, -1));
+    else setConfirmPin(p => p.slice(0, -1));
+  };
+
+  const handlePress = step === "current" ? handleCurrentKey
+    : step === "new" ? handleNewKey
+    : handleConfirmKey;
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <BackHeader title="เปลี่ยน PIN" onBack={onBack} />
+
+      <div className="flex-1 px-5 py-6">
+        {/* Error banner */}
+        {errorMsg && (
+          <div className="mb-4 flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold"
+            style={{ background: "oklch(0.97 0.03 25)", color: "oklch(0.50 0.22 25)", border: "1.5px solid oklch(0.90 0.10 25)" }}>
+            <span>⚠️</span> {errorMsg}
+          </div>
+        )}
+
+        {/* Step indicator */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          {(["current", "new", "confirm"] as PinStep[]).map((s, i) => (
+            <div key={s} className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                style={{
+                  background: s === step ? G.primary : step === "confirm" && s === "new" ? G.primary : step !== "current" && s === "current" ? G.primary : "oklch(0.90 0.025 148)",
+                  color: (s === step || (step === "confirm" && s !== "confirm") || (step === "new" && s === "current")) ? "white" : "oklch(0.60 0.04 148)",
+                }}>
+                {(step === "confirm" && s !== "confirm") || (step === "new" && s === "current")
+                  ? <Check className="w-3.5 h-3.5" />
+                  : i + 1}
+              </div>
+              {i < 2 && <div className="w-8 h-0.5 rounded-full" style={{ background: "oklch(0.90 0.025 148)" }} />}
+            </div>
+          ))}
+        </div>
+
+        {/* Main card */}
+        <div className="rounded-3xl p-6 text-center" style={{ background: G.primaryXlt, border: `1.5px solid ${G.border}` }}>
+          <div className="text-3xl mb-2">{stepConfig.icon}</div>
+          <h2 className="text-lg font-extrabold" style={{ color: G.fg }}>{stepConfig.title}</h2>
+          <p className="text-sm mt-1" style={{ color: G.fgMuted }}>{stepConfig.sub}</p>
+          <PinDots value={stepConfig.value} />
+        </div>
+
+        {/* Keypad */}
+        {loading
+          ? <div className="flex justify-center mt-8"><span className="w-7 h-7 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+          : <PinKeypad onPress={handlePress} onDelete={handleDelete} />
+        }
+
+        {/* Back to prev step */}
+        {step !== "current" && !loading && (
+          <button
+            onClick={() => { if (step === "confirm") { setConfirmPin(""); setStep("new"); } else { setNewPin(""); setStep("current"); } }}
+            className="w-full mt-3 text-sm font-semibold text-center py-2"
+            style={{ color: G.fgMuted }}>
+            ← ย้อนกลับ
+          </button>
+        )}
       </div>
     </div>
   );
