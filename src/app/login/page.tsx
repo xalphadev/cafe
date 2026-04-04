@@ -178,8 +178,9 @@ export default function LoginPage() {
   };
 
   // ── Set PIN (new or reset) ──
-  const handleSetPin = async () => {
-    if (pin !== pinConfirm) { toast.error("PIN ไม่ตรงกัน"); setPinConfirm(""); setStep("setup_pin"); return; }
+  // Note: confirmedPin is passed directly because React state (pinConfirm) may not be committed yet
+  const handleSetPin = async (confirmedPin: string) => {
+    if (pin !== confirmedPin) { toast.error("PIN ไม่ตรงกัน"); setPinConfirm(""); setStep("setup_pin"); return; }
     setLoading(true);
     try {
       const r = await fetch("/api/auth/set-pin", {
@@ -213,7 +214,7 @@ export default function LoginPage() {
     setPinConfirm(next);
     if (next.length === 6) {
       if (next !== pin) { toast.error("PIN ไม่ตรงกัน ลองใหม่"); setPinConfirm(""); return; }
-      handleSetPin();
+      handleSetPin(next);
     }
   };
 
