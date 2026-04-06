@@ -145,10 +145,10 @@ function OrderCard({ order }: { order: OrderWithItems }) {
         className="bg-white rounded-2xl overflow-hidden transition-all active:scale-[0.985]"
         style={{
           boxShadow: isReady
-            ? "0 0 0 2px #2dd4bf, 0 4px 16px #2dd4bf20"
+            ? "0 0 0 2px #2dd4bf, 0 6px 20px #2dd4bf30"
             : isActive
-              ? "0 2px 16px rgba(0,0,0,0.08), 0 0 0 1.5px " + cfg.border + "40"
-              : "0 1px 6px rgba(0,0,0,0.06), 0 0 0 1px #f0f0f0",
+              ? "0 4px 20px rgba(0,0,0,0.10), 0 0 0 1.5px " + cfg.border + "40"
+              : "0 2px 12px rgba(0,0,0,0.08), 0 0 0 1px #eaeaea",
         }}
       >
         <div className="p-4 space-y-3.5">
@@ -350,7 +350,7 @@ export default function OrdersPage() {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {/* Active pulse label — only on "all" tab when mixing */}
             {tab === "all" && counts.active > 0 && (
               <div className="flex items-center gap-2 pt-1 pb-0.5 px-0.5">
