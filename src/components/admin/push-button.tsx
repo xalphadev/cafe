@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BellOff, BellRing, Smartphone, X } from "lucide-react";
+import { BellOff, BellRing, Smartphone, X, Send, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 function useIOSPushStatus() {
@@ -82,6 +82,7 @@ export function AdminPushButton() {
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [loading, setLoading] = useState(false);
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const { isIOS, isStandalone } = useIOSPushStatus();
 
   useEffect(() => {
@@ -96,7 +97,6 @@ export function AdminPushButton() {
   if (!supported) return null;
 
   async function subscribe() {
-    // iOS ที่ยังไม่ได้ Add to Home Screen → แสดง guide แทน
     if (isIOS && !isStandalone) {
       setShowIOSGuide(true);
       return;
@@ -158,35 +158,69 @@ export function AdminPushButton() {
     }
   }
 
+  async function testPush() {
+    setShowMenu(false);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/push/test", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) toast.success("ส่งทดสอบแล้ว — รอดูแจ้งเตือนบนมือถือ");
+      else toast.error(data.error ?? "ส่งไม่ได้");
+    } catch {
+      toast.error("เกิดข้อผิดพลาด");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const isOn = !!subscription;
 
   return (
     <>
-      <button
-        onClick={isOn ? unsubscribe : subscribe}
-        disabled={loading}
-        title={
-          isIOS && !isStandalone
-            ? "ดูวิธีเปิดแจ้งเตือนบน iOS"
-            : isOn
-            ? "ปิดแจ้งเตือนออเดอร์"
+      <div className="relative flex items-center">
+        {/* Bell button */}
+        <button
+          onClick={isOn ? undefined : subscribe}
+          onClickCapture={isOn ? () => setShowMenu(v => !v) : undefined}
+          disabled={loading}
+          title={
+            isIOS && !isStandalone ? "ดูวิธีเปิดแจ้งเตือนบน iOS"
+            : isOn ? "จัดการแจ้งเตือน"
             : "เปิดแจ้งเตือนออเดอร์ใหม่"
-        }
-        className="relative p-2 rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
-      >
-        {isOn ? (
-          <BellRing className="w-5 h-5 text-primary" />
-        ) : (
-          <BellOff className="w-5 h-5 text-muted-foreground" />
-        )}
-        {isOn && (
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-green-500" />
-        )}
-        {/* iOS indicator — ยังไม่ได้ Add to Home Screen */}
-        {isIOS && !isStandalone && !isOn && (
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-400" />
-        )}
-      </button>
+          }
+          className="relative p-2 rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
+        >
+          {isOn ? <BellRing className="w-5 h-5 text-primary" /> : <BellOff className="w-5 h-5 text-muted-foreground" />}
+          {isOn && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-green-500" />}
+          {isIOS && !isStandalone && !isOn && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-400" />}
+        </button>
+
+        {/* Dropdown เมื่อ subscribe แล้ว */}
+        {isOn && <ChevronDown className="w-3 h-3 text-muted-foreground -ml-1" />}
+      </div>
+
+      {/* Menu */}
+      {showMenu && isOn && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setShowMenu(false)} />
+          <div className="absolute right-12 top-12 z-40 bg-white rounded-2xl shadow-xl border border-border p-1 w-48">
+            <button
+              onClick={testPush}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-50 text-sm text-slate-700 transition-colors"
+            >
+              <Send className="w-4 h-4 text-primary" />
+              ทดสอบแจ้งเตือน
+            </button>
+            <button
+              onClick={() => { setShowMenu(false); unsubscribe(); }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-50 text-sm text-red-500 transition-colors"
+            >
+              <BellOff className="w-4 h-4" />
+              ปิดแจ้งเตือน
+            </button>
+          </div>
+        </>
+      )}
 
       {showIOSGuide && <IOSGuideModal onClose={() => setShowIOSGuide(false)} />}
     </>
