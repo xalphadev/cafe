@@ -50,27 +50,40 @@ export function useMuteChime(): [boolean, () => void] {
   return [muted, toggle];
 }
 
-// ── Chime sound using Web Audio API ──────────────────────────────────────
+// ── Alert sound — double-beep แบบร้านสะดวกซื้อ แต่เร่งด่วนกว่า ────────────
 function playChime() {
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
     if (ctx.state === "suspended") { ctx.resume(); return; }
 
-    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
-    notes.forEach((freq, i) => {
+    const t = ctx.currentTime;
+
+    // beep 1: สั้นๆ คู่หนึ่ง (ding-ding)
+    // beep 2: สูงขึ้น คู่หนึ่ง (ding-ding)
+    const pattern = [
+      { freq: 880, start: 0,    dur: 0.1 },  // A5
+      { freq: 880, start: 0.15, dur: 0.1 },  // A5
+      { freq: 1109, start: 0.38, dur: 0.12 }, // C#6
+      { freq: 1109, start: 0.54, dur: 0.18 }, // C#6 ยาวหน่อย
+    ];
+
+    pattern.forEach(({ freq, start, dur }) => {
       const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      const start = ctx.currentTime + i * 0.18;
-      gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(0.35, start + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.5);
-      osc.start(start);
-      osc.stop(start + 0.55);
+
+      osc.type = "square"; // square wave — แหลมชัด ได้ยินง่าย
+      osc.frequency.setValueAtTime(freq, t + start);
+
+      gain.gain.setValueAtTime(0, t + start);
+      gain.gain.linearRampToValueAtTime(0.3, t + start + 0.01);
+      gain.gain.setValueAtTime(0.3, t + start + dur - 0.02);
+      gain.gain.linearRampToValueAtTime(0, t + start + dur);
+
+      osc.start(t + start);
+      osc.stop(t + start + dur + 0.01);
     });
   } catch {}
 }
