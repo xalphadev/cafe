@@ -741,8 +741,8 @@ function CouponsSection({ onBack }: { onBack: () => void }) {
             <Ticket className="w-5 h-5" />
           </div>
           <div>
-            <p className="font-bold text-sm" style={{ color: G.fg }}>โค้ดส่วนลดพิเศษ</p>
-            <p className="text-xs mt-0.5" style={{ color: G.fgMuted }}>คัดลอกโค้ด แล้วใส่ตอนสั่งอาหาร</p>
+            <p className="font-bold text-sm text-white">โค้ดส่วนลดพิเศษ</p>
+            <p className="text-xs mt-0.5 text-white/75">คัดลอกโค้ด แล้วใส่ตอนสั่งอาหาร</p>
           </div>
         </div>
 

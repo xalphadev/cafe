@@ -88,7 +88,7 @@ export default function CheckoutPage() {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-4 px-8 text-center bg-gray-50">
         <div className="w-24 h-24 rounded-3xl flex items-center justify-center" style={{ background: G.gradLt }}>
-          <ShoppingBag className="w-11 h-11" style={{ color: G.primary }} />
+          <ShoppingBag className="w-11 h-11 text-white" />
         </div>
         <h2 className="text-xl font-bold text-gray-800">ตะกร้าว่างเปล่า</h2>
         <p className="text-gray-500 text-sm">เพิ่มเครื่องดื่มก่อนทำการสั่ง</p>
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
           <div className="px-4 pt-4 pb-2 flex items-center gap-2">
             <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: G.gradLt }}>
-              <CupSoda className="w-4 h-4" style={{ color: G.primary }} />
+              <CupSoda className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-sm text-gray-800">รายการสั่ง</span>
             <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full text-white"
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
                         <Image src={item.image} alt={item.name} width={56} height={56} className={`w-full h-full object-cover ${isUnavailable ? "opacity-40" : ""}`} />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center" style={{ background: G.gradLt }}>
-                          <CupSoda className="w-6 h-6" style={{ color: G.primary }} />
+                          <CupSoda className="w-6 h-6 text-white" />
                         </div>
                       )}
                       {isUnavailable && (
@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={() => setPointsToUse(loyalty)}
                   className="px-4 h-10 rounded-xl text-sm font-semibold flex-shrink-0"
-                  style={{ background: G.gradLt, color: G.primary, border: "1px solid oklch(0.88 0.06 152)" }}
+                  style={{ background: G.gradLt, color: "white", border: "1px solid rgba(255,255,255,0.35)" }}
                 >
                   ใช้ทั้งหมด
                 </button>
@@ -320,10 +320,10 @@ export default function CheckoutPage() {
                       <m.Icon className={cn("w-5 h-5", active ? "text-primary" : "text-gray-400")}
                         style={active ? { color: G.primary } : {}} />
                     </div>
-                    <p className={cn("text-xs font-bold", active ? "text-gray-800" : "text-gray-500")}>{m.label}</p>
-                    <p className="text-[10px] text-gray-400">{m.sub}</p>
+                    <p className={cn("text-xs font-bold", active ? "text-white" : "text-gray-500")}>{m.label}</p>
+                    <p className={cn("text-[10px]", active ? "text-white/75" : "text-gray-400")}>{m.sub}</p>
                     {active && (
-                      <div className="w-1.5 h-1.5 rounded-full mt-0.5" style={{ background: G.primary }} />
+                      <div className="w-1.5 h-1.5 rounded-full mt-0.5 bg-white" />
                     )}
                   </button>
                 );

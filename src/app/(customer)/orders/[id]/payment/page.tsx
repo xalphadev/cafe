@@ -191,12 +191,12 @@ export default function PaymentPage() {
         <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
           {/* Amount banner */}
           <div className="px-5 pt-5 pb-4 text-center" style={{ background: G.gradLt }}>
-            <p className="text-xs text-gray-500 font-medium mb-1">ยอดที่ต้องชำระ</p>
-            <p className="text-5xl font-black" style={{ color: G.primary }}>
+            <p className="text-xs font-medium mb-1 text-white/85">ยอดที่ต้องชำระ</p>
+            <p className="text-5xl font-black text-white">
               {qrData ? formatPrice(qrData.amount) : "—"}
             </p>
             {qrData?.shopQrUrl && (
-              <p className="text-[11px] text-gray-400 mt-1.5">กรุณาพิมพ์ยอดเองในแอปธนาคาร</p>
+              <p className="text-[11px] text-white/75 mt-1.5">กรุณาพิมพ์ยอดเองในแอปธนาคาร</p>
             )}
           </div>
 
@@ -244,7 +244,7 @@ export default function PaymentPage() {
           <div className="px-5 pt-4 pb-2 flex items-center gap-2">
             <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: G.gradLt }}>
-              <Banknote className="w-4 h-4" style={{ color: G.primary }} />
+              <Banknote className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-sm text-gray-800">แนบสลิปการโอน</span>
           </div>
@@ -292,8 +292,8 @@ export default function PaymentPage() {
                   style={{ boxShadow: "0 2px 8px oklch(0.55 0.18 155 / 0.15)" }}>
                   <ImageIcon className="w-6 h-6" style={{ color: G.primary }} />
                 </div>
-                <p className="text-sm font-bold" style={{ color: G.primary }}>แตะเพื่อเลือกรูปสลิป</p>
-                <p className="text-xs text-gray-400">JPG, PNG (สูงสุด 5MB)</p>
+                <p className="text-sm font-bold text-white">แตะเพื่อเลือกรูปสลิป</p>
+                <p className="text-xs text-white/75">JPG, PNG (สูงสุด 5MB)</p>
               </button>
             )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
