@@ -287,8 +287,8 @@ export function MenuClient() {
                   )}
                 </div>
                 <div className="px-2 py-2">
-                  <p className="text-xs font-bold line-clamp-1" style={{ color: G.fg }}>{p.name}</p>
-                  <p className="text-xs font-extrabold mt-0.5" style={{ color: G.primary }}>{formatPrice(p.price)}</p>
+                  <p className="text-sm font-bold line-clamp-1" style={{ color: G.fg }}>{p.name}</p>
+                  <p className="text-sm font-extrabold mt-0.5" style={{ color: G.primary }}>{formatPrice(p.price)}</p>
                 </div>
               </div>
             ))}
@@ -409,7 +409,7 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.14) 0%, transparent 45%)" }} />
 
         {/* Category badge */}
-        <span className="absolute top-2.5 left-2.5 text-[10px] font-extrabold px-2.5 py-1 rounded-full"
+        <span className="absolute top-2.5 left-2.5 text-xs font-extrabold px-2.5 py-1 rounded-full"
           style={{ background: "rgba(255,255,255,0.88)", color: "oklch(0.55 0.22 155)", backdropFilter: "blur(6px)" }}>
           {product.category.name}
         </span>
@@ -447,18 +447,18 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
       {/* Info */}
       <div className="px-3 pt-2.5 pb-3 flex flex-col gap-2.5 flex-1">
         <div className="flex-1">
-          <h3 className="font-bold text-[13px] leading-snug line-clamp-2"
+          <h3 className="font-bold text-[15px] leading-snug line-clamp-2"
             style={{ color: "oklch(0.18 0.022 145)" }}>
             {product.name}
           </h3>
           {product.description && (
-            <p className="text-[11px] mt-0.5 line-clamp-1"
+            <p className="text-xs mt-0.5 line-clamp-1"
               style={{ color: "oklch(0.50 0.04 152)" }}>
               {product.description}
             </p>
           )}
           {hasOptions && (
-            <span className="inline-block text-[9px] px-1.5 py-0.5 rounded-full font-semibold mt-0.5"
+            <span className="inline-block text-[11px] px-1.5 py-0.5 rounded-full font-semibold mt-0.5"
               style={{ background: G.primaryXlt, color: G.fgMuted }}>
               ปรับแต่งได้
             </span>
@@ -469,25 +469,25 @@ function ProductCard({ product, qty, shopClosed, isFavorited, onFavorite, onOpen
           <div>
             {isSaleActive ? (
               <div>
-                <span className="font-extrabold text-sm" style={{ color: "oklch(0.52 0.22 25)" }}>
+                <span className="font-extrabold text-[15px]" style={{ color: "oklch(0.52 0.22 25)" }}>
                   {formatPrice(salePrice!)}
                 </span>
-                <span className="text-[10px] line-through ml-1" style={{ color: "oklch(0.60 0.05 0)" }}>
+                <span className="text-xs line-through ml-1" style={{ color: "oklch(0.60 0.05 0)" }}>
                   {formatPrice(product.price)}
                 </span>
               </div>
             ) : (
-              <span className="font-extrabold text-sm" style={{ color: "oklch(0.72 0.22 152)" }}>
+              <span className="font-extrabold text-[15px]" style={{ color: "oklch(0.72 0.22 152)" }}>
                 {formatPrice(product.price)}
               </span>
             )}
-            {hasOptions && <span className="text-[10px] ml-1" style={{ color: "oklch(0.60 0.05 152)" }}>ขึ้นไป</span>}
+            {hasOptions && <span className="text-xs ml-1" style={{ color: "oklch(0.60 0.05 152)" }}>ขึ้นไป</span>}
           </div>
 
           {/* Add/qty button — stop propagation so card click = open detail */}
           {shopClosed ? (
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "oklch(0.93 0.01 0)", color: "oklch(0.65 0.01 0)" }}>
-              <span className="text-[10px]">ปิด</span>
+              <span className="text-xs">ปิด</span>
             </div>
           ) : qty === 0 ? (
             <button
