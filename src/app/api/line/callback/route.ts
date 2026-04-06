@@ -111,10 +111,18 @@ export async function GET(request: NextRequest) {
       });
 
       if (user && user.isActive) {
+        // sync ชื่อและรูปจาก LINE ทุกครั้งที่ login
+        const updated = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            name: lineProfile.displayName,
+            ...(lineProfile.pictureUrl ? { avatar: lineProfile.pictureUrl } : {}),
+          },
+        });
         const token = await signToken({
-          userId: user.id,
-          role: user.role,
-          phone: user.phone ?? undefined,
+          userId: updated.id,
+          role: updated.role,
+          phone: updated.phone ?? undefined,
         });
         return redirectHomeWithSession(request, token);
       }
@@ -123,6 +131,7 @@ export async function GET(request: NextRequest) {
         data: {
           phone: null,
           name: lineProfile.displayName,
+          avatar: lineProfile.pictureUrl ?? null,
           lineUserId: lineProfile.userId,
         },
       });

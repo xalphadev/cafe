@@ -5,6 +5,7 @@ interface AuthUser {
   phone?: string;
   name?: string | null;
   email?: string | null;
+  avatar?: string | null;
   role: "CUSTOMER" | "ADMIN";
   pointsBalance?: number;
 }

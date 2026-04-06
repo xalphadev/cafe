@@ -164,12 +164,21 @@ export default function ProfilePage() {
 
         <div className="relative px-5 pt-14 pb-8 flex flex-col items-center text-center gap-2">
           {/* Avatar */}
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center font-black text-3xl border-4 border-white/30 mb-1"
-            style={{ background: "rgba(255,255,255,0.2)", color: "white", boxShadow: "0 4px 20px rgba(0,0,0,0.18)" }}
-          >
-            {initials}
-          </div>
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name ?? "avatar"}
+              className="w-20 h-20 rounded-full object-cover border-4 border-white/30 mb-1"
+              style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.18)" }}
+            />
+          ) : (
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center font-black text-3xl border-4 border-white/30 mb-1"
+              style={{ background: "rgba(255,255,255,0.2)", color: "white", boxShadow: "0 4px 20px rgba(0,0,0,0.18)" }}
+            >
+              {initials}
+            </div>
+          )}
 
           {/* Name */}
           {editName ? (

@@ -12,7 +12,7 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, phone: true, name: true, role: true, pointsBalance: true, email: true },
+    select: { id: true, phone: true, name: true, role: true, pointsBalance: true, email: true, avatar: true },
   });
 
   if (!user) {

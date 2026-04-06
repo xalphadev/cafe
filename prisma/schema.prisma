@@ -67,6 +67,7 @@ model User {
   pin             String?
   pinSetAt        DateTime?
   isActive        Boolean  @default(true)
+  avatar          String?
   lineNotifyToken String?
   lineUserId      String?  @unique
   createdAt       DateTime @default(now())
