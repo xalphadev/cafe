@@ -81,7 +81,7 @@ export default function CheckoutPage() {
         const liff = await initLiff();
         if (liff?.isInClient()) {
           const orderIdShort = data.data.orderId.slice(-6).toUpperCase();
-          const methodLabel = paymentMethod === "QR_PROMPTPAY" ? "📱 QR PromptPay" : "🏪 ชำระหน้าร้าน";
+          const methodLabel = paymentMethod === "QR_PROMPTPAY" ? "QR PromptPay" : "ชำระหน้าร้าน";
 
           const itemRows = items.map(i => ({
             type: "box",
@@ -134,14 +134,14 @@ export default function CheckoutPage() {
             layout: "horizontal",
             margin: "sm",
             contents: [
-              { type: "text", text: "📝 หมายเหตุ", size: "xs", color: "#888888", flex: 3 },
+              { type: "text", text: "หมายเหตุ", size: "xs", color: "#888888", flex: 3 },
               { type: "text", text: note, size: "xs", color: "#555555", flex: 5, align: "end", wrap: true },
             ],
           }] : [];
 
           const flex = {
             type: "flex",
-            altText: `🛒 ออเดอร์ใหม่ #${orderIdShort} — ${formatPrice(grandTotal)}`,
+            altText: `ออเดอร์ใหม่ #${orderIdShort} — ${formatPrice(grandTotal)}`,
             contents: {
               type: "bubble",
               size: "mega",
@@ -156,7 +156,7 @@ export default function CheckoutPage() {
                     layout: "vertical",
                     flex: 1,
                     contents: [
-                      { type: "text", text: "ออเดอร์ใหม่ ☕", color: "#ffffff", weight: "bold", size: "lg" },
+                      { type: "text", text: "ออเดอร์ใหม่", color: "#ffffff", weight: "bold", size: "lg" },
                       { type: "text", text: `#${orderIdShort}`, color: "#d4f7e5", size: "sm", margin: "xs" },
                     ],
                   },
