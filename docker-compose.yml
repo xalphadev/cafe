@@ -66,6 +66,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME}
+        NEXT_PUBLIC_LIFF_ID: ${NEXT_PUBLIC_LIFF_ID}
+        NEXT_PUBLIC_UPLOAD_IMAGE_HOSTNAME: ${NEXT_PUBLIC_UPLOAD_IMAGE_HOSTNAME}
     container_name: cafe_app
     env_file: .env.production
     depends_on:
