@@ -94,46 +94,50 @@ export default function HomeClient() {
         className="relative overflow-hidden"
         style={{ background: shopOpen ? G.gradDiag : "linear-gradient(160deg, #374151 0%, #1f2937 100%)" }}
       >
-        {/* Decorative circles */}
-        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full opacity-10" style={{ background: "white" }} />
-        <div className="absolute -bottom-8 -left-8 w-28 h-28 rounded-full opacity-10" style={{ background: "white" }} />
+        {/* Decorative blobs */}
+        <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full opacity-[0.08]" style={{ background: "white" }} />
+        <div className="absolute top-8 right-8 w-20 h-20 rounded-full opacity-[0.06]" style={{ background: "white" }} />
+        <div className="absolute -bottom-10 -left-10 w-36 h-36 rounded-full opacity-[0.07]" style={{ background: "white" }} />
 
-        <div className="relative px-5 pt-12 pb-6">
+        <div className="relative px-5 pt-14 pb-5">
           {/* Shop status chip */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-4"
-            style={{ background: shopOpen ? "rgba(255,255,255,0.18)" : "rgba(239,68,68,0.25)" }}>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-5"
+            style={{ background: shopOpen ? "rgba(255,255,255,0.18)" : "rgba(239,68,68,0.25)", backdropFilter: "blur(8px)" }}>
             <span className={`w-1.5 h-1.5 rounded-full ${shopOpen ? "bg-green-300 animate-pulse" : "bg-red-400"}`} />
-            <span className="text-[11px] font-semibold text-white">
+            <span className="text-[11px] font-semibold text-white tracking-wide">
               {shopOpen ? "เปิดให้บริการแล้ว" : "ปิดร้านชั่วคราว"}
             </span>
           </div>
 
-          <h1 className="text-3xl font-extrabold text-white tracking-tight leading-tight flex items-center gap-2">
-            <Coffee className="w-7 h-7 opacity-90" />
-            ช่วงเวลาคาเฟ่
+          <h1 className="text-[32px] font-extrabold text-white tracking-tight leading-none flex items-center gap-2.5">
+            <Coffee className="w-7 h-7 opacity-90 flex-shrink-0" />
+            {data?.shopSetting ? (data as any)?.shopSetting?.name ?? "ช่วงเวลาคาเฟ่" : "ช่วงเวลาคาเฟ่"}
           </h1>
-          <p className="text-sm text-white/70 mt-1">เครื่องดื่มสดใหม่ รับหน้าร้าน</p>
+          <p className="text-sm text-white/65 mt-2">เครื่องดื่มสดใหม่ รับหน้าร้าน</p>
 
-          <div className="flex items-center gap-3 mt-4">
-            <div className="flex items-center gap-1.5 text-white/80 text-xs">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{data?.shopSetting.openTime ?? "08:00"} – {data?.shopSetting.closeTime ?? "22:00"}</span>
+          <div className="flex items-center gap-2 mt-4 flex-wrap">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] text-white/80 font-medium"
+              style={{ background: "rgba(255,255,255,0.12)" }}>
+              <Clock className="w-3 h-3" />
+              {data?.shopSetting.openTime ?? "08:00"} – {data?.shopSetting.closeTime ?? "22:00"}
             </div>
-            <div className="flex items-center gap-1.5 text-white/80 text-xs">
-              <Store className="w-3.5 h-3.5" />
-              <span>รับหน้าร้านเท่านั้น</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] text-white/80 font-medium"
+              style={{ background: "rgba(255,255,255,0.12)" }}>
+              <Store className="w-3 h-3" />
+              รับหน้าร้านเท่านั้น
             </div>
           </div>
         </div>
 
         {/* CTA buttons */}
-        <div className="px-5 pb-6 flex gap-3">
+        <div className="px-5 pb-7 flex gap-2.5">
           <Link href="/menu" className="flex-1">
             <div
               className="flex items-center justify-center gap-2 h-12 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all"
               style={{
-                background: shopOpen ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.15)",
+                background: shopOpen ? "rgba(255,255,255,0.96)" : "rgba(255,255,255,0.15)",
                 color: shopOpen ? G.primaryDk : "rgba(255,255,255,0.6)",
+                boxShadow: shopOpen ? "0 4px 16px rgba(0,0,0,0.12)" : "none",
               }}
             >
               <ShoppingBag className="w-4 h-4" />
@@ -143,7 +147,7 @@ export default function HomeClient() {
           <Link href="/orders" className="flex-shrink-0">
             <div
               className="flex items-center justify-center gap-2 h-12 px-5 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all"
-              style={{ background: "rgba(255,255,255,0.18)", color: "white", border: "1.5px solid rgba(255,255,255,0.35)" }}
+              style={{ background: "rgba(255,255,255,0.15)", color: "white", border: "1.5px solid rgba(255,255,255,0.30)", backdropFilter: "blur(8px)" }}
             >
               <Clock className="w-4 h-4" />
               ออเดอร์
@@ -192,7 +196,7 @@ export default function HomeClient() {
         </div>
       )}
 
-      <div className="flex-1 space-y-6 pt-4">
+      <div className="flex-1 space-y-7 pt-4">
 
         {/* ── Banners (admin banners OR auto-generated from featured products) ── */}
         {(() => {
@@ -203,7 +207,7 @@ export default function HomeClient() {
           if (totalSlides === 0) return null;
           return (
             <div className="px-4">
-              <div className="relative rounded-3xl overflow-hidden bg-gray-100" style={{ aspectRatio: "2.4/1" }}>
+              <div className="relative rounded-3xl overflow-hidden bg-gray-100" style={{ aspectRatio: "16/9" }}>
 
                 {/* Admin banner slides */}
                 {hasAdminBanners && adminBanners.map((b, i) => (
@@ -382,13 +386,13 @@ function Section({ icon, title, titleColor, bgTitle, href, children }: {
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between px-4 mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
+      <div className="flex items-center justify-between px-4 mb-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-2xl flex items-center justify-center flex-shrink-0"
             style={{ background: bgTitle ?? G.primaryLt }}>
             {icon}
           </div>
-          <h2 className="font-extrabold text-[15px]" style={{ color: titleColor ?? G.fg }}>
+          <h2 className="font-extrabold text-base" style={{ color: titleColor ?? G.fg }}>
             {title}
           </h2>
         </div>
@@ -459,16 +463,16 @@ function MenuCard({ product, onAdd, shopClosed, isFavorited, onFavorite }: {
 }) {
   return (
     <Link href="/menu">
-      <div className="flex-shrink-0 w-36 rounded-2xl overflow-hidden bg-card active:scale-[0.97] transition-all"
-        style={{ boxShadow: "0 2px 10px oklch(0.55 0.18 155 / 0.10)" }}>
+      <div className="flex-shrink-0 w-40 rounded-2xl overflow-hidden bg-white active:scale-[0.97] transition-all"
+        style={{ boxShadow: "0 2px 14px rgba(0,0,0,0.08)" }}>
         <div className="relative w-full" style={{ aspectRatio: "1/1" }}>
           {product.image ? (
-            <Image src={product.image} alt={product.name} fill className="object-cover" sizes="144px" />
+            <Image src={product.image} alt={product.name} fill className="object-cover" sizes="160px" />
           ) : (
             <div className="w-full h-full flex items-center justify-center" style={{ background: G.primaryLt }}><UtensilsCrossed className="w-8 h-8" style={{ color: G.primary, opacity: 0.4 }} /></div>
           )}
-          <span className="absolute top-2 left-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full text-white"
-            style={{ background: G.primary }}>
+          <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+            style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}>
             {product.category.name}
           </span>
           {onFavorite && (
@@ -478,15 +482,15 @@ function MenuCard({ product, onAdd, shopClosed, isFavorited, onFavorite }: {
               style={{
                 background: isFavorited ? "oklch(0.62 0.22 15)" : "rgba(255,255,255,0.85)",
                 backdropFilter: "blur(6px)",
-                boxShadow: isFavorited ? "0 2px 8px oklch(0.55 0.22 15 / 0.40)" : "0 1px 4px rgba(0,0,0,0.12)",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
               }}
             >
               <Heart className="w-3.5 h-3.5" fill={isFavorited ? "white" : "none"} stroke={isFavorited ? "none" : "oklch(0.62 0.22 15)"} strokeWidth={2} />
             </button>
           )}
         </div>
-        <div className="p-2.5">
-          <p className="font-bold text-xs line-clamp-2 leading-snug" style={{ color: G.fg }}>{product.name}</p>
+        <div className="px-3 py-2.5">
+          <p className="font-semibold text-[13px] line-clamp-2 leading-snug text-gray-800">{product.name}</p>
           <p className="font-extrabold text-sm mt-1" style={{ color: G.primary }}>{formatPrice(product.price)}</p>
         </div>
       </div>

@@ -185,54 +185,55 @@ export default function PaymentPage() {
         </div>
       </header>
 
-      <div className="flex-1 px-4 py-5 space-y-4 pb-8">
+      <div className="flex-1 px-4 py-5 space-y-3 pb-8">
 
         {/* ── Amount + QR card ── */}
-        <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
-          {/* Amount banner */}
-          <div className="px-5 pt-5 pb-4 text-center" style={{ background: G.gradLt }}>
-            <p className="text-xs font-medium mb-1 text-white/85">ยอดที่ต้องชำระ</p>
-            <p className="text-5xl font-black text-white">
-              {qrData ? formatPrice(qrData.amount) : "—"}
-            </p>
+        <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}>
+          {/* Amount row */}
+          <div className="px-5 pt-5 pb-4 flex items-center justify-between border-b border-gray-100">
+            <div>
+              <p className="text-xs text-gray-400 mb-0.5">ยอดที่ต้องชำระ</p>
+              <p className="text-3xl font-black" style={{ color: G.primary }}>
+                {qrData ? formatPrice(qrData.amount) : "—"}
+              </p>
+            </div>
             {qrData?.shopQrUrl && (
-              <p className="text-[11px] text-white/75 mt-1.5">กรุณาพิมพ์ยอดเองในแอปธนาคาร</p>
+              <span className="text-[11px] text-gray-400 text-right leading-relaxed max-w-[120px]">
+                กรุณาพิมพ์ยอด<br/>เองในแอปธนาคาร
+              </span>
             )}
           </div>
 
           {/* QR Image */}
           {qrSrc && (
-            <div className="flex justify-center px-6 py-5">
-              <div className="relative p-4 rounded-2xl bg-white"
-                style={{ border: "2px solid oklch(0.90 0.06 152)", boxShadow: "0 4px 20px oklch(0.55 0.18 155 / 0.12)" }}>
+            <div className="flex flex-col items-center px-6 py-6 gap-3">
+              <div className="p-4 rounded-2xl bg-white"
+                style={{ border: "1.5px solid oklch(0.90 0.06 152)", boxShadow: "0 4px 20px oklch(0.55 0.18 155 / 0.10)" }}>
                 <Image
                   src={qrSrc}
                   alt="QR PromptPay"
-                  width={220}
-                  height={220}
-                  className="rounded-xl"
+                  width={200}
+                  height={200}
+                  className="rounded-lg"
                 />
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-[11px] font-bold"
-                  style={{ background: G.grad, boxShadow: G.shadow }}>
-                  <Smartphone className="w-3 h-3" />
-                  สแกนเพื่อจ่าย
-                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: G.primary }}>
+                <Smartphone className="w-3.5 h-3.5" />
+                เปิดแอปธนาคาร แล้วสแกน QR นี้
               </div>
             </div>
           )}
 
           {/* Steps */}
-          <div className="px-5 pt-3 pb-5">
-            <div className="rounded-2xl p-4 space-y-2.5"
-              style={{ background: "oklch(0.97 0.04 60)", border: "1px solid oklch(0.92 0.08 60)" }}>
-              <p className="text-xs font-bold text-amber-700 mb-1">วิธีชำระเงิน</p>
+          <div className="px-5 pb-5">
+            <div className="rounded-2xl px-4 py-3.5 space-y-2.5 bg-gray-50">
               {steps.map((s) => (
-                <div key={s.n} className="flex items-center gap-2.5">
+                <div key={s.n} className="flex items-center gap-3">
                   <span className="w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center flex-shrink-0 text-white"
-                    style={{ background: "oklch(0.72 0.16 65)" }}>
+                    style={{ background: G.primary }}>
                     {s.n}
                   </span>
-                  <p className="text-xs text-amber-800">{s.text}</p>
+                  <p className="text-xs text-gray-500">{s.text}</p>
                 </div>
               ))}
             </div>
@@ -240,23 +241,19 @@ export default function PaymentPage() {
         </div>
 
         {/* ── Slip upload ── */}
-        <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.06)" }}>
+        <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
           <div className="px-5 pt-4 pb-2 flex items-center gap-2">
-            <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: G.gradLt }}>
-              <Banknote className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-sm text-gray-800">แนบสลิปการโอน</span>
+            <Banknote className="w-4 h-4 text-gray-400" />
+            <span className="font-bold text-sm text-gray-700">แนบสลิปการโอน</span>
           </div>
 
           <div className="px-5 pb-5 pt-1">
             {slipUploaded ? (
-              <div className="flex items-center gap-3 p-4 rounded-2xl"
-                style={{ background: "linear-gradient(135deg, #d1fae5, #a7f3d0)", border: "1px solid #6ee7b7" }}>
-                <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
+              <div className="flex items-center gap-3 p-4 rounded-2xl bg-green-50 border border-green-100">
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-green-700">ส่งสลิปให้ร้านแล้ว</p>
-                  <p className="text-xs text-green-600 mt-0.5">รอร้านตรวจสอบและยืนยัน</p>
+                  <p className="text-xs text-green-500 mt-0.5">รอร้านตรวจสอบและยืนยัน</p>
                 </div>
               </div>
             ) : slipPreview ? (
@@ -273,7 +270,7 @@ export default function PaymentPage() {
                 <button
                   onClick={handleUploadSlip}
                   disabled={uploading}
-                  className="w-full h-13 py-3.5 rounded-2xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full py-3.5 rounded-2xl text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-60"
                   style={{ background: G.grad, boxShadow: G.shadow }}
                 >
                   {uploading
@@ -285,15 +282,15 @@ export default function PaymentPage() {
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-full flex flex-col items-center gap-2 py-7 rounded-2xl border-2 border-dashed transition-all active:scale-[0.98]"
-                style={{ borderColor: "oklch(0.82 0.10 152)", background: G.gradLt }}
+                className="w-full flex flex-col items-center gap-2 py-7 rounded-2xl border-2 border-dashed transition-all active:scale-[0.98] bg-gray-50"
+                style={{ borderColor: "oklch(0.85 0.06 152)" }}
               >
-                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center"
-                  style={{ boxShadow: "0 2px 8px oklch(0.55 0.18 155 / 0.15)" }}>
-                  <ImageIcon className="w-6 h-6" style={{ color: G.primary }} />
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center"
+                  style={{ background: "oklch(0.95 0.028 142)" }}>
+                  <ImageIcon className="w-5 h-5" style={{ color: G.primary }} />
                 </div>
-                <p className="text-sm font-bold text-white">แตะเพื่อเลือกรูปสลิป</p>
-                <p className="text-xs text-white/75">JPG, PNG (สูงสุด 5MB)</p>
+                <p className="text-sm font-semibold text-gray-600">แตะเพื่อเลือกรูปสลิป</p>
+                <p className="text-xs text-gray-400">JPG, PNG (สูงสุด 5MB)</p>
               </button>
             )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
@@ -303,8 +300,7 @@ export default function PaymentPage() {
         {/* ── Pay later ── */}
         <button
           onClick={() => router.push(`/orders/${params.id}`)}
-          className="w-full h-12 rounded-2xl text-sm font-semibold text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
-          style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
+          className="w-full h-12 rounded-2xl text-sm font-medium text-gray-400 transition-colors"
         >
           ชำระภายหลัง
         </button>

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useCartStore, cartKey } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
 import { formatPrice } from "@/lib/format";
+import { initLiff } from "@/lib/liff";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -74,6 +75,130 @@ export default function CheckoutPage() {
       }
       clearCart();
       toast.success("สั่งซื้อสำเร็จ!");
+
+      // ส่ง Flex Message แจ้งร้านผ่าน LINE (เฉพาะตอนเปิดจาก LINE app)
+      try {
+        const liff = await initLiff();
+        if (liff?.isInClient()) {
+          const orderIdShort = data.data.orderId.slice(-6).toUpperCase();
+          const methodLabel = paymentMethod === "QR_PROMPTPAY" ? "📱 QR PromptPay" : "🏪 ชำระหน้าร้าน";
+
+          const itemRows = items.map(i => ({
+            type: "box",
+            layout: "horizontal",
+            spacing: "sm",
+            contents: [
+              {
+                type: "text",
+                text: i.name,
+                size: "sm",
+                color: "#222222",
+                flex: 5,
+                wrap: true,
+                weight: "bold",
+              },
+              {
+                type: "text",
+                text: `×${i.quantity}`,
+                size: "sm",
+                color: "#888888",
+                flex: 1,
+                align: "center",
+              },
+              {
+                type: "text",
+                text: formatPrice(i.price * i.quantity),
+                size: "sm",
+                color: "#1ebe6e",
+                flex: 3,
+                align: "end",
+                weight: "bold",
+              },
+            ],
+          }));
+
+          const optionRows = items.flatMap(i =>
+            i.options?.length
+              ? [{
+                  type: "text",
+                  text: `  ↳ ${i.options.map(o => o.optionName).join(", ")}`,
+                  size: "xs",
+                  color: "#aaaaaa",
+                  wrap: true,
+                }]
+              : []
+          );
+
+          const noteRow = note ? [{
+            type: "box",
+            layout: "horizontal",
+            margin: "sm",
+            contents: [
+              { type: "text", text: "📝 หมายเหตุ", size: "xs", color: "#888888", flex: 3 },
+              { type: "text", text: note, size: "xs", color: "#555555", flex: 5, align: "end", wrap: true },
+            ],
+          }] : [];
+
+          const flex = {
+            type: "flex",
+            altText: `🛒 ออเดอร์ใหม่ #${orderIdShort} — ${formatPrice(grandTotal)}`,
+            contents: {
+              type: "bubble",
+              size: "mega",
+              header: {
+                type: "box",
+                layout: "horizontal",
+                backgroundColor: "#1ebe6e",
+                paddingAll: "16px",
+                contents: [
+                  {
+                    type: "box",
+                    layout: "vertical",
+                    flex: 1,
+                    contents: [
+                      { type: "text", text: "ออเดอร์ใหม่ ☕", color: "#ffffff", weight: "bold", size: "lg" },
+                      { type: "text", text: `#${orderIdShort}`, color: "#d4f7e5", size: "sm", margin: "xs" },
+                    ],
+                  },
+                  {
+                    type: "box",
+                    layout: "vertical",
+                    contents: [
+                      { type: "text", text: formatPrice(grandTotal), color: "#ffffff", weight: "bold", size: "xxl", align: "end" },
+                    ],
+                  },
+                ],
+              },
+              body: {
+                type: "box",
+                layout: "vertical",
+                paddingAll: "16px",
+                spacing: "sm",
+                contents: [
+                  ...itemRows,
+                  ...optionRows,
+                  { type: "separator", margin: "md" },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    margin: "md",
+                    contents: [
+                      { type: "text", text: "ชำระเงิน", size: "sm", color: "#888888", flex: 3 },
+                      { type: "text", text: methodLabel, size: "sm", color: "#333333", flex: 5, align: "end", weight: "bold" },
+                    ],
+                  },
+                  ...noteRow,
+                ],
+              },
+            },
+          };
+
+          await liff.sendMessages([flex as Parameters<typeof liff.sendMessages>[0][number]]);
+        }
+      } catch {
+        // silent — การแจ้งเตือนไม่ใช่ขั้นตอนสำคัญ
+      }
+
       if (paymentMethod === "QR_PROMPTPAY") {
         router.push(`/orders/${data.data.orderId}/payment`);
       } else {
@@ -288,14 +413,8 @@ export default function CheckoutPage() {
         {/* ── Payment ── */}
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
           <div className="px-4 pt-4 pb-3">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #dbeafe, #bfdbfe)" }}>
-                <Star className="w-4 h-4 text-blue-500" />
-              </div>
-              <span className="font-bold text-sm text-gray-800">วิธีชำระเงิน</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
+            <span className="font-bold text-sm text-gray-800">วิธีชำระเงิน</span>
+            <div className="mt-3 space-y-2">
               {([
                 { value: "QR_PROMPTPAY", label: "QR PromptPay", sub: "สแกนจ่ายทันที", Icon: Smartphone },
                 { value: "COD",          label: "ชำระหน้าร้าน", sub: "จ่ายตอนรับของ",  Icon: Wallet },
@@ -306,25 +425,26 @@ export default function CheckoutPage() {
                     key={m.value}
                     onClick={() => setPaymentMethod(m.value)}
                     className={cn(
-                      "p-3.5 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all",
-                      active
-                        ? "border-primary/60 shadow-sm"
-                        : "border-gray-100 bg-gray-50"
+                      "w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border transition-all text-left",
+                      active ? "border-primary/40 bg-primary/5" : "border-gray-100 bg-gray-50"
                     )}
-                    style={active ? { background: G.gradLt } : {}}
                   >
                     <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
                       active ? "bg-white shadow-sm" : "bg-white"
                     )}>
-                      <m.Icon className={cn("w-5 h-5", active ? "text-primary" : "text-gray-400")}
-                        style={active ? { color: G.primary } : {}} />
+                      <m.Icon className="w-4 h-4" style={{ color: active ? G.primary : "#9ca3af" }} />
                     </div>
-                    <p className={cn("text-xs font-bold", active ? "text-white" : "text-gray-500")}>{m.label}</p>
-                    <p className={cn("text-[10px]", active ? "text-white/75" : "text-gray-400")}>{m.sub}</p>
-                    {active && (
-                      <div className="w-1.5 h-1.5 rounded-full mt-0.5 bg-white" />
-                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-sm font-semibold", active ? "text-gray-800" : "text-gray-500")}>{m.label}</p>
+                      <p className="text-[11px] text-gray-400">{m.sub}</p>
+                    </div>
+                    <div className={cn(
+                      "w-4.5 h-4.5 rounded-full border-2 flex-shrink-0 flex items-center justify-center",
+                      active ? "border-primary" : "border-gray-300"
+                    )}>
+                      {active && <div className="w-2 h-2 rounded-full" style={{ background: G.primary }} />}
+                    </div>
                   </button>
                 );
               })}

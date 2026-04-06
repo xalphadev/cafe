@@ -137,7 +137,7 @@ function OrderCard({ order }: { order: OrderWithItems }) {
   const totalQty = order.items.reduce((s: number, i: any) => s + i.quantity, 0);
   const itemNames = order.items.slice(0, 2).map((i: any) => i.product.name).join(", ");
   const extraCount = order.items.length > 2 ? order.items.length - 2 : 0;
-  const thumbs = order.items.slice(0, 4).map((i: any) => i.product.image).filter(Boolean) as string[];
+  const thumbs = order.items.slice(0, 3).map((i: any) => i.product.image).filter(Boolean) as string[];
 
   return (
     <Link href={`/orders/${order.id}`}>
@@ -145,81 +145,63 @@ function OrderCard({ order }: { order: OrderWithItems }) {
         className="bg-white rounded-2xl overflow-hidden transition-all active:scale-[0.985]"
         style={{
           boxShadow: isReady
-            ? "0 0 0 2px #2dd4bf, 0 4px 16px #2dd4bf28"
+            ? "0 0 0 2px #2dd4bf, 0 4px 16px #2dd4bf20"
             : isActive
-              ? "0 2px 12px rgba(0,0,0,0.07), 0 0 0 1.5px " + cfg.border + "50"
-              : "0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px #f0f0f0",
+              ? "0 2px 16px rgba(0,0,0,0.08), 0 0 0 1.5px " + cfg.border + "40"
+              : "0 1px 6px rgba(0,0,0,0.06), 0 0 0 1px #f0f0f0",
         }}
       >
-        {/* Top color bar */}
-        <div className="h-1 w-full" style={{
-          background: isActive
-            ? `linear-gradient(90deg, ${cfg.border}55 0%, ${cfg.border} 50%, ${cfg.border}55 100%)`
-            : "#f4f4f5",
-        }} />
+        <div className="p-4 space-y-3.5">
 
-        <div className="px-4 pt-3 pb-4 space-y-3">
-
-          {/* Row 1: Order ID + time · Status */}
+          {/* Row 1: Status badge + time */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[11px] font-bold text-gray-400 tracking-wide">
-                #{order.id.slice(-8).toUpperCase()}
-              </span>
-              <span className="text-gray-200">·</span>
-              <span className="text-[11px] text-gray-400">
-                {formatRelative(order.createdAt as unknown as string)}
-              </span>
-            </div>
             <span className={cn(
-              "inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0",
+              "inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full",
               cfg.pill
             )}>
               {cfg.icon}
               {cfg.label}
             </span>
+            <span className="text-[11px] text-gray-400">
+              {formatRelative(order.createdAt as unknown as string)}
+              <span className="ml-1.5 font-mono text-gray-300">#{order.id.slice(-6).toUpperCase()}</span>
+            </span>
           </div>
 
-          {/* Row 2: Thumbnails + item summary */}
+          {/* Row 2: Thumbnails + item names */}
           <div className="flex items-center gap-3">
-            {/* Overlapping thumbnails */}
             {thumbs.length > 0 && (
               <div className="flex items-center flex-shrink-0">
                 {thumbs.map((src, i) => (
                   <div
                     key={i}
-                    className="relative w-11 h-11 rounded-xl overflow-hidden bg-gray-100 border-2 border-white"
-                    style={{ marginLeft: i === 0 ? 0 : -10, zIndex: thumbs.length - i, opacity: isActive ? 1 : 0.55 }}
+                    className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border-2 border-white"
+                    style={{ marginLeft: i === 0 ? 0 : -8, zIndex: thumbs.length - i, opacity: isActive ? 1 : 0.5 }}
                   >
-                    <Image src={src} alt="" fill className="object-cover" sizes="44px" />
+                    <Image src={src} alt="" fill className="object-cover" sizes="48px" />
                   </div>
                 ))}
                 {extraCount > 0 && (
                   <div
-                    className="w-11 h-11 rounded-xl bg-gray-100 border-2 border-white flex items-center justify-center flex-shrink-0"
-                    style={{ marginLeft: -10, zIndex: 0 }}
+                    className="w-12 h-12 rounded-xl bg-gray-100 border-2 border-white flex items-center justify-center flex-shrink-0 text-[11px] font-bold text-gray-400"
+                    style={{ marginLeft: -8, zIndex: 0 }}
                   >
-                    <span className="text-[10px] font-bold text-gray-400">+{extraCount}</span>
+                    +{extraCount}
                   </div>
                 )}
               </div>
             )}
-
-            {/* Item names + qty */}
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-semibold text-gray-800 line-clamp-1 leading-snug">
-                {itemNames}
-                {extraCount > 0 && thumbs.length === 0 && (
-                  <span className="ml-1 font-normal text-gray-400">+{extraCount}</span>
-                )}
+              <p className="text-[14px] font-semibold text-gray-800 line-clamp-1 leading-snug">
+                {itemNames}{extraCount > 0 && thumbs.length === 0 && <span className="font-normal text-gray-400"> +{extraCount}</span>}
               </p>
-              <p className="text-[11px] text-gray-400 mt-0.5">{totalQty} รายการ</p>
+              <p className="text-[12px] text-gray-400 mt-0.5">{totalQty} รายการ</p>
             </div>
           </div>
 
           {/* READY callout */}
           {isReady && (
-            <div className="flex items-center gap-2 bg-teal-50 rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2 bg-teal-50 rounded-xl px-3 py-2.5">
               <Sparkles className="w-4 h-4 text-teal-500 flex-shrink-0 animate-pulse" />
               <span className="text-[13px] font-extrabold text-teal-700">พร้อมให้รับแล้ว! มารับได้เลย</span>
             </div>
@@ -227,22 +209,23 @@ function OrderCard({ order }: { order: OrderWithItems }) {
 
           {/* PENDING_PAYMENT callout */}
           {isPendingPayment && (
-            <div className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
+              style={{ background: "#fffbeb", border: "1px solid #fde68a" }}>
               <CreditCard className="w-4 h-4 text-amber-500 flex-shrink-0" />
-              <span className="text-[13px] font-bold text-amber-700 flex-1">ยังไม่ได้ชำระเงิน</span>
-              <span className="text-[11px] font-bold text-amber-600">ชำระเลย →</span>
+              <span className="text-[13px] font-semibold text-amber-700 flex-1">ยังไม่ได้ชำระเงิน</span>
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500 text-white">ชำระเลย</span>
             </div>
           )}
 
-          {/* Row 3: pickup + price */}
-          <div className="flex items-center justify-between pt-0.5">
-            <div className="flex items-center gap-1 text-[11px] text-gray-400">
+          {/* Row 3: type + price */}
+          <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+            <div className="flex items-center gap-1.5 text-[12px] text-gray-400">
               {isPickup
                 ? <><Store className="w-3.5 h-3.5" /><span>รับหน้าร้าน</span></>
-                : <><Bike className="w-3.5 h-3.5" /><span>จัดส่ง</span></>}
+                : <><MapPin className="w-3.5 h-3.5" /><span>จัดส่ง</span></>}
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[15px] font-extrabold text-gray-800">{formatPrice(order.total)}</span>
+              <span className="text-[16px] font-extrabold text-gray-800">{formatPrice(order.total)}</span>
               <ChevronRight className="w-4 h-4 text-gray-300" />
             </div>
           </div>
@@ -291,10 +274,10 @@ export default function OrdersPage() {
       {/* Header */}
       <header className="sticky-header bg-white/95 backdrop-blur-md border-b border-gray-100">
         <div className="px-4 h-14 pt-2 flex items-center gap-2">
-          <h1 className="font-semibold text-base text-gray-800">ออเดอร์ของฉัน</h1>
-          {!isLoading && orders.length > 0 && (
-            <span className="text-xs bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">
-              {orders.length}
+          <h1 className="font-bold text-lg text-gray-800">ออเดอร์ของฉัน</h1>
+          {!isLoading && counts.active > 0 && (
+            <span className="text-xs bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full">
+              {counts.active} กำลังดำเนินการ
             </span>
           )}
         </div>
@@ -332,7 +315,7 @@ export default function OrdersPage() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 px-4 py-4 space-y-4 pb-24">
+      <div className="flex-1 px-4 py-5 space-y-4 pb-24">
         {isLoading ? (
           <div className="space-y-2.5 pt-1">
             {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}

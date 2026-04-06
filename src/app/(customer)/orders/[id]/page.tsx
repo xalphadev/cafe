@@ -68,13 +68,13 @@ function Stepper({ steps, statusOrder, stepIndex }: {
   return (
     <div className="flex items-start justify-between relative px-1">
       {/* connecting line */}
-      <div className="absolute top-4 left-5 right-5 h-0.5 bg-gray-100 z-0" />
+      <div className="absolute top-[18px] left-6 right-6 h-0.5 bg-gray-100 z-0" />
       <div
-        className="absolute top-4 left-5 h-0.5 z-0 transition-all duration-700"
+        className="absolute top-[18px] left-6 h-0.5 z-0 transition-all duration-700"
         style={{
           background: G.primary,
           width: stepIndex <= 0 ? "0%" : (stepIndex / (steps.length - 1)) * 100 + "%",
-          maxWidth: "calc(100% - 2.5rem)",
+          maxWidth: "calc(100% - 3rem)",
         }}
       />
 
@@ -82,30 +82,22 @@ function Stepper({ steps, statusOrder, stepIndex }: {
         const done    = stepIndex >= idx;
         const current = stepIndex === idx;
         return (
-          <div key={step.key} className="flex flex-col items-center gap-1.5 z-10 min-w-0" style={{ flex: 1 }}>
+          <div key={step.key} className="flex flex-col items-center gap-2 z-10 min-w-0" style={{ flex: 1 }}>
             <div
               className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all",
-                done ? "text-white shadow-sm" : "bg-white border-2 border-gray-200 text-gray-300",
-                current && "ring-2 ring-offset-2"
+                "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all",
+                done ? "text-white" : "bg-white border-2 border-gray-200 text-gray-300",
               )}
               style={done
-                ? { background: G.primary }
+                ? { background: G.primary, boxShadow: current ? "0 0 0 3px white, 0 0 0 5px " + G.primary : "0 2px 8px oklch(0.55 0.18 155 / 0.30)" }
                 : {}
               }
-              // current ring color via inline since tailwind ring-color won't pick up oklch
             >
-              {current && (
-                <span
-                  className="absolute w-8 h-8 rounded-full ring-2 ring-offset-2 pointer-events-none"
-                  style={{ boxShadow: "0 0 0 2px white, 0 0 0 4px " + G.primary }}
-                />
-              )}
-              <step.Icon className="w-3.5 h-3.5" />
+              <step.Icon className="w-4 h-4" />
             </div>
             <span
-              className={cn("text-[9px] text-center leading-tight font-medium")}
-              style={{ color: done ? G.primary : "#9ca3af" }}
+              className="text-[9px] text-center leading-tight font-semibold"
+              style={{ color: done ? G.primary : "#c4c4c4" }}
             >
               {step.label}
             </span>
@@ -441,26 +433,10 @@ export default function OrderDetailPage() {
           {/* Pay now — for PENDING_PAYMENT orders */}
           {currentStatus === "PENDING_PAYMENT" && (
             <Link href={`/orders/${params.id}/payment`}>
-              <div className="w-full rounded-2xl overflow-hidden"
-                style={{ background: "linear-gradient(135deg, oklch(0.75 0.18 85) 0%, oklch(0.55 0.20 60) 100%)", boxShadow: "0 6px 20px oklch(0.65 0.18 80 / 0.35)" }}>
-                <div className="p-4 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-                    <CreditCard className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-extrabold text-white text-[15px]">ชำระเงินตอนนี้</p>
-                    <p className="text-white/80 text-xs mt-0.5">กดเพื่อสแกน QR PromptPay และอัปโหลดสลิป</p>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    <ChevronLeft className="w-5 h-5 text-white rotate-180" />
-                  </div>
-                </div>
-                <div className="px-4 pb-3 flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
-                    <div className="h-full w-1/3 rounded-full bg-white/60 animate-pulse" />
-                  </div>
-                  <span className="text-[11px] font-bold text-white/70">รอการชำระ</span>
-                </div>
+              <div className="w-full h-14 rounded-2xl flex items-center justify-center gap-2.5 font-bold text-white text-[15px] active:opacity-90 transition-opacity"
+                style={{ background: G.grad, boxShadow: "0 4px 16px oklch(0.55 0.22 155 / 0.30)" }}>
+                <CreditCard className="w-5 h-5" />
+                ชำระเงินตอนนี้ — {formatPrice(order.total)}
               </div>
             </Link>
           )}
@@ -479,7 +455,7 @@ export default function OrderDetailPage() {
             <button
               onClick={handleCancel}
               disabled={cancelling}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-medium text-sm text-red-500 bg-red-50 border border-red-200 disabled:opacity-50"
+              className="w-full h-11 flex items-center justify-center gap-1.5 rounded-2xl font-medium text-sm text-red-400 disabled:opacity-50"
             >
               <X className="w-4 h-4" />
               {cancelling ? "กำลังยกเลิก..." : "ยกเลิกออเดอร์"}
