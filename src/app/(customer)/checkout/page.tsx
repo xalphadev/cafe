@@ -190,6 +190,24 @@ export default function CheckoutPage() {
                   ...noteRow,
                 ],
               },
+              footer: {
+                type: "box",
+                layout: "vertical",
+                paddingAll: "12px",
+                contents: [
+                  {
+                    type: "button",
+                    action: {
+                      type: "uri",
+                      label: "ดูรายละเอียดออเดอร์",
+                      uri: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://coffee.xalpha.co.th"}/orders/${data.data.orderId}`,
+                    },
+                    style: "primary",
+                    color: "#1ebe6e",
+                    height: "sm",
+                  },
+                ],
+              },
             },
           };
 

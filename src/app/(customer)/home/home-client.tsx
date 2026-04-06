@@ -207,7 +207,7 @@ export default function HomeClient() {
           if (totalSlides === 0) return null;
           return (
             <div className="px-4">
-              <div className="relative rounded-3xl overflow-hidden bg-gray-100" style={{ aspectRatio: "16/9" }}>
+              <div className="relative rounded-3xl overflow-hidden bg-gray-100" style={{ aspectRatio: "2.4/1" }}>
 
                 {/* Admin banner slides */}
                 {hasAdminBanners && adminBanners.map((b, i) => (
