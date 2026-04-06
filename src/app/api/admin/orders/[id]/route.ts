@@ -3,7 +3,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { ok, error, unauthorized, notFound } from "@/lib/response";
-import { pushMessage, buildOrderFlexMessage } from "@/lib/line-messaging";
 
 const updateSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "PREPARING", "READY", "PICKED_UP", "DELIVERING", "COMPLETED", "CANCELLED"]).optional(),
@@ -50,16 +49,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
       return updatedOrder;
     });
-
-    const NOTIFY_STATUSES = ["CONFIRMED", "DELIVERING", "COMPLETED", "CANCELLED"];
-    if (status && NOTIFY_STATUSES.includes(status)) {
-      const user = await prisma.user.findUnique({ where: { id: order.userId } });
-      if (user?.lineUserId) {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
-        const flex = buildOrderFlexMessage(id, status, appUrl);
-        pushMessage(user.lineUserId, [flex]).catch(() => {});
-      }
-    }
 
     return ok(updated);
   } catch (err) {

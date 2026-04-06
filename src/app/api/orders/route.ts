@@ -3,7 +3,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { ok, created, error, unauthorized } from "@/lib/response";
-import { pushMessage } from "@/lib/line-messaging";
 import { sendWebPush } from "@/lib/web-push";
 
 const createOrderSchema = z.object({
@@ -207,25 +206,6 @@ export async function POST(request: NextRequest) {
           where: { endpoint: { in: deadEndpoints } },
         });
       }
-    }
-
-    // LINE Messaging API push (bonus — ถ้า admin เชื่อม LINE ไว้)
-    const lineAdmins = await prisma.user.findMany({
-      where: { role: "ADMIN", lineUserId: { not: null } },
-      select: { lineUserId: true },
-    });
-    if (lineAdmins.length > 0) {
-      const notifyText = [
-        `🛒 ออเดอร์ใหม่ #${shortId}`,
-        `👤 ${user.name ?? user.phone ?? "ลูกค้า"}`,
-        `${data.orderType === "PICKUP" ? "🏪" : "🛵"} ${orderTypeLabel} | 💳 ${paymentLabel}`,
-        `💰 ${total.toLocaleString("th-TH")} บาท`,
-        itemSummary,
-        data.note ? `📝 ${data.note}` : null,
-      ].filter(Boolean).join("\n");
-      await Promise.all(
-        lineAdmins.map((a) => pushMessage(a.lineUserId!, [{ type: "text", text: notifyText }]))
-      );
     }
 
     return created({ orderId: order.id, total, paymentMethod: data.paymentMethod });
