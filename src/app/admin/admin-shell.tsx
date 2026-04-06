@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Coffee } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { AdminBottomNav } from "@/components/admin/bottom-nav";
-import { NewOrderAlert } from "@/components/admin/new-order-alert";
+import { NewOrderAlert, unlockAudio } from "@/components/admin/new-order-alert";
 import { AdminPushButton } from "@/components/admin/push-button";
 import { useAuthStore } from "@/store/auth";
 import { usePathname } from "next/navigation";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // ปลดล็อก AudioContext ตอน user แตะหน้าจอครั้งแรก (iOS บังคับ)
+  useEffect(() => {
+    const unlock = () => { unlockAudio(); document.removeEventListener("touchstart", unlock); };
+    document.addEventListener("touchstart", unlock, { once: true });
+    return () => document.removeEventListener("touchstart", unlock);
+  }, []);
   const { user } = useAuthStore();
   const pathname = usePathname();
 

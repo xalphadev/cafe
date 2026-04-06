@@ -5,11 +5,32 @@ import { useRouter } from "next/navigation";
 import { ShoppingBag, X, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// ── Shared AudioContext — iOS ต้อง resume หลัง user gesture ──────────────
+let sharedCtx: AudioContext | null = null;
+
+function getAudioContext(): AudioContext | null {
+  try {
+    if (!sharedCtx) sharedCtx = new AudioContext();
+    return sharedCtx;
+  } catch {
+    return null;
+  }
+}
+
+/** เรียกตอน user แตะหน้าจอครั้งแรก เพื่อปลดล็อก iOS audio */
+export function unlockAudio() {
+  const ctx = getAudioContext();
+  if (ctx && ctx.state === "suspended") ctx.resume();
+}
+
 // ── Chime sound using Web Audio API ──────────────────────────────────────
 // 3-note ascending chime (pleasant, not harsh)
 function playChime() {
   try {
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") { ctx.resume(); return; }
+
     const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
     notes.forEach((freq, i) => {
       const osc  = ctx.createOscillator();
