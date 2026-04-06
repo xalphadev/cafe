@@ -122,8 +122,17 @@ export function AdminPushButton() {
         setSubscription(sub);
         toast.success("เปิดแจ้งเตือนออเดอร์ใหม่แล้ว");
       }
-    } catch {
-      toast.error("ไม่สามารถเปิดแจ้งเตือนได้");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[push subscribe]", msg);
+
+      if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+        toast.error("ยังไม่ได้ตั้งค่า VAPID key บน server");
+      } else if (Notification.permission === "denied") {
+        toast.error("ถูกบล็อก — ไปเปิดใน ตั้งค่า › Safari › การแจ้งเตือน");
+      } else {
+        toast.error(`เปิดแจ้งเตือนไม่ได้: ${msg}`);
+      }
     } finally {
       setLoading(false);
     }
