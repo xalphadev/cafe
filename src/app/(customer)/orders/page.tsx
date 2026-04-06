@@ -109,7 +109,6 @@ const STATUS_CONFIG: Record<string, {
 type TabKey = "all" | "active" | "done" | "cancelled";
 
 const TABS: { key: TabKey; label: string }[] = [
-  { key: "all", label: "ทั้งหมด" },
   { key: "active", label: "กำลังดำเนินการ" },
   { key: "done", label: "เสร็จสิ้น" },
   { key: "cancelled", label: "ยกเลิก" },
@@ -269,7 +268,7 @@ function CardSkeleton() {
 }
 
 export default function OrdersPage() {
-  const [tab, setTab] = useState<TabKey>("all");
+  const [tab, setTab] = useState<TabKey>("active");
 
   const { data: orders = [], isLoading } = useQuery<OrderWithItems[]>({
     queryKey: ["orders"],
@@ -333,7 +332,7 @@ export default function OrdersPage() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 px-4 py-4 space-y-2.5 pb-24">
+      <div className="flex-1 px-4 py-4 space-y-4 pb-24">
         {isLoading ? (
           <div className="space-y-2.5 pt-1">
             {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}
