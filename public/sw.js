@@ -6,10 +6,10 @@ self.addEventListener("push", function (event) {
       body: data.body,
       icon: "/icon-192x192.png",
       badge: "/icon-192x192.png",
-      vibrate: [200, 100, 200],
+      vibrate: [200, 100, 200, 100, 200],
       tag: data.tag || "new-order",
       renotify: true,
-      requireInteraction: false,
+      requireInteraction: true,
       data: { url: data.url || "/admin/orders" },
     })
   );
