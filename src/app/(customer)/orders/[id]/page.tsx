@@ -129,6 +129,12 @@ export default function OrderDetailPage() {
     refetchInterval: 30000,
   });
 
+  const { data: shopSettings } = useQuery<{ phone?: string }>({
+    queryKey: ["shop-settings-public"],
+    queryFn: () => fetch("/api/shop-settings").then((r) => r.json()).then((d) => d.data),
+    staleTime: 60_000,
+  });
+
   useEffect(() => { if (order) setCurrentStatus(order.status); }, [order]);
 
   useEffect(() => {
@@ -348,6 +354,25 @@ export default function OrderDetailPage() {
             <p className="text-sm font-medium text-gray-800 ml-6">{order.address.label}</p>
             <p className="text-xs text-gray-400 ml-6 mt-0.5">{order.address.fullAddress}</p>
           </div>
+        )}
+
+        {/* ── Contact shop ── */}
+        {shopSettings?.phone && (
+          <a
+            href={`tel:${shopSettings.phone}`}
+            className="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-[0_1px_4px_rgba(0,0,0,0.06)] active:opacity-70 transition-opacity"
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: G.primaryLt }}>
+              <Phone className="w-5 h-5" style={{ color: G.primary }} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-gray-800">ติดต่อร้าน</p>
+              <p className="text-xs text-gray-400 mt-0.5">{shopSettings.phone}</p>
+            </div>
+            <span className="text-xs font-semibold px-3 py-1.5 rounded-full text-white"
+              style={{ background: G.primary }}>โทร</span>
+          </a>
         )}
 
         {/* ── Order items ── */}

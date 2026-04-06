@@ -26,6 +26,7 @@ export default function AdminSettingsPage() {
     closedDays: [] as number[],
     closedMessage: "ร้านปิดอยู่ในขณะนี้",
     qrCodeUrl: null as string | null,
+    phone: "",
   });
 
   const { data: setting } = useQuery<ShopSetting>({
@@ -42,6 +43,7 @@ export default function AdminSettingsPage() {
         closedDays: setting.closedDays as number[],
         closedMessage: setting.closedMessage,
         qrCodeUrl: (setting as any).qrCodeUrl ?? null,
+        phone: (setting as any).phone ?? "",
       });
     }
   }, [setting]);
@@ -165,6 +167,24 @@ export default function AdminSettingsPage() {
               />
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Contact */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">ติดต่อร้าน</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Label>เบอร์โทรศัพท์ร้าน</Label>
+          <p className="text-xs text-muted-foreground mb-1.5">ลูกค้าจะเห็นปุ่มโทรหาร้านในหน้าติดตาม order</p>
+          <Input
+            type="tel"
+            className="mt-1"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="เช่น 0812345678"
+          />
         </CardContent>
       </Card>
 
