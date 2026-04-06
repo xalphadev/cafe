@@ -355,7 +355,7 @@ export function MenuClient() {
 
       {/* ── Checkout bar ── */}
       {mounted && itemCount() > 0 && (
-        <div className="fixed inset-x-0 z-40 px-4 pb-2" style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 4rem)" }}>
+        <div className="fixed left-[max(0px,calc(50vw-16rem))] right-[max(0px,calc(50vw-16rem))] z-40 px-4 pb-2" style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 4rem)" }}>
           <Link href="/cart">
             <div
               className="w-full h-14 rounded-2xl font-bold text-[15px] flex items-center justify-between px-5 active:scale-[0.98] transition-all"

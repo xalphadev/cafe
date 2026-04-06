@@ -273,7 +273,7 @@ export default function CartPage() {
       />
 
       {/* ── Bottom checkout bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 px-4 py-4"
+      <div className="fixed bottom-0 left-[max(0px,calc(50vw-16rem))] right-[max(0px,calc(50vw-16rem))] z-40 px-4 py-4"
         style={{ background: "oklch(1 0 0 / 0.96)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderTop: `1.5px solid ${G.border}`, paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}>
 
         <div className="flex items-center justify-between mb-3 px-1">
