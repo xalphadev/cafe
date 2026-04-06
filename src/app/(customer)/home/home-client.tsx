@@ -511,13 +511,13 @@ function BestSellerRow({ product, rank, onAdd, shopClosed }: {
   const rc = rankColors[rank - 1] ?? { bg: "oklch(0.94 0.02 152)", color: G.fgMuted };
 
   return (
-    <div className="flex items-center gap-3 bg-card rounded-2xl p-3"
-      style={{ boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
+    <div className="flex items-center gap-3 bg-white rounded-2xl px-3 py-3"
+      style={{ boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
       {/* Rank badge */}
-      <div className="w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-sm flex-shrink-0"
+      <div className="w-7 h-7 rounded-xl flex items-center justify-center font-extrabold text-sm flex-shrink-0"
         style={{ background: rc.bg, color: rc.color }}>
         {rank <= 3
-          ? <Trophy className="w-4 h-4" style={{ color: rc.color }} />
+          ? <Trophy className="w-3.5 h-3.5" style={{ color: rc.color }} />
           : <span className="text-xs font-bold">{rank}</span>
         }
       </div>
@@ -533,10 +533,8 @@ function BestSellerRow({ product, rank, onAdd, shopClosed }: {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm line-clamp-1" style={{ color: G.fg }}>{product.name}</p>
-        <div className="mt-0.5">
-          <span className="font-extrabold text-sm" style={{ color: G.primary }}>{formatPrice(product.price)}</span>
-        </div>
+        <p className="font-semibold text-[14px] line-clamp-1 text-gray-800">{product.name}</p>
+        <p className="font-bold text-sm mt-0.5" style={{ color: G.primary }}>{formatPrice(product.price)}</p>
       </div>
 
       {/* Add button */}
@@ -546,13 +544,13 @@ function BestSellerRow({ product, rank, onAdd, shopClosed }: {
         className="flex-shrink-0 active:scale-90 transition-transform disabled:opacity-50"
       >
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center"
+          className="w-9 h-9 rounded-full flex items-center justify-center"
           style={{
-            background: shopClosed ? "oklch(0.93 0.01 0)" : G.grad,
-            boxShadow: shopClosed ? "none" : "0 3px 8px oklch(0.65 0.20 152 / 0.28)",
+            background: shopClosed ? "#f3f4f6" : G.grad,
+            boxShadow: shopClosed ? "none" : "0 4px 10px oklch(0.65 0.20 152 / 0.32)",
           }}
         >
-          <span className="text-white font-bold text-lg">{shopClosed ? "—" : "+"}</span>
+          <span className="text-white font-bold text-xl leading-none">{shopClosed ? "—" : "+"}</span>
         </div>
       </button>
     </div>
