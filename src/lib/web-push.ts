@@ -20,10 +20,11 @@ export type PushPayload = {
   icon?: string;
 };
 
+/** Returns `{ gone: true }` when the subscription is expired (410/404) so the caller can clean it up. */
 export async function sendWebPush(
   subscription: { endpoint: string; p256dh: string; auth: string },
   payload: PushPayload
-): Promise<void> {
+): Promise<{ gone: boolean }> {
   init();
   try {
     await webpush.sendNotification(
@@ -33,7 +34,9 @@ export async function sendWebPush(
       },
       JSON.stringify(payload)
     );
-  } catch {
-    // Silent fail — notification is non-critical
+    return { gone: false };
+  } catch (err: unknown) {
+    const status = (err as { statusCode?: number })?.statusCode;
+    return { gone: status === 410 || status === 404 };
   }
 }

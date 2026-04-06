@@ -190,16 +190,23 @@ export async function POST(request: NextRequest) {
     // Web Push — ฟรี 100%
     const pushSubs = await prisma.adminPushSubscription.findMany();
     if (pushSubs.length > 0) {
-      await Promise.all(
-        pushSubs.map((sub) =>
-          sendWebPush(sub, {
+      const pushResults = await Promise.all(
+        pushSubs.map(async (sub) => ({
+          endpoint: sub.endpoint,
+          ...(await sendWebPush(sub, {
             title: `🛒 ออเดอร์ใหม่ #${shortId}`,
             body: `${user.name ?? user.phone ?? "ลูกค้า"} | ${orderTypeLabel} | ${total.toLocaleString("th-TH")} บาท\n${itemSummary}`,
             url: "/admin/orders",
             tag: `order-${order.id}`,
-          })
-        )
+          })),
+        }))
       );
+      const deadEndpoints = pushResults.filter((r) => r.gone).map((r) => r.endpoint);
+      if (deadEndpoints.length > 0) {
+        await prisma.adminPushSubscription.deleteMany({
+          where: { endpoint: { in: deadEndpoints } },
+        });
+      }
     }
 
     // LINE Messaging API push (bonus — ถ้า admin เชื่อม LINE ไว้)
