@@ -19,6 +19,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      {/* Override manifest สำหรับ admin — iOS จะ Add to Home Screen ด้วย start_url: /admin */}
+      <link rel="manifest" href="/api/admin-manifest" />
       <AdminSidebar mobileOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
