@@ -315,7 +315,7 @@ export default function OrdersPage() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 px-4 py-5 space-y-8 pb-24">
+      <div className="flex-1 px-4 py-5 pb-24">
         {isLoading ? (
           <div className="space-y-2.5 pt-1">
             {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}
