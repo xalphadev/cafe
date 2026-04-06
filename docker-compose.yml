@@ -16,6 +16,34 @@ services:
       - cafe_net
       - proxy_net   # ให้ Caddy proxy ได้
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── MinIO init — สร้าง bucket + เปิด public read (รันครั้งเดียวตอนเริ่ม) ──
+  minio-init:
+    profiles: ["minio"]
+    image: minio/mc:latest
+    container_name: cafe_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-cafeminio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-ChangeMe_MinIO_Shop}
+      S3_BUCKET: ${S3_BUCKET:-shop}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
+      mc mb --ignore-existing local/$$S3_BUCKET &&
+      mc anonymous set download local/$$S3_BUCKET &&
+      echo '✓ MinIO bucket ready'
+      "
+    networks:
+      - cafe_net
+    restart: on-failure
 
   # ── PostgreSQL ──────────────────────────────────────────────────
   db:
