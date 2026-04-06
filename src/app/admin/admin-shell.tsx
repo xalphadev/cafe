@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Coffee } from "lucide-react";
+import { Coffee, Volume2, VolumeX } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { AdminBottomNav } from "@/components/admin/bottom-nav";
-import { NewOrderAlert, unlockAudio } from "@/components/admin/new-order-alert";
+import { NewOrderAlert, unlockAudio, useMuteChime } from "@/components/admin/new-order-alert";
 import { AdminPushButton } from "@/components/admin/push-button";
 import { useAuthStore } from "@/store/auth";
 import { usePathname } from "next/navigation";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [muted, toggleMute] = useMuteChime();
 
   // ปลดล็อก AudioContext ตอน user แตะหน้าจอครั้งแรก (iOS บังคับ)
   useEffect(() => {
@@ -38,6 +39,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex-1" />
+
+          {/* ปุ่มปิด/เปิดเสียงแจ้งเตือน — กดได้ตลอดเวลา */}
+          <button
+            onClick={toggleMute}
+            title={muted ? "เปิดเสียงแจ้งเตือน" : "ปิดเสียงแจ้งเตือน"}
+            className="p-2 rounded-xl hover:bg-muted transition-colors"
+          >
+            {muted
+              ? <VolumeX className="w-5 h-5 text-muted-foreground" />
+              : <Volume2 className="w-5 h-5 text-muted-foreground" />}
+          </button>
 
           <AdminPushButton />
           <div className="flex items-center gap-2">
