@@ -150,11 +150,21 @@ export default function CheckoutPage() {
                 layout: "horizontal",
                 backgroundColor: "#1ebe6e",
                 paddingAll: "16px",
+                spacing: "md",
                 contents: [
+                  {
+                    type: "image",
+                    url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://coffee.xalpha.co.th"}/logo.png`,
+                    size: "52px",
+                    aspectRatio: "1:1",
+                    aspectMode: "cover",
+                    flex: 0,
+                  },
                   {
                     type: "box",
                     layout: "vertical",
                     flex: 1,
+                    justifyContent: "center",
                     contents: [
                       { type: "text", text: "ออเดอร์ใหม่", color: "#ffffff", weight: "bold", size: "lg" },
                       { type: "text", text: `#${orderIdShort}`, color: "#d4f7e5", size: "sm", margin: "xs" },
@@ -163,6 +173,7 @@ export default function CheckoutPage() {
                   {
                     type: "box",
                     layout: "vertical",
+                    justifyContent: "center",
                     contents: [
                       { type: "text", text: formatPrice(grandTotal), color: "#ffffff", weight: "bold", size: "xxl", align: "end" },
                     ],
@@ -328,8 +339,8 @@ export default function CheckoutPage() {
               <CupSoda className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-sm text-gray-800">รายการสั่ง</span>
-            <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full text-white"
-              style={{ background: G.grad }}>
+            <span className="ml-auto text-[13px] font-bold px-3 py-1 rounded-full text-white"
+              style={{ background: G.grad, boxShadow: "0 2px 8px oklch(0.55 0.18 155 / 0.25)" }}>
               {items.reduce((s, i) => s + i.quantity, 0)} รายการ
             </span>
           </div>

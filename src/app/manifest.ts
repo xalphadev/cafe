@@ -44,5 +44,19 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
       },
     ],
+    shortcuts: [
+      {
+        name: "สั่งอาหาร",
+        short_name: "เมนู",
+        url: "/menu",
+        icons: [{ src: "/shortcut-menu.png", sizes: "96x96", type: "image/png" }],
+      },
+      {
+        name: "ออเดอร์ของฉัน",
+        short_name: "ออเดอร์",
+        url: "/orders",
+        icons: [{ src: "/shortcut-orders.png", sizes: "96x96", type: "image/png" }],
+      },
+    ],
   };
 }
