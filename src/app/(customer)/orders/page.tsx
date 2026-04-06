@@ -350,7 +350,7 @@ export default function OrdersPage() {
             )}
           </div>
         ) : (
-          <>
+          <div className="space-y-4">
             {/* Active pulse label — only on "all" tab when mixing */}
             {tab === "all" && counts.active > 0 && (
               <div className="flex items-center gap-2 pt-1 pb-0.5 px-0.5">
@@ -366,7 +366,7 @@ export default function OrdersPage() {
             {filtered.map((order) => (
               <OrderCard key={order.id} order={order} />
             ))}
-          </>
+          </div>
         )}
       </div>
     </div>
