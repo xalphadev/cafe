@@ -148,7 +148,7 @@ export default function CheckoutPage() {
               header: {
                 type: "box",
                 layout: "horizontal",
-                backgroundColor: "#1ebe6e",
+                backgroundColor: "#3a7d44",
                 paddingAll: "16px",
                 spacing: "md",
                 contents: [
@@ -167,7 +167,7 @@ export default function CheckoutPage() {
                     justifyContent: "center",
                     contents: [
                       { type: "text", text: "ออเดอร์ใหม่", color: "#ffffff", weight: "bold", size: "lg" },
-                      { type: "text", text: `#${orderIdShort}`, color: "#d4f7e5", size: "sm", margin: "xs" },
+                      { type: "text", text: `#${orderIdShort}`, color: "#a8d5b0", size: "sm", margin: "xs" },
                     ],
                   },
                   {
