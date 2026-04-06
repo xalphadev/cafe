@@ -17,8 +17,8 @@ export function BottomNav() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // Hide on focused flows — cart, checkout, payment
-  const isHidden = pathname === "/cart" || pathname === "/checkout" || pathname.endsWith("/payment");
+  // Hide on focused flows — cart, checkout, payment, order detail
+  const isHidden = pathname === "/cart" || pathname === "/checkout" || pathname.endsWith("/payment") || /^\/orders\/.+/.test(pathname);
   if (isHidden) return null;
 
   const navItems = [
