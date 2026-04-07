@@ -26,7 +26,7 @@ export function AdminBottomNav({ onMoreClick }: { onMoreClick: () => void }) {
             key={href}
             href={href}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-colors",
+              "flex-1 flex flex-col items-center justify-center gap-1 pt-3 pb-1 transition-colors",
               isActive ? "text-primary" : "text-slate-400"
             )}
           >
@@ -38,7 +38,7 @@ export function AdminBottomNav({ onMoreClick }: { onMoreClick: () => void }) {
       <button
         onClick={onMoreClick}
         className={cn(
-          "flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-colors",
+          "flex-1 flex flex-col items-center justify-center gap-1 pt-3 pb-1 transition-colors",
           isMore ? "text-primary" : "text-slate-400"
         )}
       >

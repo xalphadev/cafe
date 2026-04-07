@@ -47,7 +47,7 @@ export function BottomNav() {
             (href === "/profile" && pathname.startsWith("/profile"));
 
           return (
-            <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-center py-2.5 gap-1 relative">
+            <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-center pt-3 pb-1 gap-1 relative">
               {/* Active top bar */}
               {isActive && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] rounded-full"
