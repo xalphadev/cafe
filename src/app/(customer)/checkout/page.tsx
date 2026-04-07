@@ -82,6 +82,12 @@ export default function CheckoutPage() {
         if (liff?.isInClient()) {
           const orderIdShort = data.data.orderId.slice(-6).toUpperCase();
           const methodLabel = paymentMethod === "QR_PROMPTPAY" ? "QR PromptPay" : "ชำระหน้าร้าน";
+          const now = new Date();
+          const orderDateTime = now.toLocaleString("th-TH", {
+            timeZone: "Asia/Bangkok",
+            day: "numeric", month: "short", year: "numeric",
+            hour: "2-digit", minute: "2-digit",
+          });
 
           const itemRows = items.map(i => ({
             type: "box",
@@ -148,7 +154,7 @@ export default function CheckoutPage() {
               header: {
                 type: "box",
                 layout: "horizontal",
-                backgroundColor: "#3a7d44",
+                backgroundColor: "#0b8850",
                 paddingAll: "16px",
                 spacing: "md",
                 contents: [
@@ -168,6 +174,7 @@ export default function CheckoutPage() {
                     contents: [
                       { type: "text", text: "ออเดอร์ใหม่", color: "#ffffff", weight: "bold", size: "lg" },
                       { type: "text", text: `#${orderIdShort}`, color: "#a8d5b0", size: "sm", margin: "xs" },
+                      { type: "text", text: orderDateTime, color: "#c8e6c9", size: "xs", margin: "xs" },
                     ],
                   },
                   {
