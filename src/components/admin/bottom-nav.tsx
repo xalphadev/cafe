@@ -18,7 +18,7 @@ export function AdminBottomNav({ onMoreClick }: { onMoreClick: () => void }) {
   const isMore = !primaryPaths.some((p) => pathname === p || (p !== "/admin/dashboard" && pathname.startsWith(p)));
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-slate-900 border-t border-slate-700 flex">
+    <nav className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-slate-900 border-t border-slate-700 flex" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href || (href !== "/admin/dashboard" && pathname.startsWith(href));
         return (
